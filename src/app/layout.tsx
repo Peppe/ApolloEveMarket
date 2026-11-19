@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EveMarket",
+  title: "ApolloEveMarket",
   description: "Buy and sell prices across the five major EVE trade hubs.",
 };
 

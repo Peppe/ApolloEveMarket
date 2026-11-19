@@ -65,6 +65,6 @@ describe("resolveNames", () => {
     expect(Array.isArray(parsed)).toBe(true);
     expect(requests[0]?.method).toBe("POST");
     expect(requests[0]?.headers["Content-Type"]).toBe("application/json");
-    expect(requests[0]?.headers["User-Agent"]).toContain("EveMarket");
+    expect(requests[0]?.headers["User-Agent"]).toContain("ApolloEveMarket");
   });
 });

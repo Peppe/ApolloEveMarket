@@ -20,6 +20,11 @@ When reality changes:
 3. Update the affected test expectations and the "Known environment facts"
    section of `docs/spec/intent.md`, re-dating it, in the same commit.
 
+# Captures made before the 2026-11-19 rename to ApolloEveMarket still record the
+# old User-Agent (`EveMarket-fixture-capture/...`) in their `request.txt`.
+# That line is history, not configuration: fixtures are never edited, and the
+# current capture script sends the ApolloEveMarket agent.
+
 ## Layout
 
 ```

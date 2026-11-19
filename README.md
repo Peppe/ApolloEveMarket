@@ -1,4 +1,4 @@
-# EveMarket
+# ApolloEveMarket
 
 Paste an EVE Online inventory (or a list of item names) and see the best buy
 and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
