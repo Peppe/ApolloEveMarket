@@ -49,6 +49,9 @@ under `src/app/`. An import-boundary test enforces this.
 - A line is one of:
   - `<name>` - quantity 1
   - `<name>\t<qty>` - tab-separated (EVE inventory copy)
+  - `<name>\t<qty>\t<metadata...>` - full EVE inventory clipboard row; use
+    the first two columns and ignore trailing metadata such as category, volume
+    and price
   - `<name> <qty>` - last whitespace-separated token is the quantity
 - Quantity: positive integer, optionally `,`-grouped (`1,000`). **No** decimal
   or `.`-grouped forms: `1.000` is ambiguous across locales, so it is
@@ -88,7 +91,7 @@ count of items excluded because the side was missing.
 
 ## Acceptance criteria
 
-- [x] `parse.ts` accepts the three line forms above, sums duplicates,
+- [x] `parse.ts` accepts the line forms above, sums duplicates,
       rejects `1.000`/negative/zero quantities with a reason, and skips blanks.
 - [x] `resolve.ts` sends a bare JSON array to `/universe/ids/` and reads only
       `inventory_types`; a name that also matches a character (Tritanium)

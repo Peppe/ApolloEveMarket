@@ -22,6 +22,29 @@ describe("parseInventory", () => {
     expect(result.items).toEqual([{ name: "Tritanium", quantity: 1_000_000 }]);
   });
 
+  it("parses EVE inventory clipboard rows and ignores trailing metadata", () => {
+    const result = parseInventory(
+      [
+        "5MN Y-T8 Compact Microwarpdrive\t5\tPropulsion Module\tModule\tMedium\t50 m3\t2,046,949.00 ISK",
+        "Compact EM Shield Amplifier\t5\tShield Resistance Amplifier\tModule\tMedium\t25 m3\t839,015.10 ISK",
+        "Core Probe Launcher I\t5\tScan Probe Launcher\tModule\tHigh\t25 m3\t92,607.25 ISK",
+        "Hobgoblin I\t10\tCombat Drone\tDrone\t\t50 m3\t43,782.30 ISK",
+        "Medium Shield Extender I\t5\tShield Extender\tModule\tMedium\t50 m3\t157,037.65 ISK",
+        "Small Low Friction Nozzle Joints I\t15\tRig Navigation\tModule\tRigs\t75 m3\t3,200,773.05 ISK",
+      ].join("\n"),
+    );
+
+    expect(result.rejected).toEqual([]);
+    expect(result.items).toEqual([
+      { name: "5MN Y-T8 Compact Microwarpdrive", quantity: 5 },
+      { name: "Compact EM Shield Amplifier", quantity: 5 },
+      { name: "Core Probe Launcher I", quantity: 5 },
+      { name: "Hobgoblin I", quantity: 10 },
+      { name: "Medium Shield Extender I", quantity: 5 },
+      { name: "Small Low Friction Nozzle Joints I", quantity: 15 },
+    ]);
+  });
+
   it("rejects ambiguous decimals instead of guessing", () => {
     const result = parseInventory("Tritanium 1.000");
     expect(result.items).toEqual([]);
