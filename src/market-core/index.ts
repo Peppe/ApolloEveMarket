@@ -16,9 +16,26 @@ export type { EsiIdEntry, EsiIdsResponse, EsiOrder, EsiTypeInfo } from "./esi-ty
 export { HUBS, HUB_KEYS } from "./hubs";
 export type { Hub, HubKey } from "./hubs";
 export { createLiveMarket } from "./live";
-export type { LiveMarket, LiveMarketOptions } from "./live";
-export { normalizeName, resolveNames } from "./resolve";
-export type { IdsFetcher, ResolvedType, ResolveResult } from "./resolve";
+export type { LiveMarket, LiveMarketOptions, LiveMarketStats } from "./live";
+export {
+  EsiBudgetError,
+  createEsiBudget,
+  parseRetryAfter,
+  withBudgetGuard,
+  withConcurrencyLimit,
+} from "./http-guards";
+export type {
+  BudgetSnapshot,
+  EsiBudget,
+  EsiBudgetOptions,
+} from "./http-guards";
+export { createCachedIdsFetcher, normalizeName, resolveNames } from "./resolve";
+export type {
+  CachedIdsFetcherOptions,
+  IdsFetcher,
+  ResolvedType,
+  ResolveResult,
+} from "./resolve";
 export { parseInventory } from "./parse";
 export type { ParseResult, ParsedItem, RejectedLine } from "./parse";
 export {

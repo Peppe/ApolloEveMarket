@@ -4,10 +4,12 @@ Paste an EVE Online inventory (or a list of item names) and see the best buy
 and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
 Hek, Rens.
 
-Status: phases 0-2 done. The ESI facts are verified and recorded, the UI-free
+Status: phases 0-3 done. The ESI facts are verified and recorded, the UI-free
 market core is fixture-tested, and the web page is live in the browser against
 real ESI: paste box, buy/sell table per hub, totals, and a station/system
-price-scope toggle. Not deployed yet.
+price-scope toggle. The live path is bounded too: LRU order cache, one
+process-wide concurrency gate, ESI budget headers honoured, cached name
+lookups. Not deployed yet.
 
 ## Run it
 
@@ -50,7 +52,9 @@ npm run smoke -- --system "Tritanium"                  # live ESI, whole systems
 
 ## Design in one line
 
-All ESI traffic is server-side and cached (`Expires` + `ETag`); prices are
-aggregated per hub **system**, then narrowed to the hub **station** by default,
-because region-wide aggregation mixes distant markets and produces negative
-spreads on real data.
+All ESI traffic is server-side and cached (`Expires` + `ETag`, LRU-bounded,
+single-flight); prices are aggregated per hub **system**, then narrowed to the
+hub **station** by default, because region-wide aggregation mixes distant
+markets and produces negative spreads on real data. One process-wide gate and
+one budget guard cover every upstream call, so a burst of visitors cannot
+spend CCP's quota faster than the cache allows.

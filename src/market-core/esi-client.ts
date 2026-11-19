@@ -27,6 +27,11 @@ export interface EsiClientOptions {
   readonly defaultTtlMs?: number;
   /** Safety valve: refuse to walk a runaway `X-Pages`. */
   readonly maxPages?: number;
+  /**
+   * Upper bound on cached order books, evicted least-recently-used. An entry
+   * is one region's orders for one type, normally a single page.
+   */
+  readonly maxCacheEntries?: number;
 }
 
 export interface EsiClient {
@@ -45,6 +50,7 @@ interface CacheEntry {
 }
 
 const DEFAULT_TTL_MS = 300_000;
+const DEFAULT_MAX_CACHE_ENTRIES = 500;
 
 export function createEsiClient(options: EsiClientOptions): EsiClient {
   const { transport } = options;
@@ -52,6 +58,10 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
   const ttlMs = options.defaultTtlMs ?? DEFAULT_TTL_MS;
   const baseUrl = options.baseUrl ?? ESI_BASE_URL;
   const maxPages = options.maxPages ?? 200;
+  const maxCacheEntries = Math.max(
+    1,
+    options.maxCacheEntries ?? DEFAULT_MAX_CACHE_ENTRIES,
+  );
 
   const baseHeaders: Record<string, string> = {
     "User-Agent": options.userAgent ?? ESI_USER_AGENT,
@@ -103,6 +113,28 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
     if (value === undefined) return at + ttlMs;
     const parsed = Date.parse(value);
     return Number.isFinite(parsed) ? parsed : at + ttlMs;
+  }
+
+  /**
+   * A `Map` iterates in insertion order, so re-inserting on read makes the
+   * oldest entry the least recently used one.
+   */
+  function cacheGet(key: string): CacheEntry | undefined {
+    const entry = cache.get(key);
+    if (entry === undefined) return undefined;
+    cache.delete(key);
+    cache.set(key, entry);
+    return entry;
+  }
+
+  function cacheSet(key: string, entry: CacheEntry): void {
+    cache.delete(key);
+    cache.set(key, entry);
+    while (cache.size > maxCacheEntries) {
+      const oldest = cache.keys().next().value;
+      if (oldest === undefined) break;
+      cache.delete(oldest);
+    }
   }
 
   function describe(response: { status: number; body: string }): string {
@@ -162,7 +194,7 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
     async getOrders(regionId, typeId) {
       const key = `${regionId}:${typeId}`;
 
-      const cached = cache.get(key);
+      const cached = cacheGet(key);
       if (cached !== undefined && now() < cached.expiresAt) {
         return cached.orders;
       }
@@ -172,7 +204,7 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
 
       const request = fetchAll(regionId, typeId, cached)
         .then((entry) => {
-          cache.set(key, entry);
+          cacheSet(key, entry);
           return entry.orders;
         })
         .finally(() => {

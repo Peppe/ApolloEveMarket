@@ -175,4 +175,33 @@ describe("createEsiClient caching", () => {
     const client = createEsiClient({ transport, ...clockAt(0) });
     await expect(client.getOrders(10000002, 34)).rejects.toThrow(/503/);
   });
+
+  it("evicts the least recently used book when the cache is full", async () => {
+    const { transport, calls } = fakeTransport(() => ({
+      status: 200,
+      headers: {},
+      body: JSON.stringify([order()]),
+    }));
+
+    const client = createEsiClient({
+      transport,
+      maxCacheEntries: 2,
+      ...clockAt(0),
+    });
+
+    await client.getOrders(10000002, 1);
+    await client.getOrders(10000002, 2);
+    // Reading 1 makes it the most recent, so 3 must evict 2 instead.
+    await client.getOrders(10000002, 1);
+    await client.getOrders(10000002, 3);
+
+    expect(client.cacheSize()).toBe(2);
+    expect(calls).toHaveLength(3);
+
+    await client.getOrders(10000002, 1);
+    expect(calls).toHaveLength(3);
+
+    await client.getOrders(10000002, 2);
+    expect(calls).toHaveLength(4);
+  });
 });
