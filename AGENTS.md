@@ -71,6 +71,7 @@ npm run build
   imperative ("Aggregate orders per hub system"). Never leave the user without
   a committed working state at the end of a session - commit whatever is
   complete before finishing, even if the feature is not.
+- Do not add a `Co-authored-by` trailer to commits.
 - Release = deploy: tag and write notes for each deployed version.
 
 ## Conventions
