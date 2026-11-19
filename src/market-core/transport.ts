@@ -25,7 +25,7 @@ export type Transport = (
 /** ESI requires a descriptive User-Agent and asks for a datasource argument. */
 export const ESI_BASE_URL = "https://esi.evetech.net/latest";
 export const ESI_USER_AGENT =
-  "ApolloEveMarket/0.3.1 (+https://github.com/Peppe/ApolloEveMarket)";
+  "ApolloEveMarket/0.3.2 (+https://github.com/Peppe/ApolloEveMarket)";
 
 /**
  * The compatibility version ESI currently returns for this application's
