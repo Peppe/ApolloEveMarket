@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { EsiIdsResponse } from "./esi-types";
-import { createIdsFetcher, resolveNames } from "./resolve";
+import { createCachedIdsFetcher, createIdsFetcher, resolveNames } from "./resolve";
 import type { HttpResponse, TransportRequest } from "./transport";
 import { readFixtureJson } from "./testing/fixtures";
 
@@ -66,5 +66,80 @@ describe("resolveNames", () => {
     expect(requests[0]?.method).toBe("POST");
     expect(requests[0]?.headers["Content-Type"]).toBe("application/json");
     expect(requests[0]?.headers["User-Agent"]).toContain("ApolloEveMarket");
+  });
+});
+
+describe("createCachedIdsFetcher", () => {
+  it("asks once and merges cached hits into later responses", async () => {
+    const batches: string[][] = [];
+    const fetcher = createCachedIdsFetcher(async (names) => {
+      batches.push([...names]);
+      return {
+        inventory_types: (idsFixture.inventory_types ?? []).filter((entry) =>
+          names.some((name) => name.toLowerCase() === entry.name.toLowerCase()),
+        ),
+      };
+    });
+
+    const first = await resolveNames(["Tritanium"], fetcher);
+    const second = await resolveNames(["tritanium", "Ishtar"], fetcher);
+
+    expect(batches).toEqual([["Tritanium"], ["Ishtar"]]);
+    expect(first.types.size).toBe(1);
+    expect(second.types.get("tritanium")).toEqual({ typeId: 34, name: "Tritanium" });
+    expect(second.types.get("ishtar")?.typeId).toBe(12005);
+    expect(second.unresolved).toEqual([]);
+  });
+
+  it("re-queries names that did not resolve", async () => {
+    const batches: string[][] = [];
+    const fetcher = createCachedIdsFetcher(async (names) => {
+      batches.push([...names]);
+      return {
+        inventory_types: names
+          .filter((name) => name === "Tritanium")
+          .map((name) => ({ id: 34, name })),
+      };
+    });
+
+    await resolveNames(["Tritanium", "Typo"], fetcher);
+    const again = await resolveNames(["Tritanium", "Typo"], fetcher);
+
+    expect(batches).toEqual([
+      ["Tritanium", "Typo"],
+      ["Typo"],
+    ]);
+    expect(again.unresolved).toEqual(["typo"]);
+  });
+
+  it("does not ask at all when everything is cached", async () => {
+    let calls = 0;
+    const fetcher = createCachedIdsFetcher(async () => {
+      calls += 1;
+      return idsFixture;
+    });
+
+    await resolveNames(["Tritanium", "Ishtar"], fetcher);
+    const again = await resolveNames(["Tritanium", "Ishtar"], fetcher);
+
+    expect(calls).toBe(1);
+    expect(again.types.size).toBe(2);
+  });
+
+  it("evicts the oldest remembered name past its bound", async () => {
+    let calls = 0;
+    const fetcher = createCachedIdsFetcher(
+      async (names) => {
+        calls += 1;
+        return { inventory_types: names.map((name) => ({ id: 1, name })) };
+      },
+      { maxEntries: 1 },
+    );
+
+    await resolveNames(["First"], fetcher);
+    await resolveNames(["Second"], fetcher);
+    await resolveNames(["First"], fetcher);
+
+    expect(calls).toBe(3);
   });
 });

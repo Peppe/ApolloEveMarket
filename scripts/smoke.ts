@@ -101,3 +101,12 @@ for (const rejected of result.rejected) {
 }
 
 console.log(`\n${result.items.length} item(s), ${elapsed} ms, ${market.cacheSize()} cached books`);
+
+const { budget } = market.stats();
+const parts: string[] = [];
+if (budget.requestRemain !== null) {
+  const limit = budget.requestLimit === null ? "" : ` of ${budget.requestLimit}`;
+  parts.push(`${budget.requestRemain}${limit} requests left`);
+}
+if (budget.errorRemain !== null) parts.push(`${budget.errorRemain} errors left`);
+if (parts.length > 0) console.log(`esi budget: ${parts.join(", ")}`);
