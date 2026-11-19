@@ -4,12 +4,13 @@ Paste an EVE Online inventory (or a list of item names) and see the best buy
 and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
 Hek, Rens.
 
-Status: phases 0-3 done. The ESI facts are verified and recorded, the UI-free
-market core is fixture-tested, and the web page is live in the browser against
-real ESI: paste box, buy/sell table per hub, totals, and a station/system
-price-scope toggle. The live path is bounded too: LRU order cache, one
-process-wide concurrency gate, ESI budget headers honoured, cached name
-lookups. Not deployed yet.
+Status: phases 0-5 done. The ESI facts are verified and recorded, the UI-free
+market core is fixture-tested, and the site is live against real ESI: paste
+box, buy/sell table per hub, totals, and a station/system price-scope toggle.
+The live path is bounded too: LRU order cache, one process-wide concurrency
+gate, ESI budget headers honoured, cached name lookups.
+
+Live: https://apolloevemarket.vercel.app
 
 ## Run it
 

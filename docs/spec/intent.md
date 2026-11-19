@@ -221,7 +221,7 @@ above in the same change.
 | 2 | Web UI: one textarea, buy/sell table per hub, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
 | 3 | Cache + budget hardening: LRU-bounded order cache, process-wide concurrency gate, ESI budget headers and `Retry-After`, cached name lookups | `phase-3-cache-hardening.md` | done |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
-| 5 | Deploy + tagged release notes | - | - |
+| 5 | Deploy + tagged release notes | `phase-5-deploy.md` | done |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
