@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = join(HERE, "..", "docs", "spec", "fixtures");
 const ESI = "https://esi.evetech.net/latest";
-const USER_AGENT = "EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)";
+const USER_AGENT = "ApolloEveMarket-fixture-capture/0.1 (github.com/Peppe/ApolloEveMarket)";
 
 // Headers worth recording: freshness (caching correctness), paging, rate
 // budget, and the CCP "compatibility date" contract.

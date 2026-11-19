@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <main className="page">
-      <h1>EveMarket</h1>
+      <h1>ApolloEveMarket</h1>
       <p className="lede">
         Paste an inventory, get buy and sell prices for Jita, Dodixie, Amarr,
         Hek and Rens.

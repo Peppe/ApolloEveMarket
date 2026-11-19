@@ -1,4 +1,4 @@
-# EveMarket - project instructions
+# ApolloEveMarket - project instructions
 
 Paste an EVE inventory (or type item names) and see the best buy and best sell
 price for every major hub - Jita, Dodixie, Amarr, Hek, Rens - side by side.

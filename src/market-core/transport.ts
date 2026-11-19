@@ -24,7 +24,7 @@ export type Transport = (
 
 /** ESI requires a descriptive User-Agent and asks for a datasource argument. */
 export const ESI_BASE_URL = "https://esi.evetech.net/latest";
-export const ESI_USER_AGENT = "EveMarket/0.1 (+https://github.com/Peppe/EveMarket)";
+export const ESI_USER_AGENT = "ApolloEveMarket/0.1 (+https://github.com/Peppe/ApolloEveMarket)";
 
 /**
  * The schema version ESI advertised when the fixtures were captured

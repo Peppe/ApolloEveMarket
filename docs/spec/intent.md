@@ -1,6 +1,6 @@
 # Intent
 
-EveMarket answers one question fast: **what is this item worth right now, in
+ApolloEveMarket answers one question fast: **what is this item worth right now, in
 every major trade hub?** Paste an EVE inventory (or type item names) and get
 the best buy and best sell price per item, side by side, for Jita, Dodixie,
 Amarr, Hek and Rens.
