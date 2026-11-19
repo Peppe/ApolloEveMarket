@@ -27,14 +27,32 @@ export function aggregateBook(
   systemId: number,
   stationId?: number,
 ): HubBook {
+  return aggregateMatchingBook(
+    orders,
+    (order) =>
+      order.system_id === systemId &&
+      (stationId === undefined || order.location_id === stationId),
+  );
+}
+
+/**
+ * Aggregate a market whose orders are not tied to a hub system, such as PLEX.
+ */
+export function aggregateGlobalBook(orders: readonly EsiOrder[]): HubBook {
+  return aggregateMatchingBook(orders, () => true);
+}
+
+function aggregateMatchingBook(
+  orders: readonly EsiOrder[],
+  matches: (order: EsiOrder) => boolean,
+): HubBook {
   let bestBuy: BookSide | null = null;
   let bestSell: BookSide | null = null;
   let buyOrderCount = 0;
   let sellOrderCount = 0;
 
   for (const order of orders) {
-    if (order.system_id !== systemId) continue;
-    if (stationId !== undefined && order.location_id !== stationId) continue;
+    if (!matches(order)) continue;
 
     const side: BookSide = {
       price: order.price,

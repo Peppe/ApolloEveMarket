@@ -1,4 +1,9 @@
-import { aggregateBook, emptyBook, type HubBook } from "./aggregate";
+import {
+  aggregateBook,
+  aggregateGlobalBook,
+  emptyBook,
+  type HubBook,
+} from "./aggregate";
 import type { EsiOrder } from "./esi-types";
 import { HUBS, type Hub, type HubKey } from "./hubs";
 import { normalizeName, type ResolveResult } from "./resolve";
@@ -59,6 +64,8 @@ export interface AppraiseResult {
 }
 
 const DEFAULT_CONCURRENCY = 6;
+const PLEX_TYPE_ID = 44992;
+const GLOBAL_PLEX_REGION_ID = 19000001;
 
 async function mapLimit<T>(
   values: readonly T[],
@@ -139,12 +146,18 @@ export async function appraise(
   );
 
   await mapLimit(tasks, deps.concurrency ?? DEFAULT_CONCURRENCY, async ({ entry, hub }) => {
-    const orders = await deps.getOrders(hub.regionId, entry.typeId);
-    const book = aggregateBook(
-      orders,
-      hub.systemId,
-      priceMode === "station" ? hub.stationId : undefined,
+    const isGlobalPlex = entry.typeId === PLEX_TYPE_ID;
+    const orders = await deps.getOrders(
+      isGlobalPlex ? GLOBAL_PLEX_REGION_ID : hub.regionId,
+      entry.typeId,
     );
+    const book = isGlobalPlex
+      ? aggregateGlobalBook(orders)
+      : aggregateBook(
+          orders,
+          hub.systemId,
+          priceMode === "station" ? hub.stationId : undefined,
+        );
     const books = results.get(entry.parsedIndex);
     if (books !== undefined) books[hub.key] = book;
   });

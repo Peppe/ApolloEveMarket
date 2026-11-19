@@ -64,10 +64,12 @@ under `src/app/`. An import-boundary test enforces this.
 
 For each `(typeId, hub)`:
 
-1. Fetch the item's orders for the hub's **region** (the endpoint is
-   region-scoped), all pages, from cache when fresh.
-2. Keep only orders with `system_id === hub.systemId`. Region-wide aggregation
-   is forbidden - on real data it yields a negative spread (intent.md).
+1. For regular items, fetch orders from the hub's **region** (the endpoint is
+   region-scoped), all pages, from cache when fresh. Keep only orders with
+   `system_id === hub.systemId`. Region-wide aggregation is forbidden - on
+   real data it yields a negative spread (intent.md).
+2. For PLEX (type 44992), fetch the global market region (19000001) and include
+   all its orders for every hub; do not filter by the hub station or system.
 3. `bestBuy` = highest `price` among `is_buy_order === true`;
    `bestSell` = lowest `price` among `is_buy_order === false`.
    `volumeRemain` is that order's `volume_remain`.
@@ -97,11 +99,13 @@ count of items excluded because the side was missing.
       `inventory_types`; a name that also matches a character (Tritanium)
       resolves to type 34. Unresolved names are returned, not thrown.
 - [x] `aggregate.ts` against `orders-forge-tritanium` with system `30000142`
-      yields **bestSell 4.15** and **bestBuy 3.97** (fixture, recaptured
-      2026-11-19), rather than the region-wide 3.96 / 3.97 across Jita and
+      yields **bestSell 4.15** and **bestBuy 3.94** (fixture, recaptured
+      2026-11-19), rather than the region-wide 3.01 / 3.95 across Jita and
       Perimeter.
 - [x] `aggregate.ts` against `orders-forge-plex-empty` yields both sides
       `null` and `orderCount 0` (no throw, no error state).
+- [x] PLEX uses both pages in `orders-global-plex` without hub system/station
+      filtering and shows the global best buy and sell in every hub.
 - [x] Fake transport with `X-Pages: 3` produces exactly 3 order requests and
       no 404 probe; a body from page 2 is included in the result.
 - [x] Second call after expiry sends `If-None-Match`; a `304` response reuses
@@ -122,12 +126,10 @@ pm run typecheck clean,
 pm test 29/29 passed (6 files), 
 pm run build
   produced the static page (Next.js 16.4.6).
-- The original fixture-backed assertions were from an earlier 2026-11-19
-  capture. At 20:10 UTC the fixture was recaptured: Jita system best buy 3.97 /
-  best sell 4.15 over 116 orders; the primary station has 113 orders with the
-  same best prices. Perimeter remains a separate 4.20 / 3.95 book. The
-  region-wide best sell is now 3.96 in Perimeter while the best buy is 3.97 in
-  Jita, an apparent 0.25% spread across station-range orders that cannot trade.
+- The fixture was recaptured at 20:39 UTC: Jita system best buy 3.94 / best
+  sell 4.15 over 113 orders; the primary station has 110 orders with the same
+  best prices. Perimeter is a separate 3.95 / 3.96 book. The region-wide best
+  sell is 3.01 in system 30030141 while the best buy is 3.95 in Perimeter.
 - 
 pm run smoke -- "Tritanium" "Hobgoblin I" "Ishtar" against live ESI:
   three items x five hubs = 15 books in 867 ms, e.g. Tritanium 3.96 / 4.10 in

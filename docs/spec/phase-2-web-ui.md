@@ -71,8 +71,8 @@ number would be a lie.
 - [x] `appraise(text, deps, { priceMode })` supports `"station"` (default) and
       `"system"`, echoes the mode in its result, and prices the same text
       differently per mode where the data differs.
-- [x] Fixture test: station `60003760` yields best buy 3.97 / best sell 4.15
-      over 113 orders (vs 116 for the whole Jita system), proving the filter.
+- [x] Fixture test: station `60003760` yields best buy 3.94 / best sell 4.15
+      over 110 orders (vs 113 for the whole Jita system), proving the filter.
 - [x] `npm run smoke` supports `--station` / `--system` and prints which scope
       it used.
 - [x] Page renders a textarea, mode toggle, submit button, and after submitting

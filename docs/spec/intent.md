@@ -82,15 +82,18 @@ script and re-date it.
 - **Page size is 1000 orders.** `X-Pages` gives the page count. Verified:
   Heimatar buy orders page 1 contains exactly 1000 orders and `X-Pages: 21`.
 - A whole region is far too much to page through: The Forge buy orders is
-  `X-Pages: 134`, all orders `X-Pages: 414`. Per-type queries are mandatory;
+  `X-Pages: 133` in the current capture; the older all-orders capture was
+  `X-Pages: 414`. Per-type queries are mandatory;
   region dumps are not an option.
 - **Requesting a page past `X-Pages` returns HTTP 404**, not an empty array.
   Drive paging off `X-Pages`; do not probe until failure.
 - **Unknown type ids return `200 []`**, not 404 (`type_id=0` verified).
   "No orders" is a normal, valid answer and must render as such.
-- Some real items genuinely have no hub orders: **PLEX (type 44992) returns
-  `[]` in all five hubs**. Regional markets do not carry it. Never assume a
-  published type has orders.
+- PLEX (type 44992) uses the global market region `19000001`, not the five
+  hub regions. The live response has two pages; the current captured global
+  book contains 1,043 orders, with best buy 4,910,000 ISK and best sell
+  5,083,000 ISK. The global book is shown identically in all five hub columns;
+  do not apply hub system or station filtering to it.
 - `POST /universe/ids/` takes a **bare JSON array of names** - `["Tritanium"]`
   - *not* `{"names": [...]}`. Max size not yet verified.
   - The response has separate buckets: `characters`, `inventory_types`,
@@ -159,18 +162,17 @@ and [rate-limit guidance](https://developers.eveonline.com/docs/services/esi/rat
 - Orders are scoped to a **region** but placed in a **system** (`system_id`)
   and **station** (`location_id`).
 - Aggregating a whole region mixes distant markets and produces an apparent
-  spread between orders that cannot trade. In the 2026-11-19 20:10 UTC
-  Tritanium capture, the region-wide best sell was 3.96 in Perimeter and best
-  buy was 3.97 in Jita, an apparent 0.25% spread across station-range orders.
-  An earlier capture showed the opposite, negative spread; the sign can change
-  as markets move, but the region-wide aggregation remains invalid.
+  spread between orders that cannot trade. In the 2026-11-19 20:39 UTC
+  Tritanium capture, the region-wide best sell was 3.01 in system 30030141 and
+  best buy was 3.95 in Perimeter. The sign can change as markets move, but the
+  region-wide aggregation remains invalid.
 - Aggregating per **hub system** gives a sane book. Verified same capture:
 
   | system | name | best sell | best buy | spread |
   |---|---|---|---|---|
-  | 30000142 | Jita | 4.15 | 3.97 | 4.53% |
-  | 30000144 | Perimeter | 4.20 | 3.95 | 6.33% |
-  | 30030141 | (structure) | 4.00 | 3.00 | 33.33% |
+  | 30000142 | Jita | 4.15 | 3.94 | 5.33% |
+  | 30000144 | Perimeter | 3.96 | 3.95 | 0.25% |
+  | 30030141 | (structure) | 3.01 | 3.00 | 0.33% |
 
   -> **Rule: fetch per region (that is how the endpoint is scoped), then keep
   only orders whose `system_id` is the hub's system.**
@@ -233,10 +235,11 @@ above in the same change.
 | `orders-forge-tritanium` | real order shape, 1000/page contract, both sides in one response |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0 bytes |
 | `orders-forge-tritanium-page2` | page past `X-Pages` -> `404` |
-| `orders-forge-plex-empty` | a published type with no orders -> `200 []` |
+| `orders-forge-plex-empty` | PLEX has no orders in The Forge regional market -> `200 []` |
+| `orders-global-plex` and `orders-global-plex-page2` | both pages of PLEX orders from its global market region |
 | `history-forge-tritanium` | daily OHLCV shape; last row is yesterday |
 | `types-tritanium` | type metadata used for display/totals |
-| `region-orders-forge-buy-head` | headers only: `X-Pages: 134` for one side of one region |
+| `region-orders-forge-buy-head` | headers only: `X-Pages: 133` for one side of one region |
 
 ## Milestones
 

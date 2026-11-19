@@ -5,17 +5,26 @@ import type { ResolveResult } from "./resolve";
 import { readFixtureJson } from "./testing/fixtures";
 
 const orders = readFixtureJson<EsiOrder[]>("orders-forge-tritanium");
+const globalPlexOrders = [
+  ...readFixtureJson<EsiOrder[]>("orders-global-plex"),
+  ...readFixtureJson<EsiOrder[]>("orders-global-plex-page2"),
+];
 
 function deps(): AppraiseDeps {
   return {
     getOrders: async (regionId, typeId) =>
-      regionId === 10000002 && typeId === 34 ? orders : [],
+      regionId === 19000001 && typeId === 44992
+        ? globalPlexOrders
+        : regionId === 10000002 && typeId === 34
+          ? orders
+          : [],
     resolveNames: async (names): Promise<ResolveResult> => {
       const types = new Map<string, { typeId: number; name: string }>();
       const unresolved: string[] = [];
       for (const name of names) {
         const key = name.trim().toLowerCase();
         if (key === "tritanium") types.set(key, { typeId: 34, name: "Tritanium" });
+        else if (key === "plex") types.set(key, { typeId: 44992, name: "PLEX" });
         else unresolved.push(key);
       }
       return { types, unresolved };
@@ -31,7 +40,7 @@ describe("appraise", () => {
     const item = result.items[0];
     expect(item?.quantity).toBe(5);
     expect(item?.hubs.jita.bestSell?.price).toBe(4.15);
-    expect(item?.hubs.jita.bestBuy?.price).toBe(3.97);
+    expect(item?.hubs.jita.bestBuy?.price).toBe(3.94);
 
     // Only The Forge has orders in this fake, so the other hubs are empty
     // rather than missing keys.
@@ -44,7 +53,7 @@ describe("appraise", () => {
       "rens",
     ]);
 
-    expect(result.totals.jita.buy).toBeCloseTo(3.97 * 5);
+    expect(result.totals.jita.buy).toBeCloseTo(3.94 * 5);
     expect(result.totals.jita.sell).toBeCloseTo(4.15 * 5);
     expect(result.totals.jita.missingBuy).toBe(0);
     expect(result.totals.rens.missingBuy).toBe(1);
@@ -54,15 +63,30 @@ describe("appraise", () => {
   it("prices the hub station by default and the whole system on request", async () => {
     const station = await appraise("Tritanium", deps());
     expect(station.priceMode).toBe("station");
-    expect(station.items[0]?.hubs.jita.orderCount).toBe(113);
+    expect(station.items[0]?.hubs.jita.orderCount).toBe(110);
 
     const system = await appraise("Tritanium", deps(), { priceMode: "system" });
     expect(system.priceMode).toBe("system");
-    expect(system.items[0]?.hubs.jita.orderCount).toBe(116);
+    expect(system.items[0]?.hubs.jita.orderCount).toBe(113);
 
     // Both scopes land on the same best prices for this fixture: the extreme
     // orders happen to sit at Jita 4-4.
     expect(station.totals.jita.buy).toBeCloseTo(system.totals.jita.buy);
+  });
+
+  it("uses the global PLEX book for every hub without station or system filtering", async () => {
+    const result = await appraise("PLEX", deps());
+    const item = result.items[0];
+
+    expect(item?.hubs.jita.bestBuy?.price).toBe(4_910_000);
+    expect(item?.hubs.jita.bestSell?.price).toBe(5_083_000);
+    expect(item?.hubs.jita.orderCount).toBe(1043);
+    for (const hub of ["jita", "dodixie", "amarr", "hek", "rens"] as const) {
+      expect(item?.hubs[hub]).toEqual(item?.hubs.jita);
+    }
+
+    const system = await appraise("PLEX", deps(), { priceMode: "system" });
+    expect(system.items[0]?.hubs).toEqual(item?.hubs);
   });
 
   it("returns unresolved names and rejected lines alongside prices", async () => {

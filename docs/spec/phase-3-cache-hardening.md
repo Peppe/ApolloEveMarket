@@ -43,7 +43,7 @@ the older `420`) means we already spent one; `Retry-After` says how long to
 wait. Nothing in the current client reads any of these.
 
 Also worth recording: `type_id=34` in The Forge is `x-pages: 1` with 170
-orders, so a normal cache entry is small. The 134-page HEAD response was the
+orders, so a normal cache entry is small. The 133-page HEAD response is the
 *whole region* without a `type_id` - not something this app fetches.
 
 ## Decisions

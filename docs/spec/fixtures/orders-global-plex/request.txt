@@ -1,0 +1,3 @@
+GET https://esi.evetech.net/latest/markets/19000001/orders/?order_type=all&type_id=44992&datasource=tranquility
+User-Agent: ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)
+X-Compatibility-Date: 2020-01-01
