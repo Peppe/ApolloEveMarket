@@ -1,5 +1,11 @@
 import { AppraiseForm } from "./AppraiseForm";
 
+/**
+ * A cold appraisal of a large paste can spend tens of seconds walking ESI
+ * pages; the platform default would cut the server action off mid-way.
+ */
+export const maxDuration = 60;
+
 export default function Home() {
   return (
     <main className="page">

@@ -27,6 +27,22 @@ buying from it). A dash means no orders on that side in that scope.
 "Whole system" widens to every station and structure in the hub's solar
 system. Switching re-prices from the same cached orders.
 
+## Deploy
+
+The site runs on Vercel. The first deploy is a one-time login plus one
+command; no environment variables and no secrets are needed, because ESI's
+public endpoints need none.
+
+```sh
+npx vercel login      # once, interactive
+npx vercel --prod --yes
+```
+
+`maxDuration = 60` on the page gives a cold appraisal enough time to walk the
+order pages. The order cache is per server instance, so Vercel may fetch the
+same book once per instance; every instance still honours `Expires`, so that
+costs rate budget, never correctness.
+
 ## Where things live
 
 - `docs/spec/intent.md` - goals, non-goals, verified ESI facts, milestones.
