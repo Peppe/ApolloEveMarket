@@ -19,8 +19,8 @@ export interface HubBook {
  * The best bid and ask for one item in one hub system.
  *
  * Orders are region-scoped upstream but must be filtered to the hub's system:
- * a region contains several markets, and mixing them produced a -42% spread on
- * real Tritanium data (docs/spec/intent.md).
+ * a region contains several markets, and mixing them can produce a spread
+ * across orders that cannot trade with each other (docs/spec/intent.md).
  */
 export function aggregateBook(
   orders: readonly EsiOrder[],

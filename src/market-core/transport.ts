@@ -24,12 +24,12 @@ export type Transport = (
 
 /** ESI requires a descriptive User-Agent and asks for a datasource argument. */
 export const ESI_BASE_URL = "https://esi.evetech.net/latest";
-export const ESI_USER_AGENT = "ApolloEveMarket/0.1 (+https://github.com/Peppe/ApolloEveMarket)";
+export const ESI_USER_AGENT =
+  "ApolloEveMarket/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)";
 
 /**
- * The schema version ESI advertised when the fixtures were captured
- * (`x-compatibility-date: 2020-01-01`). Pinning it means CCP cannot change a
- * payload shape underneath us without us noticing.
+ * The compatibility version ESI currently returns for this application's
+ * endpoints. Keep this pinned rather than requesting an unsupported date.
  */
 export const ESI_COMPATIBILITY_DATE = "2020-01-01";
 

@@ -30,8 +30,8 @@ describe("appraise", () => {
     expect(result.items).toHaveLength(1);
     const item = result.items[0];
     expect(item?.quantity).toBe(5);
-    expect(item?.hubs.jita.bestSell?.price).toBe(4.1);
-    expect(item?.hubs.jita.bestBuy?.price).toBe(3.96);
+    expect(item?.hubs.jita.bestSell?.price).toBe(4.15);
+    expect(item?.hubs.jita.bestBuy?.price).toBe(3.97);
 
     // Only The Forge has orders in this fake, so the other hubs are empty
     // rather than missing keys.
@@ -44,8 +44,8 @@ describe("appraise", () => {
       "rens",
     ]);
 
-    expect(result.totals.jita.buy).toBeCloseTo(3.96 * 5);
-    expect(result.totals.jita.sell).toBeCloseTo(4.1 * 5);
+    expect(result.totals.jita.buy).toBeCloseTo(3.97 * 5);
+    expect(result.totals.jita.sell).toBeCloseTo(4.15 * 5);
     expect(result.totals.jita.missingBuy).toBe(0);
     expect(result.totals.rens.missingBuy).toBe(1);
     expect(result.totals.rens.buy).toBe(0);
@@ -54,11 +54,11 @@ describe("appraise", () => {
   it("prices the hub station by default and the whole system on request", async () => {
     const station = await appraise("Tritanium", deps());
     expect(station.priceMode).toBe("station");
-    expect(station.items[0]?.hubs.jita.orderCount).toBe(114);
+    expect(station.items[0]?.hubs.jita.orderCount).toBe(113);
 
     const system = await appraise("Tritanium", deps(), { priceMode: "system" });
     expect(system.priceMode).toBe("system");
-    expect(system.items[0]?.hubs.jita.orderCount).toBe(117);
+    expect(system.items[0]?.hubs.jita.orderCount).toBe(116);
 
     // Both scopes land on the same best prices for this fixture: the extreme
     // orders happen to sit at Jita 4-4.

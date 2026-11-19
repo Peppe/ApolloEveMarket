@@ -15,7 +15,9 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_ROOT = join(HERE, "..", "docs", "spec", "fixtures");
 const ESI = "https://esi.evetech.net/latest";
-const USER_AGENT = "ApolloEveMarket-fixture-capture/0.1 (github.com/Peppe/ApolloEveMarket)";
+const USER_AGENT =
+  "ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)";
+const COMPATIBILITY_DATE = "2020-01-01";
 
 // Headers worth recording: freshness (caching correctness), paging, rate
 // budget, and the CCP "compatibility date" contract.
@@ -37,7 +39,11 @@ const RECORDED_HEADERS = [
 ];
 
 async function capture(name, { url, method = "GET", body, extraHeaders = {} }) {
-  const headers = { "User-Agent": USER_AGENT, Accept: "application/json" };
+  const headers = {
+    "User-Agent": USER_AGENT,
+    "X-Compatibility-Date": COMPATIBILITY_DATE,
+    Accept: "application/json",
+  };
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
   const res = await fetch(url, {
@@ -54,6 +60,7 @@ async function capture(name, { url, method = "GET", body, extraHeaders = {} }) {
   const requestLines = [
     `${method} ${url}`,
     `User-Agent: ${USER_AGENT}`,
+    `X-Compatibility-Date: ${COMPATIBILITY_DATE}`,
     ...Object.entries(extraHeaders).map(([k, v]) => `${k}: ${v}`),
     "",
   ];

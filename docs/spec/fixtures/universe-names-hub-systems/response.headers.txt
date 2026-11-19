@@ -1,6 +1,6 @@
 HTTP 200 OK
 content-type: application/json; charset=UTF-8
-date: Thu, 19 Nov 2026 18:31:17 GMT
+date: Thu, 19 Nov 2026 20:10:16 GMT
 x-compatibility-date: 2020-01-01
 x-esi-error-limit-remain: 100
-x-esi-error-limit-reset: 43
+x-esi-error-limit-reset: 44

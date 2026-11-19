@@ -170,6 +170,7 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
 
     const orders = parseOrders(first.body, firstUrl);
     const pages = readPages(first.headers["x-pages"], firstUrl);
+    const lastModified = first.headers["last-modified"];
 
     for (let page = 2; page <= pages; page += 1) {
       const url = ordersUrl(regionId, typeId, page);
@@ -179,6 +180,16 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
       if (response.status === 404) break;
       if (response.status !== 200) {
         throw new EsiError(describe(response), response.status, url);
+      }
+      if (
+        lastModified !== undefined &&
+        response.headers["last-modified"] !== lastModified
+      ) {
+        throw new EsiError(
+          "paginated response has a different Last-Modified value than page 1",
+          response.status,
+          url,
+        );
       }
       orders.push(...parseOrders(response.body, url));
     }
