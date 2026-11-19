@@ -97,8 +97,9 @@ count of items excluded because the side was missing.
       `inventory_types`; a name that also matches a character (Tritanium)
       resolves to type 34. Unresolved names are returned, not thrown.
 - [x] `aggregate.ts` against `orders-forge-tritanium` with system `30000142`
-      yields **bestSell 4.1** and **bestBuy 3.96** (fixture, captured
-      2026-11-19), and the result is **not** the region-wide 2.36.
+      yields **bestSell 4.15** and **bestBuy 3.97** (fixture, recaptured
+      2026-11-19), rather than the region-wide 3.96 / 3.97 across Jita and
+      Perimeter.
 - [x] `aggregate.ts` against `orders-forge-plex-empty` yields both sides
       `null` and `orderCount 0` (no throw, no error state).
 - [x] Fake transport with `X-Pages: 3` produces exactly 3 order requests and
@@ -121,10 +122,12 @@ pm run typecheck clean,
 pm test 29/29 passed (6 files), 
 pm run build
   produced the static page (Next.js 16.4.6).
-- Fixture-backed assertions hold: Jita book from orders-forge-tritanium is
-  best buy 3.96 / best sell 4.10 over 117 orders, while the region-wide book
-  is 2.36 / 3.96 (the negative spread the per-system rule exists to avoid).
-  Perimeter in the same capture is a separate 4.20 / 3.95 book.
+- The original fixture-backed assertions were from an earlier 2026-11-19
+  capture. At 20:10 UTC the fixture was recaptured: Jita system best buy 3.97 /
+  best sell 4.15 over 116 orders; the primary station has 113 orders with the
+  same best prices. Perimeter remains a separate 4.20 / 3.95 book. The
+  region-wide best sell is now 3.96 in Perimeter while the best buy is 3.97 in
+  Jita, an apparent 0.25% spread across station-range orders that cannot trade.
 - 
 pm run smoke -- "Tritanium" "Hobgoblin I" "Ishtar" against live ESI:
   three items x five hubs = 15 books in 867 ms, e.g. Tritanium 3.96 / 4.10 in

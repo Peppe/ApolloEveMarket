@@ -12,11 +12,11 @@ describe("aggregateBook", () => {
   it("returns the fixture's Jita book, not the region-wide book", () => {
     const book = aggregateBook(orders, JITA_SYSTEM);
 
-    expect(book.bestSell?.price).toBe(4.1);
-    expect(book.bestBuy?.price).toBe(3.96);
-    expect(book.orderCount).toBe(117);
+    expect(book.bestSell?.price).toBe(4.15);
+    expect(book.bestBuy?.price).toBe(3.97);
+    expect(book.orderCount).toBe(116);
     expect(book.sellOrderCount).toBe(70);
-    expect(book.buyOrderCount).toBe(47);
+    expect(book.buyOrderCount).toBe(46);
   });
 
   it("would produce a nonsense spread if the whole region were used", () => {
@@ -29,7 +29,7 @@ describe("aggregateBook", () => {
 
     // The trap this rule exists for: cheap asks and high bids live in
     // different systems, so "region best" beats itself.
-    expect(regionWideSell).toBe(2.36);
+    expect(regionWideSell).toBe(3.96);
     expect(regionWideSell).toBeLessThan(regionWideBuy);
   });
 
@@ -43,14 +43,14 @@ describe("aggregateBook", () => {
   it("narrows to the hub's station when asked", () => {
     const station = aggregateBook(orders, JITA_SYSTEM, 60003760);
 
-    expect(station.orderCount).toBe(114);
+    expect(station.orderCount).toBe(113);
     expect(station.sellOrderCount).toBe(67);
-    expect(station.buyOrderCount).toBe(47);
-    expect(station.bestSell?.price).toBe(4.1);
-    expect(station.bestBuy?.price).toBe(3.96);
+    expect(station.buyOrderCount).toBe(46);
+    expect(station.bestSell?.price).toBe(4.15);
+    expect(station.bestBuy?.price).toBe(3.97);
 
     // The system book also carries orders in two other Jita stations.
-    expect(aggregateBook(orders, JITA_SYSTEM).orderCount).toBe(117);
+    expect(aggregateBook(orders, JITA_SYSTEM).orderCount).toBe(116);
     expect(aggregateBook(orders, JITA_SYSTEM, 60015260).orderCount).toBe(2);
     expect(aggregateBook(orders, JITA_SYSTEM, 60003469).orderCount).toBe(1);
   });

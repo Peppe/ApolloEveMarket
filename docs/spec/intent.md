@@ -129,22 +129,46 @@ script and re-date it.
 - `type_id=34` in The Forge is a single page (`x-pages: 1`, 170 orders). The
   `x-pages: 134` capture is the whole region with no `type_id`, which this app
   never requests - so a cache entry is one small page, not a region dump.
-- `X-Compatibility-Date: 2020-01-01` is returned; sending it back pins the
-  response schema so CCP cannot silently change shapes underneath us.
+- Requests send `X-Compatibility-Date: 2020-01-01`; the response also reports
+  `2020-01-01`. During the 2026-11-19 review, a request for the current date
+  still returned `2020-01-01`, so the client remains pinned to the date ESI
+  reports rather than sending an unverified compatibility date.
+
+### ESI compliance review (2026-11-19)
+
+Reviewed against CCP's [ESI best practices](https://developers.eveonline.com/docs/services/esi/best-practices/),
+[versioning guidance](https://developers.eveonline.com/docs/services/esi/overview/)
+and [rate-limit guidance](https://developers.eveonline.com/docs/services/esi/rate-limiting/):
+
+- Every ESI request is made server-side and carries `User-Agent` identifying
+  `ApolloEveMarket/0.2.0` and this repository. Name resolution and every order
+  page use the same headers; the fixture-capture script identifies itself too.
+- Market requests respect `Expires`, revalidate with `If-None-Match`, and do
+  not run blind retries. Requests are bounded by a process-wide concurrency
+  gate and stop at the request/error budget floors; `420`/`429` honors
+  `Retry-After`.
+- Multi-page order results are rejected if their `Last-Modified` values do
+  not match page 1, avoiding a mixed snapshot if ESI refreshes during paging.
+- ESI's guidance says not to fetch before `Expires`, to send application
+  identification, and to keep the compatibility date current with supported
+  schema versions. The current selected compatibility date is the
+  `2020-01-01` value ESI returns for these requests.
 
 ### Pricing semantics (the part that is easy to get wrong)
 
 - Orders are scoped to a **region** but placed in a **system** (`system_id`)
   and **station** (`location_id`).
-- Aggregating a whole region mixes distant markets and produces nonsense.
-  Verified for Tritanium in The Forge: region-wide best sell 2.36 vs best buy
-  4.06 - a **negative 42% spread**, because the cheap sell is in one system
-  and the high buy is in another.
+- Aggregating a whole region mixes distant markets and produces an apparent
+  spread between orders that cannot trade. In the 2026-11-19 20:10 UTC
+  Tritanium capture, the region-wide best sell was 3.96 in Perimeter and best
+  buy was 3.97 in Jita, an apparent 0.25% spread across station-range orders.
+  An earlier capture showed the opposite, negative spread; the sign can change
+  as markets move, but the region-wide aggregation remains invalid.
 - Aggregating per **hub system** gives a sane book. Verified same capture:
 
   | system | name | best sell | best buy | spread |
   |---|---|---|---|---|
-  | 30000142 | Jita | 4.07 | 4.06 | 0.25% |
+  | 30000142 | Jita | 4.15 | 3.97 | 4.53% |
   | 30000144 | Perimeter | 4.20 | 3.95 | 6.33% |
   | 30030141 | (structure) | 4.00 | 3.00 | 33.33% |
 

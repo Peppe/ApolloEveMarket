@@ -1,6 +1,6 @@
 # Phase 3 - Cache and budget hardening
 
-Status: accepted (2026-11-19)
+Status: done (2026-11-19)
 
 Goal: make the live path safe to leave running for strangers. Phase 1 proved
 the numbers and the HTTP contract; this phase bounds the memory, bounds the
@@ -13,7 +13,8 @@ after this phase.
 
 In: bounded (LRU) order cache, one process-wide concurrency gate, ESI budget
 headers (`x-esi-error-limit-*`, `x-ratelimit-*`), `420`/`429` with
-`Retry-After`, a bounded cache for resolved names, smoke output.
+`Retry-After`, a bounded cache for resolved names, smoke output, and validation
+that all pages in a fetched order snapshot have the same `Last-Modified`.
 
 Out: cross-process cache (Redis, a database), serving stale prices, retry
 loops, per-user quotas, deployment.
@@ -115,6 +116,8 @@ inner fetcher contain only names that missed.
 - [x] `live.ts` composes guard -> gate -> transport for both orders and name
       resolution; `npm run smoke` prints cache size and remaining budgets.
 - [x] No code path serves an order book after its `Expires`.
+- [x] Paginated order results with inconsistent `Last-Modified` headers fail
+      instead of mixing data from different ESI cache snapshots.
 - [x] Existing fixture tests are unchanged and still pass; `npm run
       typecheck`, `npm test`, `npm run build` pass.
 

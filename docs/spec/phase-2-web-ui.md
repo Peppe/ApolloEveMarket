@@ -71,8 +71,8 @@ number would be a lie.
 - [x] `appraise(text, deps, { priceMode })` supports `"station"` (default) and
       `"system"`, echoes the mode in its result, and prices the same text
       differently per mode where the data differs.
-- [x] Fixture test: station `60003760` yields best buy 3.96 / best sell 4.10
-      over 114 orders (vs 117 for the whole Jita system), proving the filter.
+- [x] Fixture test: station `60003760` yields best buy 3.97 / best sell 4.15
+      over 113 orders (vs 116 for the whole Jita system), proving the filter.
 - [x] `npm run smoke` supports `--station` / `--system` and prints which scope
       it used.
 - [x] Page renders a textarea, mode toggle, submit button, and after submitting
@@ -104,9 +104,10 @@ number would be a lie.
 Verified 2026-11-19 in the in-app Chromium browser against live ESI, F5 on
 the dev server, plus the three gates on a clean tree:
 
-- Fixture test pins the scope filter: 114 orders at Jita 4-4 versus 117 in the
-  Jita system, with the same best buy/sell (3.96 / 4.10) because the extreme
-  orders sit in that station. `npm test` = 6 files, 31 tests.
+- Initial browser verification below used the 18:31 UTC fixture capture.
+  At 20:10 UTC, fixture-backed scope counts are 113 orders at Jita 4-4 versus
+  116 in the Jita system; both now have best buy/sell 3.97 / 4.15 because the
+  extreme orders sit in that station.
 - Pasting `Tritanium 1000000 / Hobgoblin I 10 / Ishtar 1` at station scope
   rendered the three rows and a totals row; Jita buy 3.96, sell 4.13.
 - Toggling to whole system re-priced from the same cached orders: Amarr sell

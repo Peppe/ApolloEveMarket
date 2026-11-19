@@ -1,4 +1,5 @@
 POST https://esi.evetech.net/latest/universe/names/?datasource=tranquility
-User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
+User-Agent: ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)
+X-Compatibility-Date: 2020-01-01
 
 [30000142,30002187,30002659,30002053,30002510,60003760]

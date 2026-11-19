@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { EsiError, createEsiClient } from "./esi-client";
 import type { EsiOrder } from "./esi-types";
-import type { HttpResponse, Transport, TransportRequest } from "./transport";
+import {
+  ESI_COMPATIBILITY_DATE,
+  ESI_USER_AGENT,
+  type HttpResponse,
+  type Transport,
+  type TransportRequest,
+} from "./transport";
 
 interface RecordedCall {
   url: string;
@@ -63,6 +69,12 @@ describe("createEsiClient paging", () => {
     expect(orders.map((entry) => entry.order_id)).toEqual([1, 2, 3]);
     expect(calls).toHaveLength(3);
     expect(calls.some((call) => call.url.includes("page=4"))).toBe(false);
+    for (const { request } of calls) {
+      expect(request.headers["User-Agent"]).toBe(ESI_USER_AGENT);
+      expect(request.headers["X-Compatibility-Date"]).toBe(
+        ESI_COMPATIBILITY_DATE,
+      );
+    }
   });
 
   it("keeps collected pages when a later page answers 404", async () => {
@@ -82,6 +94,29 @@ describe("createEsiClient paging", () => {
     const orders = await client.getOrders(10000002, 34);
 
     expect(orders).toHaveLength(1);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("rejects pages from different Last-Modified snapshots", async () => {
+    const { transport, calls } = fakeTransport((url): HttpResponse => {
+      const page = new URL(url).searchParams.get("page");
+      return {
+        status: 200,
+        headers: {
+          "last-modified":
+            page === null
+              ? "Thu, 19 Nov 2026 18:00:00 GMT"
+              : "Thu, 19 Nov 2026 18:05:00 GMT",
+          "x-pages": "2",
+        },
+        body: JSON.stringify([order()]),
+      };
+    });
+
+    const client = createEsiClient({ transport, ...clockAt(0) });
+    await expect(client.getOrders(10000002, 34)).rejects.toThrow(
+      /different Last-Modified value/,
+    );
     expect(calls).toHaveLength(2);
   });
 

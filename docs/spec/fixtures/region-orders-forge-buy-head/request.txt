@@ -1,2 +1,3 @@
 HEAD https://esi.evetech.net/latest/markets/10000002/orders/?order_type=buy&datasource=tranquility
-User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
+User-Agent: ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)
+X-Compatibility-Date: 2020-01-01

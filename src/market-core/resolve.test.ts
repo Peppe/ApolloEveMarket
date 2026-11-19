@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { EsiIdsResponse } from "./esi-types";
 import { createCachedIdsFetcher, createIdsFetcher, resolveNames } from "./resolve";
-import type { HttpResponse, TransportRequest } from "./transport";
+import {
+  ESI_COMPATIBILITY_DATE,
+  ESI_USER_AGENT,
+  type HttpResponse,
+  type TransportRequest,
+} from "./transport";
 import { readFixtureJson } from "./testing/fixtures";
 
 const idsFixture = readFixtureJson<EsiIdsResponse>("universe-ids-names");
@@ -65,7 +70,12 @@ describe("resolveNames", () => {
     expect(Array.isArray(parsed)).toBe(true);
     expect(requests[0]?.method).toBe("POST");
     expect(requests[0]?.headers["Content-Type"]).toBe("application/json");
-    expect(requests[0]?.headers["User-Agent"]).toContain("ApolloEveMarket");
+    expect(requests[0]?.headers["User-Agent"]).toBe(ESI_USER_AGENT);
+    expect(ESI_USER_AGENT).toContain("ApolloEveMarket/0.2.0");
+    expect(ESI_USER_AGENT).toContain("(+https://github.com/Peppe/ApolloEveMarket)");
+    expect(requests[0]?.headers["X-Compatibility-Date"]).toBe(
+      ESI_COMPATIBILITY_DATE,
+    );
   });
 });
 
