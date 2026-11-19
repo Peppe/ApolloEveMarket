@@ -186,7 +186,7 @@ button.appraise-button:disabled {
   text-align: left;
 }
 
-.prices .sell-row > * {
+.prices .buyer-row > * {
   border-top: 1px solid #26303f;
 }
 
@@ -224,6 +224,26 @@ button.appraise-button:disabled {
 
 .prices .muted {
   color: #5b6678;
+}
+
+.prices .price-rank-1 {
+  color: #ff6b6b;
+}
+
+.prices .price-rank-2 {
+  color: #c87878;
+}
+
+.prices .price-rank-3 {
+  color: #d8dee9;
+}
+
+.prices .price-rank-4 {
+  color: #78b987;
+}
+
+.prices .price-rank-5 {
+  color: #3ee08f;
 }
 
 .legend {
