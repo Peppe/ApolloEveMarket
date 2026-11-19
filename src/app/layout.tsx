@@ -7,17 +7,17 @@ export const metadata: Metadata = {
   description: "Buy and sell prices across the five major EVE trade hubs.",
   icons: {
     icon: [
-      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16-dark.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32-dark.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon.ico" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: "/apple-touch-icon-dark.png",
   },
   manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1B1524",
+  themeColor: "#0F0B13",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
