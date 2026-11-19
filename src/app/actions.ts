@@ -24,6 +24,7 @@ export interface PriceCell {
 }
 
 export interface AppraiseRow {
+  readonly typeId: number;
   readonly name: string;
   readonly quantity: number;
   readonly cells: readonly PriceCell[];
@@ -102,6 +103,7 @@ export async function appraiseAction(
         scope: mode === "station" ? hub.stationName : `${hub.label} solar system`,
       })),
       rows: result.items.map((item) => ({
+        typeId: item.typeId,
         name: item.name,
         quantity: item.quantity,
         cells: HUBS.map((hub) => {

@@ -2,9 +2,8 @@
  * Pasted inventory -> item names and quantities.
  *
  * The grammar is deliberately narrow: tab-separated (EVE's inventory copy) and
- * space-separated with a trailing integer. Anything ambiguous is REJECTED with
- * a reason rather than guessed, because a silently mispriced quantity is worse
- * than a visible error.
+ * space-separated with a trailing integer. For inventory rows, only the item
+ * name and quantity columns are used; trailing metadata is ignored.
  */
 
 export interface ParsedItem {
@@ -61,11 +60,12 @@ export function parseInventory(text: string): ParseResult {
     let name: string;
     let quantityToken: string | null = null;
 
-    const tab = line.lastIndexOf("\t");
+    const tab = line.indexOf("\t");
     if (tab >= 0) {
-      name = line.slice(0, tab).trim();
-      const rest = line.slice(tab + 1).trim();
-      quantityToken = rest === "" ? null : rest;
+      const columns = line.split("\t");
+      name = (columns[0] ?? "").trim();
+      const quantityColumn = (columns[1] ?? "").trim();
+      quantityToken = quantityColumn === "" ? null : quantityColumn;
       if (name === "") {
         rejected.push({ line: index + 1, raw, reason: "missing item name" });
         return;

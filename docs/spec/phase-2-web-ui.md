@@ -3,17 +3,19 @@
 Status: done (2026-11-19)
 
 Goal: the thing the project exists for. One textarea: paste an inventory or type
-item names, press Appraise, and see buy and sell for Jita, Dodixie, Amarr, Hek
-and Rens side by side, with totals - and a toggle that switches pricing between
-the hub's primary station and its whole system.
+item names, press Appraise, and compare seller prices across Jita, Dodixie,
+Amarr, Hek and Rens on one row and buyer prices across them on the next, with
+totals and a toggle that switches pricing between the hub's primary station and
+its whole system.
 
 ## Scope
 
 In: page layout, form, results table, totals, station/system toggle, rejected
-and unresolved feedback, server action wiring, styling.
+and unresolved feedback, server action wiring, styling, first-visit sample
+appraisal, browser-local last-input restore, and item icons.
 
-Out: name search/autocomplete (phase 4), persistence, saved appraisals,
-history charts, deployment.
+Out: name search/autocomplete (phase 4), server-side persistence, multiple
+saved appraisals, history charts, deployment.
 
 ## Pricing scope (the toggle)
 
@@ -42,11 +44,14 @@ against the same cached orders (refiltered, not refetched).
   the book.
 - `sell` = best **sell order** (lowest ask): what you pay by buying from it.
 
-This is EVE's own naming (orders are named from the market's side) and matches
-evepraisal. A one-line legend under the form states it, because the direction
-is genuinely ambiguous to newcomers. No `spread` column: a bid above the ask
-inside one system is legitimate (`range: station` across stations), so a single
-spread number would be a lie.
+Rows are labeled **Sellers** (best sell order/ask) and **Buyers** (best buy
+order/bid), matching EVE's market wording. Sellers appear first. Within each
+row, available prices are ranked across hubs: highest is bright red, second
+highest darker red, middle white, second lowest darker green, and lowest bright
+green. Equal prices share a color; missing prices are not ranked. Totals use
+the same ordering and ranking. No `spread` column: a bid above the ask inside
+one system is legitimate (`range: station` across stations), so a single spread
+number would be a lie.
 
 ## Server boundary
 
@@ -71,10 +76,23 @@ spread number would be a lie.
 - [x] `npm run smoke` supports `--station` / `--system` and prints which scope
       it used.
 - [x] Page renders a textarea, mode toggle, submit button, and after submitting
-      a table with one row per item, ten price cells, a totals row, and the
-      scope label (station name or system).
+      a table with two rows per item (Sellers then Buyers, each with one price
+      per hub), matching totals rows, and the scope label (station name or
+      system).
+- [x] Price text is ranked by value across hubs on each row: most expensive red,
+      second darker red, middle white, fourth darker green, cheapest bright
+      green; ties share a rank and missing prices are unranked.
 - [x] Rejected lines and unresolved names are shown to the user, not swallowed.
 - [x] Missing side of an item's book renders as `-`, not `0`.
+- [x] Submitting an empty textarea appraises the displayed sample input.
+- [x] Ctrl+Enter or Cmd+Enter in the textarea submits the appraisal, matching
+      the Appraise button.
+- [x] The latest submitted text is stored in browser local storage and
+      automatically restored and appraised on the next page load. If browser
+      storage is unavailable, the user sees a warning.
+- [x] Each resolved item row shows its icon from
+      `https://images.evetech.net/types/{type_id}/icon?size=64`; the core and
+      server action provide the resolved type id.
 - [x] Server action rejects input over the limits with a readable message.
 - [x] No client component imports `src/market-core` (it imports only the
       server action); the import-boundary test still passes.

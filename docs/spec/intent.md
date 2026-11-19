@@ -50,17 +50,19 @@ change that implements them.
 |                                                              |
 |                          [ Appraise ]                         |
 +--------------------------------------------------------------+
-| item          qty |  Jita      | Dodixie   | Amarr   | ...    |
-|                   | buy   sell | buy  sell | buy sell|        |
-| Tritanium  1000000| 4.06  4.07 | ...       | ...    |        |
-| Hobgoblin I     10| ...        | ...       | ...    |        |
+| item          qty | side    | Jita | Dodixie | Amarr | ...    |
+| Tritanium  1000000| Sellers | 4.07 | ...     | ...   |        |
+|                   | Buyers  | 4.06 | ...     | ...   |        |
+| Hobgoblin I     10| Sellers | ...  | ...     | ...   |        |
+|                   | Buyers  | ...  | ...     | ...   |        |
 +--------------------------------------------------------------+
-| totals            | ...        | ...       | ...    |        |
+| total             | Sellers | ... | ...     | ...   |        |
+|                   | Buyers  | ... | ...     | ...   |        |
 +--------------------------------------------------------------+
 ```
 
-"buy" = what instant-selling to buy orders yields (best bid).
-"sell" = what instant-buying from sell orders costs (best ask).
+"Buyers" = what instant-selling to buy orders yields (best bid).
+"Sellers" = what instant-buying from sell orders costs (best ask).
 
 ## Known environment facts (verified 2026-11-19)
 
@@ -218,7 +220,7 @@ above in the same change.
 |---|---|---|---|
 | 0 | ESI spike: endpoints, paging, caching, per-system pricing rule; fixtures | this file | done |
 | 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | done |
-| 2 | Web UI: one textarea, buy/sell table per hub, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
+| 2 | Web UI: one textarea, two-row Sellers/Buyers comparison across hubs, ranked prices, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
 | 3 | Cache + budget hardening: LRU-bounded order cache, process-wide concurrency gate, ESI budget headers and `Retry-After`, cached name lookups | `phase-3-cache-hardening.md` | done |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
 | 5 | Deploy + tagged release notes | `phase-5-deploy.md` | done |
@@ -238,10 +240,9 @@ only how they are obtained.
   quantity in some locales and space-separated in others; cargo scans and
   contracts differ again. Phase 1 fixes the grammar for the formats we can
   capture from the client, and the parser must reject (not guess) the rest.
-- **Buy/sell label wording in the UI.** Resolved in phase 2: columns are
-  `buy` and `sell` (EVE's own naming, matching evepraisal), with a one-line
-  legend spelling out "what you receive" versus "what you pay" because the
-  direction is ambiguous to newcomers.
+- **Buy/sell label wording in the UI.** Resolved in phase 2: rows are labeled
+  `Sellers` (best sell order/ask) and `Buyers` (best buy order/bid), with the
+  prices and their relationship across hubs explained in the legend.
 - **Station scope.** Resolved in phase 2: the hub's primary station is the
   default, with a toggle to the whole system. Station ids are verified and
   listed in `phase-2-web-ui.md`; no id-to-name lookups happen per order.

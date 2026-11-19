@@ -19,7 +19,8 @@ export default function Home() {
 
       <p className="footnote">
         Prices come from live EVE ESI market orders, cached exactly as long as
-        CCP says they are current. Nothing is stored about you.
+        CCP says they are current. Your last input is saved only in this
+        browser; nothing is sent to or stored on our servers.
       </p>
     </main>
   );
