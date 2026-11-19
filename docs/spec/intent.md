@@ -150,8 +150,12 @@ script and re-date it.
   `range: station`, so a bid in one station and an ask in another cannot
   trade against each other. Verified live on 2026-11-19: Hek Tritanium showed
   best buy 3.04 and best sell 3.01. Do not "fix" this by widening the filter,
-  and do not compute a single spread for the MVP - show both sides as they
-  are. Station-level pricing (the hub's primary station) is a later phase.
+  and do not compute a single spread - show both sides as they are.
+- **Station scope is the default, system scope is the toggle.** Phases 1-2:
+  price the hub's primary station (the station ids and their verification are
+  in `phase-2-web-ui.md`) and let the user widen to the whole system. Both
+  scopes are computed from the same region fetch, so switching costs no
+  upstream request.
 - `min_volume` is 1 on the orders captured so far, but it is a real constraint
   for buy orders in principle. The MVP ignores it and says so.
 
@@ -200,7 +204,7 @@ above in the same change.
 |---|---|---|---|
 | 0 | ESI spike: endpoints, paging, caching, per-system pricing rule; fixtures | this file | done |
 | 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | done |
-| 2 | Minimal web UI: one textarea, results table with buy/sell per hub, totals | - | - |
+| 2 | Web UI: one textarea, buy/sell table per hub, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
 | 3 | Cache + budget hardening: shared cache, bounded size, concurrency, rate headers, stale-while-revalidate | - | - |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
 | 5 | Deploy + tagged release notes | - | - |
@@ -220,7 +224,10 @@ only how they are obtained.
   quantity in some locales and space-separated in others; cargo scans and
   contracts differ again. Phase 1 fixes the grammar for the formats we can
   capture from the client, and the parser must reject (not guess) the rest.
-- **Buy/sell label wording in the UI** - "buy"/"sell" is ambiguous from whose
-  side. Candidate: "you pay" / "you get". Decide in phase 2 with the layout.
-- Whether to show the best order's station (needs id->name lookups) or just
-  the hub system. Decide in phase 2.
+- **Buy/sell label wording in the UI.** Resolved in phase 2: columns are
+  `buy` and `sell` (EVE's own naming, matching evepraisal), with a one-line
+  legend spelling out "what you receive" versus "what you pay" because the
+  direction is ambiguous to newcomers.
+- **Station scope.** Resolved in phase 2: the hub's primary station is the
+  default, with a toggle to the whole system. Station ids are verified and
+  listed in `phase-2-web-ui.md`; no id-to-name lookups happen per order.
