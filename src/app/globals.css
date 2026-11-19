@@ -210,6 +210,21 @@ button.appraise-button:disabled {
   background: transparent;
 }
 
+.item-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.item-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #111722;
+}
+
 .prices tfoot th,
 .prices tfoot td {
   background: #131a26;

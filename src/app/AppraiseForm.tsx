@@ -9,6 +9,8 @@ import {
 import { priceRank } from "./price-rank";
 
 const initialState: AppraiseState = { status: "idle", mode: "station" };
+const SAMPLE_TEXT = "Tritanium 1000000\nHobgoblin I 10\nIshtar 1";
+const LAST_APPRAISAL_KEY = "apolloeve-last-appraisal";
 
 type Mode = "station" | "system";
 
@@ -79,7 +81,20 @@ function Results({ view }: { view: AppraiseView }) {
               return (
                 <Fragment key={row.name}>
                   <tr className="seller-row">
-                    <th rowSpan={2} scope="row">{row.name}</th>
+                    <th rowSpan={2} scope="row">
+                      <span className="item-identity">
+                        <img
+                          className="item-icon"
+                          src={`https://images.evetech.net/types/${row.typeId}/icon?size=64`}
+                          alt=""
+                          aria-hidden="true"
+                          width={32}
+                          height={32}
+                          loading="lazy"
+                        />
+                        {row.name}
+                      </span>
+                    </th>
                     <td rowSpan={2} className="num">
                       {row.quantity.toLocaleString("en-US")}
                     </td>
@@ -177,15 +192,49 @@ export function AppraiseForm() {
   // (observed in a real browser on 2026-11-19).
   const [text, setText] = useState("");
   const [mode, setMode] = useState<Mode>("station");
+  const [hydrated, setHydrated] = useState(false);
+  const [storageUnavailable, setStorageUnavailable] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const submitAfterModeChange = useRef(false);
+  const submitAfterRestore = useRef(false);
+
+  useEffect(() => {
+    try {
+      const savedText = window.localStorage.getItem(LAST_APPRAISAL_KEY);
+      if (savedText?.trim()) {
+        setText(savedText);
+        submitAfterRestore.current = true;
+      }
+    } catch {
+      setStorageUnavailable(true);
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || !submitAfterRestore.current) return;
+    submitAfterRestore.current = false;
+    formRef.current?.requestSubmit();
+  }, [hydrated, text]);
 
   // The mode is injected into FormData from React state instead of living in a
   // form field: React resets form fields when a server action completes, and a
   // radio's checked state is exactly what that reset breaks.
   const [state, formAction, pending] = useActionState(
     async (previous: AppraiseState, formData: FormData) => {
+      const submittedText = String(formData.get("text") ?? "");
+      const appraisalText =
+        submittedText.trim() === "" ? SAMPLE_TEXT : submittedText;
+      formData.set("text", appraisalText);
       formData.set("mode", mode);
+      setText(appraisalText);
+      try {
+        window.localStorage.setItem(LAST_APPRAISAL_KEY, appraisalText);
+        setStorageUnavailable(false);
+      } catch {
+        setStorageUnavailable(true);
+      }
       return appraiseAction(previous, formData);
     },
     initialState,
@@ -208,6 +257,11 @@ export function AppraiseForm() {
   return (
     <section className="appraise">
       <form ref={formRef} action={formAction}>
+        {storageUnavailable && (
+          <p className="warning">
+            Browser storage is unavailable; the last appraisal cannot be remembered.
+          </p>
+        )}
         <label className="field-label" htmlFor="text">
           Inventory or item names
         </label>
@@ -218,7 +272,7 @@ export function AppraiseForm() {
           spellCheck={false}
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder={"Tritanium 1000000\nHobgoblin I 10\nIshtar 1"}
+          placeholder={SAMPLE_TEXT}
         />
 
         <div className="controls">

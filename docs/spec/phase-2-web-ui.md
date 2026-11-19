@@ -11,10 +11,11 @@ its whole system.
 ## Scope
 
 In: page layout, form, results table, totals, station/system toggle, rejected
-and unresolved feedback, server action wiring, styling.
+and unresolved feedback, server action wiring, styling, first-visit sample
+appraisal, browser-local last-input restore, and item icons.
 
-Out: name search/autocomplete (phase 4), persistence, saved appraisals,
-history charts, deployment.
+Out: name search/autocomplete (phase 4), server-side persistence, multiple
+saved appraisals, history charts, deployment.
 
 ## Pricing scope (the toggle)
 
@@ -83,6 +84,13 @@ number would be a lie.
       green; ties share a rank and missing prices are unranked.
 - [x] Rejected lines and unresolved names are shown to the user, not swallowed.
 - [x] Missing side of an item's book renders as `-`, not `0`.
+- [x] Submitting an empty textarea appraises the displayed sample input.
+- [x] The latest submitted text is stored in browser local storage and
+      automatically restored and appraised on the next page load. If browser
+      storage is unavailable, the user sees a warning.
+- [x] Each resolved item row shows its icon from
+      `https://images.evetech.net/types/{type_id}/icon?size=64`; the core and
+      server action provide the resolved type id.
 - [x] Server action rejects input over the limits with a readable message.
 - [x] No client component imports `src/market-core` (it imports only the
       server action); the import-boundary test still passes.
