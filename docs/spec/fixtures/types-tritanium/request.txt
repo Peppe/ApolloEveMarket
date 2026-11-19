@@ -1,0 +1,2 @@
+GET https://esi.evetech.net/latest/universe/types/34/?datasource=tranquility
+User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)

@@ -1,0 +1,11 @@
+HTTP 304 Not Modified
+date: Thu, 19 Nov 2026 18:31:17 GMT
+etag: "bbd9ba2ba09586e70f82d0a4d815918d5f008f12c6a9b6494f1ce74f"
+expires: Thu, 19 Nov 2026 18:36:05 GMT
+last-modified: Thu, 19 Nov 2026 18:31:05 GMT
+x-pages: 1
+x-compatibility-date: 2020-01-01
+x-ratelimit-group: market-order
+x-ratelimit-limit: 12000/15m
+x-ratelimit-remaining: 11944
+x-ratelimit-used: 1

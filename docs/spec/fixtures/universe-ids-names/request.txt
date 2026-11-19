@@ -1,0 +1,4 @@
+POST https://esi.evetech.net/latest/universe/ids/?datasource=tranquility
+User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
+
+["Tritanium","Hobgoblin I","Vespa I","Scourge Heavy Missile","Ishtar"]

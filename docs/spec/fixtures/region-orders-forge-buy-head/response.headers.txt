@@ -1,0 +1,12 @@
+HTTP 200 OK
+content-type: application/json; charset=UTF-8
+date: Thu, 19 Nov 2026 18:31:18 GMT
+etag: "6107c39d39d7fcce858588090e2ad4c72296c47b96042cfe19dac21b"
+expires: Thu, 19 Nov 2026 18:33:52 GMT
+last-modified: Thu, 19 Nov 2026 18:28:52 GMT
+x-pages: 134
+x-compatibility-date: 2020-01-01
+x-ratelimit-group: market-order
+x-ratelimit-limit: 12000/15m
+x-ratelimit-remaining: 11935
+x-ratelimit-used: 2

@@ -1,0 +1,4 @@
+POST https://esi.evetech.net/latest/universe/names/?datasource=tranquility
+User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
+
+[30000142,30002187,30002659,30002053,30002510,60003760]

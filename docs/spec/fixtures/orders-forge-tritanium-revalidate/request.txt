@@ -1,0 +1,3 @@
+GET https://esi.evetech.net/latest/markets/10000002/orders/?order_type=all&type_id=34&datasource=tranquility
+User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
+If-None-Match: "bbd9ba2ba09586e70f82d0a4d815918d5f008f12c6a9b6494f1ce74f"

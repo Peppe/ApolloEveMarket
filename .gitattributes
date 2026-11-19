@@ -1,0 +1,5 @@
+# Normalize source and docs to LF.
+* text=auto eol=lf
+
+# Fixtures are recorded HTTP reality: never normalize, never convert.
+docs/spec/fixtures/** -text

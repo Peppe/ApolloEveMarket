@@ -1,0 +1,2 @@
+HEAD https://esi.evetech.net/latest/markets/10000002/orders/?order_type=buy&datasource=tranquility
+User-Agent: EveMarket-fixture-capture/0.1 (github.com/Peppe/EveMarket)
