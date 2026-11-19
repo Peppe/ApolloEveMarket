@@ -3,9 +3,10 @@
 Status: done (2026-11-19)
 
 Goal: the thing the project exists for. One textarea: paste an inventory or type
-item names, press Appraise, and see buy and sell for Jita, Dodixie, Amarr, Hek
-and Rens side by side, with totals - and a toggle that switches pricing between
-the hub's primary station and its whole system.
+item names, press Appraise, and compare buy prices across Jita, Dodixie, Amarr,
+Hek and Rens on one row and sell prices across them on the next, with totals
+and a toggle that switches pricing between the hub's primary station and its
+whole system.
 
 ## Scope
 
@@ -71,8 +72,9 @@ spread number would be a lie.
 - [x] `npm run smoke` supports `--station` / `--system` and prints which scope
       it used.
 - [x] Page renders a textarea, mode toggle, submit button, and after submitting
-      a table with one row per item, ten price cells, a totals row, and the
-      scope label (station name or system).
+      a table with two rows per item (one buy row and one sell row, each with
+      one price per hub), matching buy/sell totals rows, and the scope label
+      (station name or system).
 - [x] Rejected lines and unresolved names are shown to the user, not swallowed.
 - [x] Missing side of an item's book renders as `-`, not `0`.
 - [x] Server action rejects input over the limits with a readable message.

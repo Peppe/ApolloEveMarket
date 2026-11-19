@@ -175,10 +175,19 @@ button.appraise-button:disabled {
   border-bottom: 1px solid #26303f;
 }
 
-.prices thead th.sub {
+.prices thead th[rowspan] {
   font-weight: 500;
-  font-size: 12px;
   color: #8e99aa;
+}
+
+.prices .side-label {
+  color: #8e99aa;
+  font-weight: 500;
+  text-align: left;
+}
+
+.prices .sell-row > * {
+  border-top: 1px solid #26303f;
 }
 
 .prices th.num,

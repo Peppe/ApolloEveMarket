@@ -50,52 +50,65 @@ function Results({ view }: { view: AppraiseView }) {
               <th rowSpan={2} scope="col" className="num">
                 qty
               </th>
+              <th rowSpan={2} scope="col">
+                side
+              </th>
               {view.hubs.map((hub) => (
-                <th key={hub.key} colSpan={2} scope="colgroup" title={hub.scope}>
+                <th key={hub.key} scope="col" title={hub.scope}>
                   {hub.label}
                 </th>
-              ))}
-            </tr>
-            <tr>
-              {view.hubs.map((hub) => (
-                <Fragment key={hub.key}>
-                  <th scope="col" className="num sub">
-                    buy
-                  </th>
-                  <th scope="col" className="num sub">
-                    sell
-                  </th>
-                </Fragment>
               ))}
             </tr>
           </thead>
           <tbody>
             {view.rows.map((row) => (
-              <tr key={row.name}>
-                <th scope="row">{row.name}</th>
-                <td className="num">{row.quantity.toLocaleString("en-US")}</td>
-                {row.cells.map((cell, index) => (
-                  <Fragment key={view.hubs[index]?.key ?? index}>
-                    <td className={`num hub-start${cell.buy === null ? " muted" : ""}`}>
+              <Fragment key={row.name}>
+                <tr className="buy-row">
+                  <th rowSpan={2} scope="row">{row.name}</th>
+                  <td rowSpan={2} className="num">
+                    {row.quantity.toLocaleString("en-US")}
+                  </td>
+                  <th scope="row" className="side-label">buy</th>
+                  {row.cells.map((cell, index) => (
+                    <td
+                      key={view.hubs[index]?.key ?? index}
+                      className={`num hub-start${cell.buy === null ? " muted" : ""}`}
+                    >
                       {isk(cell.buy)}
                     </td>
-                    <td className={cell.sell === null ? "num muted" : "num"}>
+                  ))}
+                </tr>
+                <tr className="sell-row">
+                  <th scope="row" className="side-label">sell</th>
+                  {row.cells.map((cell, index) => (
+                    <td
+                      key={view.hubs[index]?.key ?? index}
+                      className={`num hub-start${cell.sell === null ? " muted" : ""}`}
+                    >
                       {isk(cell.sell)}
                     </td>
-                  </Fragment>
-                ))}
-              </tr>
+                  ))}
+                </tr>
+              </Fragment>
             ))}
           </tbody>
           <tfoot>
-            <tr>
-              <th scope="row">total</th>
-              <td />
+            <tr className="buy-row">
+              <th rowSpan={2} scope="row">total</th>
+              <td rowSpan={2} />
+              <th scope="row" className="side-label">buy</th>
               {view.totals.map((total, index) => (
-                <Fragment key={view.hubs[index]?.key ?? index}>
-                  <td className="num strong hub-start">{isk(total.buy)}</td>
-                  <td className="num strong">{isk(total.sell)}</td>
-                </Fragment>
+                <td key={view.hubs[index]?.key ?? index} className="num strong hub-start">
+                  {isk(total.buy)}
+                </td>
+              ))}
+            </tr>
+            <tr className="sell-row">
+              <th scope="row" className="side-label">sell</th>
+              {view.totals.map((total, index) => (
+                <td key={view.hubs[index]?.key ?? index} className="num strong hub-start">
+                  {isk(total.sell)}
+                </td>
               ))}
             </tr>
           </tfoot>

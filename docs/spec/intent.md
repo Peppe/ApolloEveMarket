@@ -50,12 +50,14 @@ change that implements them.
 |                                                              |
 |                          [ Appraise ]                         |
 +--------------------------------------------------------------+
-| item          qty |  Jita      | Dodixie   | Amarr   | ...    |
-|                   | buy   sell | buy  sell | buy sell|        |
-| Tritanium  1000000| 4.06  4.07 | ...       | ...    |        |
-| Hobgoblin I     10| ...        | ...       | ...    |        |
+| item          qty | side | Jita | Dodixie | Amarr | ...    |
+| Tritanium  1000000| buy  | 4.06 | ...     | ...   |        |
+|                   | sell | 4.07 | ...     | ...   |        |
+| Hobgoblin I     10| buy  | ...  | ...     | ...   |        |
+|                   | sell | ...  | ...     | ...   |        |
 +--------------------------------------------------------------+
-| totals            | ...        | ...       | ...    |        |
+| total             | buy  | ...  | ...     | ...   |        |
+|                   | sell | ...  | ...     | ...   |        |
 +--------------------------------------------------------------+
 ```
 
@@ -218,7 +220,7 @@ above in the same change.
 |---|---|---|---|
 | 0 | ESI spike: endpoints, paging, caching, per-system pricing rule; fixtures | this file | done |
 | 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | done |
-| 2 | Web UI: one textarea, buy/sell table per hub, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
+| 2 | Web UI: one textarea, two-row buy/sell comparison across hubs, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
 | 3 | Cache + budget hardening: LRU-bounded order cache, process-wide concurrency gate, ESI budget headers and `Retry-After`, cached name lookups | `phase-3-cache-hardening.md` | done |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
 | 5 | Deploy + tagged release notes | `phase-5-deploy.md` | done |
