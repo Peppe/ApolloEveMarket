@@ -98,6 +98,8 @@ number would be a lie.
       retains the existing price-ranking colors, and shows the supplied logo.
 - [x] Favicon, Apple touch icon, app icons, manifest, and browser theme color
       use the supplied brand assets and `#0F0B13`.
+- [x] Headings use Syne ExtraBold, copy uses Josefin Sans, and the inventory
+      textarea remains monospaced.
 - [x] Server action rejects input over the limits with a readable message.
 - [x] No client component imports `src/market-core` (it imports only the
       server action); the import-boundary test still passes.

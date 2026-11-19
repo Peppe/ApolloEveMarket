@@ -73,6 +73,8 @@ change that implements them.
   colors so the brand palette does not obscure price comparisons.
 - The supplied logo is used in the page heading, favicons, Apple touch icon,
   and web app manifest.
+- Headers use Syne ExtraBold; app copy uses Josefin Sans. The inventory input
+  remains monospaced for readable pasted columns.
 
 ## Known environment facts (verified 2026-11-19)
 

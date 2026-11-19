@@ -1,6 +1,19 @@
 import type { Metadata, Viewport } from "next";
+import { Josefin_Sans, Syne } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
+
+const syne = Syne({
+  weight: "800",
+  subsets: ["latin"],
+  variable: "--font-syne",
+});
+
+const josefinSans = Josefin_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-josefin-sans",
+});
 
 export const metadata: Metadata = {
   title: "ApolloEveMarket",
@@ -23,7 +36,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={`${syne.variable} ${josefinSans.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }
