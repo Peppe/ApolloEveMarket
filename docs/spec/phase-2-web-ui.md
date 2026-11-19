@@ -85,6 +85,8 @@ number would be a lie.
 - [x] Rejected lines and unresolved names are shown to the user, not swallowed.
 - [x] Missing side of an item's book renders as `-`, not `0`.
 - [x] Submitting an empty textarea appraises the displayed sample input.
+- [x] Ctrl+Enter or Cmd+Enter in the textarea submits the appraisal, matching
+      the Appraise button.
 - [x] The latest submitted text is stored in browser local storage and
       automatically restored and appraised on the next page load. If browser
       storage is unavailable, the user sees a warning.

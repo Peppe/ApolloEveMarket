@@ -272,6 +272,11 @@ export function AppraiseForm() {
           spellCheck={false}
           value={text}
           onChange={(event) => setText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || (!event.metaKey && !event.ctrlKey)) return;
+            event.preventDefault();
+            if (!pending) formRef.current?.requestSubmit();
+          }}
           placeholder={SAMPLE_TEXT}
         />
 
