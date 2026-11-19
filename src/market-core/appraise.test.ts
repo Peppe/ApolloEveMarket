@@ -51,6 +51,20 @@ describe("appraise", () => {
     expect(result.totals.rens.buy).toBe(0);
   });
 
+  it("prices the hub station by default and the whole system on request", async () => {
+    const station = await appraise("Tritanium", deps());
+    expect(station.priceMode).toBe("station");
+    expect(station.items[0]?.hubs.jita.orderCount).toBe(114);
+
+    const system = await appraise("Tritanium", deps(), { priceMode: "system" });
+    expect(system.priceMode).toBe("system");
+    expect(system.items[0]?.hubs.jita.orderCount).toBe(117);
+
+    // Both scopes land on the same best prices for this fixture: the extreme
+    // orders happen to sit at Jita 4-4.
+    expect(station.totals.jita.buy).toBeCloseTo(system.totals.jita.buy);
+  });
+
   it("returns unresolved names and rejected lines alongside prices", async () => {
     const result = await appraise(
       "Tritanium 1\nNot An Item 1\nbad quantity 1.5\n",

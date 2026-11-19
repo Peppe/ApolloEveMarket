@@ -37,11 +37,25 @@ export interface HubTotal {
   readonly missingSell: number;
 }
 
+/**
+ * Which orders count as "the hub's price".
+ *
+ * station - only the hub's primary station (default; what the market at Jita
+ *           4-4 looks like).
+ * system  - the whole solar system, including structures and other stations.
+ */
+export type PriceMode = "station" | "system";
+
+export interface AppraiseOptions {
+  readonly priceMode?: PriceMode;
+}
+
 export interface AppraiseResult {
   readonly items: readonly ItemPrice[];
   readonly rejected: readonly RejectedLine[];
   readonly unresolved: readonly UnresolvedItem[];
   readonly totals: Readonly<Record<HubKey, HubTotal>>;
+  readonly priceMode: PriceMode;
 }
 
 const DEFAULT_CONCURRENCY = 6;
@@ -97,8 +111,10 @@ function emptyTotals(hubs: readonly Hub[]): Record<HubKey, MutableTotal> {
 export async function appraise(
   text: string,
   deps: AppraiseDeps,
+  options: AppraiseOptions = {},
 ): Promise<AppraiseResult> {
   const hubs = deps.hubs ?? HUBS;
+  const priceMode = options.priceMode ?? "station";
   const parsed = parseInventory(text);
 
   const resolved = await deps.resolveNames(parsed.items.map((item) => item.name));
@@ -124,7 +140,11 @@ export async function appraise(
 
   await mapLimit(tasks, deps.concurrency ?? DEFAULT_CONCURRENCY, async ({ entry, hub }) => {
     const orders = await deps.getOrders(hub.regionId, entry.typeId);
-    const book = aggregateBook(orders, hub.systemId);
+    const book = aggregateBook(
+      orders,
+      hub.systemId,
+      priceMode === "station" ? hub.stationId : undefined,
+    );
     const books = results.get(entry.parsedIndex);
     if (books !== undefined) books[hub.key] = book;
   });
@@ -149,5 +169,5 @@ export async function appraise(
     }
   }
 
-  return { items, rejected: parsed.rejected, unresolved, totals };
+  return { items, rejected: parsed.rejected, unresolved, totals, priceMode };
 }

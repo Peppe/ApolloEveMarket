@@ -1,9 +1,11 @@
 export { appraise } from "./appraise";
 export type {
   AppraiseDeps,
+  AppraiseOptions,
   AppraiseResult,
   HubTotal,
   ItemPrice,
+  PriceMode,
   UnresolvedItem,
 } from "./appraise";
 export { aggregateBook, emptyBook } from "./aggregate";

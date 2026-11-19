@@ -14,9 +14,9 @@ body {
 }
 
 .page {
-  max-width: 54rem;
+  max-width: 74rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 3rem 1.25rem 4rem;
 }
 
 h1 {
@@ -26,25 +26,227 @@ h1 {
 }
 
 .lede {
-  margin: 0 0 2rem;
-  font-size: 1.125rem;
+  margin: 0 0 1.75rem;
+  font-size: 1.05rem;
   color: #aeb8c8;
+  max-width: 46rem;
 }
 
-.status {
-  border-left: 3px solid #4d7cff;
-  padding: 0.25rem 0 0.25rem 0.9rem;
-  color: #c7d0dd;
+.appraise form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 
-.hint {
-  color: #7c8798;
+.field-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #8e99aa;
+}
+
+textarea {
+  width: 100%;
+  background: #111722;
+  color: #e6ebf2;
+  border: 1px solid #253044;
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+  resize: vertical;
+  min-height: 9rem;
+}
+
+textarea:focus {
+  outline: 2px solid rgba(77, 124, 255, 0.4);
+  border-color: #4d7cff;
+}
+
+.controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.scope {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.25rem;
+  border: 1px solid #253044;
+  border-radius: 8px;
+}
+
+.scope-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #8e99aa;
+  padding: 0 0.55rem 0 0.45rem;
+}
+
+.seg {
+  background: transparent;
+  color: #b6c1d1;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.seg:hover {
+  background: #1a2331;
+}
+
+.seg.on {
+  background: #24344f;
+  color: #e8eef8;
+}
+
+button.appraise-button {
+  background: #2f5bd8;
+  color: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.appraise-button:hover:not(:disabled) {
+  background: #3a68e6;
+}
+
+button.appraise-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.error {
+  margin: 1rem 0 0;
+  border-left: 3px solid #ff5a4e;
+  padding: 0.35rem 0 0.35rem 0.8rem;
+  color: #ffc9c4;
+}
+
+.results {
+  margin-top: 2rem;
+}
+
+.scope-note {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: #8e99aa;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #1e2633;
+  border-radius: 8px;
+}
+
+.prices {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.prices th,
+.prices td {
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid #1a2230;
+  white-space: nowrap;
+}
+
+.prices thead th {
+  background: #131a26;
+  color: #aab6c8;
+  font-weight: 600;
+  text-align: center;
+}
+
+.prices thead tr:first-child th {
+  border-bottom: 1px solid #26303f;
+}
+
+.prices thead th.sub {
+  font-weight: 500;
+  font-size: 12px;
+  color: #8e99aa;
+}
+
+.prices th.num,
+.prices td.num {
+  text-align: right;
+}
+
+.prices tbody tr:hover {
+  background: #121a26;
+}
+
+.prices tbody th {
+  text-align: left;
+  font-weight: 500;
+  color: #e2e8f1;
+}
+
+.prices tbody th,
+.prices tbody td {
+  background: transparent;
+}
+
+.prices tfoot th,
+.prices tfoot td {
+  background: #131a26;
+  border-top: 1px solid #2a3546;
+  border-bottom: none;
+  font-weight: 600;
+}
+
+.prices .hub-start {
+  border-left: 1px solid #26303f;
+}
+
+.prices .muted {
+  color: #5b6678;
+}
+
+.legend {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: #8e99aa;
+  max-width: 52rem;
+}
+
+.legend strong {
+  color: #c3ccda;
+}
+
+.warning {
+  margin: 1rem 0 0;
+  border-left: 3px solid #ff9854;
+  padding: 0.35rem 0 0.35rem 0.8rem;
+  color: #ffd8b4;
   font-size: 0.9rem;
 }
 
-code {
-  background: #161c26;
-  border: 1px solid #222b38;
-  border-radius: 4px;
-  padding: 0.1rem 0.35rem;
+.warning-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.6rem;
+  color: #ffd8b4;
+  font-size: 0.85rem;
+}
+
+.footnote {
+  margin: 2.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid #1a2230;
+  color: #6b7686;
+  font-size: 0.8rem;
 }
