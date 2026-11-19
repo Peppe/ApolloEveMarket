@@ -40,6 +40,21 @@ describe("aggregateBook", () => {
     expect(perimeter.orderCount).toBe(24);
   });
 
+  it("narrows to the hub's station when asked", () => {
+    const station = aggregateBook(orders, JITA_SYSTEM, 60003760);
+
+    expect(station.orderCount).toBe(114);
+    expect(station.sellOrderCount).toBe(67);
+    expect(station.buyOrderCount).toBe(47);
+    expect(station.bestSell?.price).toBe(4.1);
+    expect(station.bestBuy?.price).toBe(3.96);
+
+    // The system book also carries orders in two other Jita stations.
+    expect(aggregateBook(orders, JITA_SYSTEM).orderCount).toBe(117);
+    expect(aggregateBook(orders, JITA_SYSTEM, 60015260).orderCount).toBe(2);
+    expect(aggregateBook(orders, JITA_SYSTEM, 60003469).orderCount).toBe(1);
+  });
+
   it("treats an empty book as a normal answer", () => {
     const empty = readFixtureJson<EsiOrder[]>("orders-forge-plex-empty");
     expect(empty).toEqual([]);

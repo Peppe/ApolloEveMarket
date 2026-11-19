@@ -3,14 +3,26 @@
  * talks to the real ESI.
  *
  *   npm run smoke -- "Tritanium" "Hobgoblin I"
+ *   npm run smoke -- --system "Tritanium"      (whole system, not just the hub station)
+ *   npm run smoke -- --station "Tritanium"     (default)
  */
 
-import { appraise, createLiveMarket, HUBS } from "../src/market-core/index";
+import { appraise, createLiveMarket, HUBS, type PriceMode } from "../src/market-core/index";
 
-const names = process.argv.slice(2);
+const argv = process.argv.slice(2);
+let priceMode: PriceMode = "station";
+const names: string[] = [];
+
+for (const arg of argv) {
+  if (arg === "--station" || arg === "--system") {
+    priceMode = arg === "--system" ? "system" : "station";
+  } else {
+    names.push(arg);
+  }
+}
 
 if (names.length === 0) {
-  console.error('usage: npm run smoke -- "Tritanium" "Hobgoblin I"');
+  console.error('usage: npm run smoke -- [--station|--system] "Tritanium" "Hobgoblin I"');
   process.exit(1);
 }
 
@@ -32,8 +44,10 @@ function right(value: string, width: number): string {
 
 const started = Date.now();
 const market = createLiveMarket();
-const result = await appraise(names.join("\n"), market);
+const result = await appraise(names.join("\n"), market, { priceMode });
 const elapsed = Date.now() - started;
+
+console.log(`scope: ${result.priceMode}${priceMode === "station" ? " (hub station)" : " (whole system)"}`);
 
 const nameWidth = Math.min(
   24,

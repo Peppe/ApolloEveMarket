@@ -25,6 +25,7 @@ export interface HubBook {
 export function aggregateBook(
   orders: readonly EsiOrder[],
   systemId: number,
+  stationId?: number,
 ): HubBook {
   let bestBuy: BookSide | null = null;
   let bestSell: BookSide | null = null;
@@ -33,6 +34,7 @@ export function aggregateBook(
 
   for (const order of orders) {
     if (order.system_id !== systemId) continue;
+    if (stationId !== undefined && order.location_id !== stationId) continue;
 
     const side: BookSide = {
       price: order.price,
