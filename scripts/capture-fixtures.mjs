@@ -113,22 +113,30 @@ await capture("orders-forge-tritanium-page2", {
   url: `${ESI}/markets/10000002/orders/?order_type=all&type_id=34&page=2&datasource=tranquility`,
 });
 
-// 5. A real "no orders" answer: 200 with an empty array (PLEX trades in no hub).
+// 5. A real "no orders" answer in a normal hub region.
 await capture("orders-forge-plex-empty", {
   url: `${ESI}/markets/10000002/orders/?order_type=all&type_id=44992&datasource=tranquility`,
 });
 
-// 6. History: daily OHLCV, a different shape from live orders.
+// 6. PLEX uses the global market region rather than hub region order books.
+await capture("orders-global-plex", {
+  url: `${ESI}/markets/19000001/orders/?order_type=all&type_id=44992&datasource=tranquility`,
+});
+await capture("orders-global-plex-page2", {
+  url: `${ESI}/markets/19000001/orders/?order_type=all&type_id=44992&page=2&datasource=tranquility`,
+});
+
+// 7. History: daily OHLCV, a different shape from live orders.
 await capture("history-forge-tritanium", {
   url: `${ESI}/markets/10000002/history/?type_id=34&datasource=tranquility`,
 });
 
-// 7. Type metadata (name, group, packaged volume) for display and totals.
+// 8. Type metadata (name, group, packaged volume) for display and totals.
 await capture("types-tritanium", {
   url: `${ESI}/universe/types/34/?datasource=tranquility`,
 });
 
-// 8. Hub identity: the five trade systems plus Jita's station. Prices are
+// 9. Hub identity: the five trade systems plus Jita's station. Prices are
 //    aggregated per SYSTEM, not per region (see intent.md), so these ids are
 //    load-bearing, not decoration.
 await capture("universe-names-hub-systems", {
@@ -137,7 +145,7 @@ await capture("universe-names-hub-systems", {
   body: [30000142, 30002187, 30002659, 30002053, 30002510, 60003760],
 });
 
-// 9. Headers only: a whole region's orders is many pages. Recorded to prove
+// 10. Headers only: a whole region's orders is many pages. Recorded to prove
 //    pagination is real and that per-type filtering is mandatory.
 await capture("region-orders-forge-buy-head", {
   url: `${ESI}/markets/10000002/orders/?order_type=buy&datasource=tranquility`,

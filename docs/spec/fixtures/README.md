@@ -42,14 +42,16 @@ filtered subset (`content-type`, `date`, `etag`, `expires`, `last-modified`,
 | `orders-forge-tritanium` | order shape; both book sides; 170 orders (117 in Jita system) |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0-byte body |
 | `orders-forge-tritanium-page2` | page past `X-Pages` -> `404`, not `[]` |
-| `orders-forge-plex-empty` | published type with no hub orders -> `200 []` |
+| `orders-forge-plex-empty` | PLEX has no orders in The Forge regional market -> `200 []` |
+| `orders-global-plex` | first page of PLEX orders from global market region `19000001` |
+| `orders-global-plex-page2` | second page of PLEX orders from global market region `19000001` |
 | `history-forge-tritanium` | daily OHLCV shape, latest row 2026-11-18 |
 | `types-tritanium` | `name/group_id/volume/portion_size/published` |
-| `region-orders-forge-buy-head` | headers only: one side of one region is `X-Pages: 134` |
+| `region-orders-forge-buy-head` | headers only: one side of one region is `X-Pages: 133` |
 
 ## Why so few order fixtures
 
 One real response is enough to pin the *contract* (fields, paging headers,
 caching headers). Multi-page and rate-limit behaviour are proven with fake
-transports in unit tests, because capturing a 134-page region dump would add
+transports in unit tests, because capturing a 133-page region dump would add
 ~100 MB to the repo for no extra information.

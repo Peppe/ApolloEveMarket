@@ -30,8 +30,8 @@ second environment (staging). Those can be their own phases if they earn it.
   of the server function, so the phase 3 cache is not globally shared. This is
   recorded as a known limitation rather than papered over: each instance
   respects `Expires`, so extra fetches cost budget, not correctness.
-- **Tag only after the deployed URL is verified.** `v0.1.0` will point at the
-  commit that was deployed and checked, not at a later doc-only commit.
+- **Tag only after the deployed URL is verified.** Every release tag points at
+  the commit that was deployed and checked, not at a later doc-only commit.
 
 ## Acceptance criteria
 

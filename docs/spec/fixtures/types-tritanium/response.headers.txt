@@ -1,9 +1,9 @@
 HTTP 200 OK
 content-type: application/json; charset=UTF-8
-date: Thu, 19 Nov 2026 20:10:16 GMT
+date: Thu, 19 Nov 2026 20:40:38 GMT
 etag: W/"38164bb719b8bcf2498eafbdb036f4a3dec9ac997fd779b0b72112fb"
 expires: Fri, 20 Nov 2026 11:05:00 GMT
 last-modified: Wed, 18 Nov 2026 11:21:24 GMT
 x-compatibility-date: 2020-01-01
 x-esi-error-limit-remain: 100
-x-esi-error-limit-reset: 44
+x-esi-error-limit-reset: 22

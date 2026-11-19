@@ -13,10 +13,10 @@ describe("aggregateBook", () => {
     const book = aggregateBook(orders, JITA_SYSTEM);
 
     expect(book.bestSell?.price).toBe(4.15);
-    expect(book.bestBuy?.price).toBe(3.97);
-    expect(book.orderCount).toBe(116);
-    expect(book.sellOrderCount).toBe(70);
-    expect(book.buyOrderCount).toBe(46);
+    expect(book.bestBuy?.price).toBe(3.94);
+    expect(book.orderCount).toBe(113);
+    expect(book.sellOrderCount).toBe(69);
+    expect(book.buyOrderCount).toBe(44);
   });
 
   it("would produce a nonsense spread if the whole region were used", () => {
@@ -29,28 +29,28 @@ describe("aggregateBook", () => {
 
     // The trap this rule exists for: cheap asks and high bids live in
     // different systems, so "region best" beats itself.
-    expect(regionWideSell).toBe(3.96);
+    expect(regionWideSell).toBe(3.01);
     expect(regionWideSell).toBeLessThan(regionWideBuy);
   });
 
   it("keeps other systems' books separate", () => {
     const perimeter = aggregateBook(orders, PERIMETER_SYSTEM);
-    expect(perimeter.bestSell?.price).toBe(4.2);
+    expect(perimeter.bestSell?.price).toBe(3.96);
     expect(perimeter.bestBuy?.price).toBe(3.95);
-    expect(perimeter.orderCount).toBe(24);
+    expect(perimeter.orderCount).toBe(25);
   });
 
   it("narrows to the hub's station when asked", () => {
     const station = aggregateBook(orders, JITA_SYSTEM, 60003760);
 
-    expect(station.orderCount).toBe(113);
-    expect(station.sellOrderCount).toBe(67);
-    expect(station.buyOrderCount).toBe(46);
+    expect(station.orderCount).toBe(110);
+    expect(station.sellOrderCount).toBe(66);
+    expect(station.buyOrderCount).toBe(44);
     expect(station.bestSell?.price).toBe(4.15);
-    expect(station.bestBuy?.price).toBe(3.97);
+    expect(station.bestBuy?.price).toBe(3.94);
 
     // The system book also carries orders in two other Jita stations.
-    expect(aggregateBook(orders, JITA_SYSTEM).orderCount).toBe(116);
+    expect(aggregateBook(orders, JITA_SYSTEM).orderCount).toBe(113);
     expect(aggregateBook(orders, JITA_SYSTEM, 60015260).orderCount).toBe(2);
     expect(aggregateBook(orders, JITA_SYSTEM, 60003469).orderCount).toBe(1);
   });

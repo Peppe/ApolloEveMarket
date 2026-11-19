@@ -7,9 +7,11 @@ Hek, Rens.
 Status: phases 0-5 done. The ESI facts are verified and recorded, the UI-free
 market core is fixture-tested, and the site is live against real ESI: paste
 box, per-hub Buyers and Sellers comparison, ranked prices, item icons, totals,
-and a station/system price-scope toggle. The last appraisal is restored from
-browser-local storage. The live path is bounded too: LRU order cache, one
-process-wide concurrency gate, ESI budget headers honoured, cached name lookups.
+and a station/system price-scope toggle. PLEX uses ESI's global market region
+and is priced the same in every hub. The app has a custom plum-and-pink theme
+and logo. The last appraisal is restored from browser-local storage. The live
+path is bounded too: LRU order cache, one process-wide concurrency gate, ESI
+budget headers honoured, cached name lookups.
 
 Live: https://apolloevemarket.vercel.app
 
