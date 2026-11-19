@@ -97,7 +97,7 @@ number would be a lie.
 - [x] The page uses the supplied plum background and pink brand accents,
       retains the existing price-ranking colors, and shows the supplied logo.
 - [x] Favicon, Apple touch icon, app icons, manifest, and browser theme color
-      use the supplied brand assets and `#1B1524`.
+      use the supplied brand assets and `#0F0B13`.
 - [x] Server action rejects input over the limits with a readable message.
 - [x] No client component imports `src/market-core` (it imports only the
       server action); the import-boundary test still passes.
@@ -120,8 +120,8 @@ the dev server, plus the three gates on a clean tree:
   The toggle POST carried the typed text and the new mode.
 - Empty submit and over-limit input return a message and do not price.
 - `npm run smoke -- "Tritanium"` prints `scope: station (hub station)`.
-- Brand refresh verified in the local browser: plum page background, pink
-  Appraise button, supplied logo, favicon links, and manifest theme color.
+- Brand refresh verified in the local browser: deep-plum page background,
+  pink Appraise button, supplied logo, favicon links, and manifest theme color.
 
 Two React behaviours were found and fixed in the browser, not by reasoning:
 

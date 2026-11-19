@@ -71,7 +71,7 @@ describe("resolveNames", () => {
     expect(requests[0]?.method).toBe("POST");
     expect(requests[0]?.headers["Content-Type"]).toBe("application/json");
     expect(requests[0]?.headers["User-Agent"]).toBe(ESI_USER_AGENT);
-    expect(ESI_USER_AGENT).toContain("ApolloEveMarket/0.3.0");
+    expect(ESI_USER_AGENT).toContain("ApolloEveMarket/0.3.1");
     expect(ESI_USER_AGENT).toContain("(+https://github.com/Peppe/ApolloEveMarket)");
     expect(requests[0]?.headers["X-Compatibility-Date"]).toBe(
       ESI_COMPATIBILITY_DATE,

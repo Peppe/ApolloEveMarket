@@ -1,18 +1,18 @@
 :root {
   color-scheme: dark;
-  --background: #1b1524;
-  --surface: #241d2e;
-  --surface-raised: #30273d;
-  --surface-hover: #382d48;
-  --surface-selected: #44263d;
-  --border: #3c3248;
-  --border-strong: #4b3e5a;
+  --background: #0f0b13;
+  --surface: #17121f;
+  --surface-raised: #21192b;
+  --surface-hover: #2b2038;
+  --surface-selected: #3b1d31;
+  --border: #31273b;
+  --border-strong: #3d3049;
   --foreground: #f4edf7;
   --muted: #c2b5cb;
   --muted-subtle: #9b8da5;
   --accent: #ff6fb5;
   --accent-hover: #e0408f;
-  --accent-foreground: #1b1524;
+  --accent-foreground: #0f0b13;
 }
 
 * {
@@ -49,7 +49,7 @@ h1 {
   width: 2.5rem;
   height: 2.5rem;
   flex: 0 0 2.5rem;
-  background: url("/icon-192.png") center / contain no-repeat;
+  background: url("/icon-192-dark.png") center / contain no-repeat;
 }
 
 .lede {
