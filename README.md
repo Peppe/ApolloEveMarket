@@ -4,8 +4,9 @@ Paste an EVE Online inventory (or a list of item names) and see the best buy
 and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
 Hek, Rens.
 
-Status: phase 0 done (ESI spike + verified facts + fixtures); phase 1 is the
-UI-free market core. There is no UI yet.
+Status: phase 0 done (ESI spike + verified facts + fixtures); phase 1 done
+(UI-free market core, fixture-tested, live smoke verified). There is no UI
+yet - that is phase 2.
 
 ## Where things live
 

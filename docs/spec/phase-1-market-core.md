@@ -1,6 +1,6 @@
 # Phase 1 - Market core (UI-free)
 
-Status: accepted (2026-11-19)
+Status: done (2026-11-19)
 
 Goal: given pasted text containing item names and quantities, produce best buy
 and best sell per item for all five hubs, using live ESI orders - with all
@@ -88,29 +88,48 @@ count of items excluded because the side was missing.
 
 ## Acceptance criteria
 
-- [ ] `parse.ts` accepts the three line forms above, sums duplicates,
+- [x] `parse.ts` accepts the three line forms above, sums duplicates,
       rejects `1.000`/negative/zero quantities with a reason, and skips blanks.
-- [ ] `resolve.ts` sends a bare JSON array to `/universe/ids/` and reads only
+- [x] `resolve.ts` sends a bare JSON array to `/universe/ids/` and reads only
       `inventory_types`; a name that also matches a character (Tritanium)
       resolves to type 34. Unresolved names are returned, not thrown.
-- [ ] `aggregate.ts` against `orders-forge-tritanium` with system `30000142`
+- [x] `aggregate.ts` against `orders-forge-tritanium` with system `30000142`
       yields **bestSell 4.1** and **bestBuy 3.96** (fixture, captured
       2026-11-19), and the result is **not** the region-wide 2.36.
-- [ ] `aggregate.ts` against `orders-forge-plex-empty` yields both sides
+- [x] `aggregate.ts` against `orders-forge-plex-empty` yields both sides
       `null` and `orderCount 0` (no throw, no error state).
-- [ ] Fake transport with `X-Pages: 3` produces exactly 3 order requests and
+- [x] Fake transport with `X-Pages: 3` produces exactly 3 order requests and
       no 404 probe; a body from page 2 is included in the result.
-- [ ] Second call after expiry sends `If-None-Match`; a `304` response reuses
+- [x] Second call after expiry sends `If-None-Match`; a `304` response reuses
       the cached body without a second full payload.
-- [ ] Concurrent identical requests issue exactly one upstream fetch
+- [x] Concurrent identical requests issue exactly one upstream fetch
       (single-flight).
-- [ ] `appraise.ts` returns per-item results for all five hubs plus per-hub
+- [x] `appraise.ts` returns per-item results for all five hubs plus per-hub
       totals, in a stable order.
-- [ ] Import-boundary test: nothing under `src/market-core/` imports React or
+- [x] Import-boundary test: nothing under `src/market-core/` imports React or
       Next.js.
-- [ ] `npm run typecheck`, `npm test`, `npm run build` pass; `npm run smoke --
+- [x] `npm run typecheck`, `npm test`, `npm run build` pass; `npm run smoke --
       "Tritanium" "Hobgoblin I"` prints the five-hub table from live ESI.
 
-## Verification notes
+## Verification notes (2026-11-19)
 
-(fill in when the phase is implemented, with the date and what was observed)
+- 
+pm run typecheck clean, 
+pm test 29/29 passed (6 files), 
+pm run build
+  produced the static page (Next.js 16.4.6).
+- Fixture-backed assertions hold: Jita book from orders-forge-tritanium is
+  best buy 3.96 / best sell 4.10 over 117 orders, while the region-wide book
+  is 2.36 / 3.96 (the negative spread the per-system rule exists to avoid).
+  Perimeter in the same capture is a separate 4.20 / 3.95 book.
+- 
+pm run smoke -- "Tritanium" "Hobgoblin I" "Ishtar" against live ESI:
+  three items x five hubs = 15 books in 867 ms, e.g. Tritanium 3.96 / 4.10 in
+  Jita and Ishtar 127.2M / 130.9M.
+- Observed live and recorded in intent.md: Hek Tritanium returned best buy
+  3.04 with best sell 3.01. This is legitimate (ange: station across
+  different stations in one system), so the MVP shows both sides and no
+  spread.
+- Tests deliberately pin numbers from the committed fixtures. Re-capturing
+  fixtures means updating those expectations and this section in the same
+  change.
