@@ -9,7 +9,7 @@ export const maxDuration = 60;
 export default function Home() {
   return (
     <main className="page">
-      <h1>ApolloEveMarket</h1>
+      <h1 className="brand-title">ApolloEveMarket</h1>
       <p className="lede">
         Paste an inventory or type item names. Get buy and sell prices for Jita,
         Dodixie, Amarr, Hek and Rens at once.

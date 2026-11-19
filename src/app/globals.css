@@ -1,5 +1,18 @@
 :root {
   color-scheme: dark;
+  --background: #1b1524;
+  --surface: #241d2e;
+  --surface-raised: #30273d;
+  --surface-hover: #382d48;
+  --surface-selected: #44263d;
+  --border: #3c3248;
+  --border-strong: #4b3e5a;
+  --foreground: #f4edf7;
+  --muted: #c2b5cb;
+  --muted-subtle: #9b8da5;
+  --accent: #ff6fb5;
+  --accent-hover: #e0408f;
+  --accent-foreground: #1b1524;
 }
 
 * {
@@ -8,8 +21,8 @@
 
 body {
   margin: 0;
-  background: #0b0e13;
-  color: #d8dee9;
+  background: var(--background);
+  color: var(--foreground);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -25,10 +38,24 @@ h1 {
   letter-spacing: 0.02em;
 }
 
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.brand-title::before {
+  content: "";
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  background: url("/icon-192.png") center / contain no-repeat;
+}
+
 .lede {
   margin: 0 0 1.75rem;
   font-size: 1.05rem;
-  color: #aeb8c8;
+  color: var(--muted);
   max-width: 46rem;
 }
 
@@ -42,14 +69,14 @@ h1 {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: #8e99aa;
+  color: var(--muted-subtle);
 }
 
 textarea {
   width: 100%;
-  background: #111722;
-  color: #e6ebf2;
-  border: 1px solid #253044;
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.9rem 1rem;
   font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
@@ -58,8 +85,9 @@ textarea {
 }
 
 textarea:focus {
-  outline: 2px solid rgba(77, 124, 255, 0.4);
-  border-color: #4d7cff;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
 }
 
 .controls {
@@ -76,7 +104,7 @@ textarea:focus {
   gap: 0.35rem;
   margin: 0;
   padding: 0.25rem;
-  border: 1px solid #253044;
+  border: 1px solid var(--border);
   border-radius: 8px;
 }
 
@@ -84,13 +112,13 @@ textarea:focus {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: #8e99aa;
+  color: var(--muted-subtle);
   padding: 0 0.55rem 0 0.45rem;
 }
 
 .seg {
   background: transparent;
-  color: #b6c1d1;
+  color: var(--muted);
   border: 0;
   border-radius: 6px;
   padding: 0.4rem 0.8rem;
@@ -99,17 +127,17 @@ textarea:focus {
 }
 
 .seg:hover {
-  background: #1a2331;
+  background: var(--surface-hover);
 }
 
 .seg.on {
-  background: #24344f;
-  color: #e8eef8;
+  background: var(--surface-selected);
+  color: #ffd0e7;
 }
 
 button.appraise-button {
-  background: #2f5bd8;
-  color: #ffffff;
+  background: var(--accent);
+  color: var(--accent-foreground);
   border: 0;
   border-radius: 8px;
   padding: 0.7rem 1.5rem;
@@ -119,12 +147,18 @@ button.appraise-button {
 }
 
 button.appraise-button:hover:not(:disabled) {
-  background: #3a68e6;
+  background: var(--accent-hover);
 }
 
 button.appraise-button:disabled {
   opacity: 0.6;
   cursor: progress;
+}
+
+button:focus-visible,
+.seg:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .error {
@@ -141,12 +175,12 @@ button.appraise-button:disabled {
 .scope-note {
   margin: 0 0 0.6rem;
   font-size: 0.85rem;
-  color: #8e99aa;
+  color: var(--muted-subtle);
 }
 
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid #1e2633;
+  border: 1px solid var(--border);
   border-radius: 8px;
 }
 
@@ -160,34 +194,34 @@ button.appraise-button:disabled {
 .prices th,
 .prices td {
   padding: 0.45rem 0.65rem;
-  border-bottom: 1px solid #1a2230;
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 
 .prices thead th {
-  background: #131a26;
-  color: #aab6c8;
+  background: var(--surface);
+  color: var(--muted);
   font-weight: 600;
   text-align: center;
 }
 
 .prices thead tr:first-child th {
-  border-bottom: 1px solid #26303f;
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .prices thead th[rowspan] {
   font-weight: 500;
-  color: #8e99aa;
+  color: var(--muted-subtle);
 }
 
 .prices .side-label {
-  color: #8e99aa;
+  color: var(--muted-subtle);
   font-weight: 500;
   text-align: left;
 }
 
 .prices .buyer-row > * {
-  border-top: 1px solid #26303f;
+  border-top: 1px solid var(--border-strong);
 }
 
 .prices th.num,
@@ -196,13 +230,13 @@ button.appraise-button:disabled {
 }
 
 .prices tbody tr:hover {
-  background: #121a26;
+  background: var(--surface-hover);
 }
 
 .prices tbody th {
   text-align: left;
   font-weight: 500;
-  color: #e2e8f1;
+  color: var(--foreground);
 }
 
 .prices tbody th,
@@ -222,13 +256,13 @@ button.appraise-button:disabled {
   flex: 0 0 32px;
   object-fit: contain;
   border-radius: 4px;
-  background: #111722;
+  background: var(--surface);
 }
 
 .prices tfoot th,
 .prices tfoot td {
-  background: #131a26;
-  border-top: 1px solid #2a3546;
+  background: var(--surface);
+  border-top: 1px solid var(--border-strong);
   border-bottom: none;
   font-weight: 600;
 }
@@ -264,12 +298,12 @@ button.appraise-button:disabled {
 .legend {
   margin: 0.6rem 0 0;
   font-size: 0.8rem;
-  color: #8e99aa;
+  color: var(--muted-subtle);
   max-width: 52rem;
 }
 
 .legend strong {
-  color: #c3ccda;
+  color: var(--muted);
 }
 
 .warning {
@@ -290,7 +324,7 @@ button.appraise-button:disabled {
 .footnote {
   margin: 2.5rem 0 0;
   padding-top: 1rem;
-  border-top: 1px solid #1a2230;
-  color: #6b7686;
+  border-top: 1px solid var(--border);
+  color: var(--muted-subtle);
   font-size: 0.8rem;
 }

@@ -64,6 +64,15 @@ change that implements them.
 "Buyers" = what instant-selling to buy orders yields (best bid).
 "Sellers" = what instant-buying from sell orders costs (best ask).
 
+## Visual identity
+
+- App background and browser theme: `#1B1524`.
+- Primary accent: `#FF6FB5`; hover accent: `#E0408F`.
+- Panels use lighter plum shades. Keep the existing red/green price ranking
+  colors so the brand palette does not obscure price comparisons.
+- The supplied logo is used in the page heading, favicons, Apple touch icon,
+  and web app manifest.
+
 ## Known environment facts (verified 2026-11-19)
 
 Everything below was observed against the live API with the capture script

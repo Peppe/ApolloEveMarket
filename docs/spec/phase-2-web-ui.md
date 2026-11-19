@@ -12,7 +12,8 @@ its whole system.
 
 In: page layout, form, results table, totals, station/system toggle, rejected
 and unresolved feedback, server action wiring, styling, first-visit sample
-appraisal, browser-local last-input restore, and item icons.
+appraisal, browser-local last-input restore, item icons, and application
+branding.
 
 Out: name search/autocomplete (phase 4), server-side persistence, multiple
 saved appraisals, history charts, deployment.
@@ -93,6 +94,10 @@ number would be a lie.
 - [x] Each resolved item row shows its icon from
       `https://images.evetech.net/types/{type_id}/icon?size=64`; the core and
       server action provide the resolved type id.
+- [x] The page uses the supplied plum background and pink brand accents,
+      retains the existing price-ranking colors, and shows the supplied logo.
+- [x] Favicon, Apple touch icon, app icons, manifest, and browser theme color
+      use the supplied brand assets and `#1B1524`.
 - [x] Server action rejects input over the limits with a readable message.
 - [x] No client component imports `src/market-core` (it imports only the
       server action); the import-boundary test still passes.
@@ -115,6 +120,8 @@ the dev server, plus the three gates on a clean tree:
   The toggle POST carried the typed text and the new mode.
 - Empty submit and over-limit input return a message and do not price.
 - `npm run smoke -- "Tritanium"` prints `scope: station (hub station)`.
+- Brand refresh verified in the local browser: plum page background, pink
+  Appraise button, supplied logo, favicon links, and manifest theme color.
 
 Two React behaviours were found and fixed in the browser, not by reasoning:
 
