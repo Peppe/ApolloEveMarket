@@ -118,6 +118,15 @@ script and re-date it.
   `X-Ratelimit-Limit: 12000/15m`, `X-Ratelimit-Remaining`, `X-Ratelimit-Used`
   and `X-Esi-Error-Limit-*`. The budget is shared, so every visitor must be
   served from the same server-side cache.
+- Two separate budgets, both observed in the captures (2026-11-19): a
+  **request** budget per rate-limit group (`12000/15m`, market-order only) and
+  an **error** budget on the non-market endpoints (`x-esi-error-limit-remain:
+  100`, `x-esi-error-limit-reset: 43` seconds). `429` (or the older `420`) plus
+  `Retry-After` is how ESI says one of them is spent. Phase 3 reads all of
+  these and refuses new work below a floor; see `phase-3-cache-hardening.md`.
+- `type_id=34` in The Forge is a single page (`x-pages: 1`, 170 orders). The
+  `x-pages: 134` capture is the whole region with no `type_id`, which this app
+  never requests - so a cache entry is one small page, not a region dump.
 - `X-Compatibility-Date: 2020-01-01` is returned; sending it back pins the
   response schema so CCP cannot silently change shapes underneath us.
 
@@ -173,6 +182,11 @@ script and re-date it.
   per five minutes.
 - **No database in the MVP.** In-process cache with a bounded size; if the
   app ever needs multiple instances, that becomes a phase of its own.
+- **Never serve a price past its `Expires`.** A stale entry is revalidated, and
+  a failed revalidation is an error, not a reason to show an old number.
+  Concurrent revalidations are deduplicated, so this costs one request, not
+  one per visitor. (Phase 3 records why this beats a stale-while-revalidate
+  window for this app.)
 - **Next.js (App Router) + TypeScript**, UI-free core module + thin
   server/UI layer, mirroring EveDpsOverlay's `Core`/`Wpf` split.
 - **CI from the first code commit** (build + typecheck + tests), because a
@@ -205,7 +219,7 @@ above in the same change.
 | 0 | ESI spike: endpoints, paging, caching, per-system pricing rule; fixtures | this file | done |
 | 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | done |
 | 2 | Web UI: one textarea, buy/sell table per hub, totals, station/system toggle, rejected/unresolved feedback | `phase-2-web-ui.md` | done |
-| 3 | Cache + budget hardening: shared cache, bounded size, concurrency, rate headers, stale-while-revalidate | - | - |
+| 3 | Cache + budget hardening: LRU-bounded order cache, process-wide concurrency gate, ESI budget headers and `Retry-After`, cached name lookups | `phase-3-cache-hardening.md` | done |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
 | 5 | Deploy + tagged release notes | - | - |
 
