@@ -111,7 +111,9 @@ script and re-date it.
   **`Expires` = `Last-Modified` + 300 s**. That is CCP telling us the data is
   good for five minutes.
 - Conditional revalidation works and is cheap: `If-None-Match: <ETag>` on an
-  unchanged resource returns **`304` with a 0-byte body** (verified).
+  unchanged resource returns **`304` with a 0-byte body** (verified). The 304
+  still carries a **fresh `Expires` and a new `ETag`**, so the client must
+  update both from it rather than assuming the cached expiry still holds.
 - Responses expose `X-Ratelimit-Group: market-order`,
   `X-Ratelimit-Limit: 12000/15m`, `X-Ratelimit-Remaining`, `X-Ratelimit-Used`
   and `X-Esi-Error-Limit-*`. The budget is shared, so every visitor must be
@@ -144,6 +146,14 @@ script and re-date it.
 - Best buy = max `price` among buy orders (ignore `min_volume` for the MVP,
   note it for a later phase); best sell = min `price` among sell orders.
   Both over the item's orders in the hub system only.
+- **A bid above the ask is possible inside one system.** Orders carry
+  `range: station`, so a bid in one station and an ask in another cannot
+  trade against each other. Verified live on 2026-11-19: Hek Tritanium showed
+  best buy 3.04 and best sell 3.01. Do not "fix" this by widening the filter,
+  and do not compute a single spread for the MVP - show both sides as they
+  are. Station-level pricing (the hub's primary station) is a later phase.
+- `min_volume` is 1 on the orders captured so far, but it is a real constraint
+  for buy orders in principle. The MVP ignores it and says so.
 
 ## Decisions and why
 
@@ -189,7 +199,7 @@ above in the same change.
 | phase | scope | spec | status |
 |---|---|---|---|
 | 0 | ESI spike: endpoints, paging, caching, per-system pricing rule; fixtures | this file | done |
-| 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | draft |
+| 1 | UI-free market core: parse paste text, resolve types, fetch+aggregate per hub, cache with ETag/Expires; fixture-tested; console smoke | `phase-1-market-core.md` | done |
 | 2 | Minimal web UI: one textarea, results table with buy/sell per hub, totals | - | - |
 | 3 | Cache + budget hardening: shared cache, bounded size, concurrency, rate headers, stale-while-revalidate | - | - |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
