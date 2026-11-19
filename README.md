@@ -6,9 +6,10 @@ Hek, Rens.
 
 Status: phases 0-5 done. The ESI facts are verified and recorded, the UI-free
 market core is fixture-tested, and the site is live against real ESI: paste
-box, buy/sell table per hub, totals, and a station/system price-scope toggle.
-The live path is bounded too: LRU order cache, one process-wide concurrency
-gate, ESI budget headers honoured, cached name lookups.
+box, per-hub Buyers and Sellers comparison, ranked prices, item icons, totals,
+and a station/system price-scope toggle. The last appraisal is restored from
+browser-local storage. The live path is bounded too: LRU order cache, one
+process-wide concurrency gate, ESI budget headers honoured, cached name lookups.
 
 Live: https://apolloevemarket.vercel.app
 
@@ -20,9 +21,12 @@ npm run dev          # http://localhost:3000
 ```
 
 Paste an inventory (or type `Tritanium 1000000` style lines) and press
-Appraise. The table shows, per hub and per item, `buy` (best buy order - what
-you receive by selling into it) and `sell` (best sell order - what you pay by
-buying from it). A dash means no orders on that side in that scope.
+Appraise, or use Ctrl+Enter / Cmd+Enter. An empty submission tries a sample
+appraisal. The table shows Sellers (best sell order - what you pay) before
+Buyers (best buy order - what you receive), with prices ranked by color across
+the hubs. Each item includes its EVE icon. The latest input is saved in this
+browser and appraised when you return; it is not stored on the server. A dash
+means no orders on that side in that scope.
 
 "Hub station" prices only the hub's main station (for example Jita IV-4);
 "Whole system" widens to every station and structure in the hub's solar
