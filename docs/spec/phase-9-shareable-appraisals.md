@@ -18,6 +18,9 @@ identifiers, accounts, and sharing chart-panel state.
 
 - The URL contains enough information to reproduce the submitted inventory
   and selected price scope, and no market prices or appraisal results.
+- The user's locally selected custom fifth-column region is not part of the
+  share URL; opening the link keeps the recipient's local preference or uses
+  the default region.
 - Use a deterministic, versioned, lossless, URL-safe encoding in the URL
   fragment. Compress the UTF-8 inventory before Base64URL encoding it, omit
   Base64 padding, and encode the scope compactly. The exact compression
