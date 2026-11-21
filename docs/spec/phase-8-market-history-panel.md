@@ -62,6 +62,19 @@ indicators, annotations, export, server persistence, and account features.
 - A unit candle represents a single day by default.
 - The candle draw is a vertical range from `lowest` to `highest`, with a
   horizontal marker at `average`.
+- Before selecting a charting dependency or building a renderer, evaluate
+  existing chart frameworks for an out-of-the-box range/candlestick series
+  that maps high, low, and average without inventing open/close values, plus a
+  volume series sharing the date axis and range controls.
+- Prefer a framework's built-in series and interaction model over a custom
+  renderer. Limit custom work to data adaptation, accessibility, and visual
+  theme integration. Do not build a heavily customized chart if a suitable
+  built-in chart can represent these values accurately.
+- Record the candidate(s), fixture-backed visual result, missing capabilities,
+  licensing/dependency impact, and selection rationale before adding a runtime
+  dependency. If no evaluated framework supports the required representation
+  and linked volume/range interactions cleanly, revise this spec before
+  choosing a custom renderer.
 - Red/green candle fill is not based on unavailable open/close values. Use
   established app red/green palette semantics for separate positive/negative
   or price-change context only, never as a true intraday close claim.
@@ -130,6 +143,11 @@ indicators, annotations, export, server persistence, and account features.
       and hub.
 - [ ] Region history is the default and uses the selected hub region.
 - [ ] PLEX uses the global region and is labeled as such.
+- [ ] Chart framework candidates are evaluated against the committed history
+      fixture before dependency selection; prefer an out-of-the-box range
+      series for high/low/average and linked volume.
+- [ ] Candidate, fit, licensing/dependency impact, and selection rationale
+      are recorded in the implementation change.
 - [ ] Daily candles use high/low range and average marker exactly.
 - [ ] Candles aggregate to 1 day, 3 days, 1 week, or 1 month.
 - [ ] Volume chart uses the same date range and the summed volume aggregation.
