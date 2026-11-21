@@ -68,7 +68,8 @@ change that implements them.
 
 - App background and browser theme: `#0F0B13`, a purple-hued shade with
   approximately the same darkness as the original `#0B0E13`.
-- Primary accent: `#FF6FB5`; hover accent: `#E0408F`.
+- Primary accent: `#E0408F`; hover accent: `#FF6FB5`. Appraise button text
+  is white for contrast.
 - Panels use lighter plum shades. Keep the existing red/green price ranking
   colors so the brand palette does not obscure price comparisons.
 - The supplied logo is used in the page heading, favicons, Apple touch icon,

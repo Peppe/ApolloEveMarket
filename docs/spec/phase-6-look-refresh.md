@@ -20,4 +20,5 @@ Out: layout changes, new components, color changes, and market data behavior.
 - [x] App copy retains Josefin Sans.
 - [x] The lede, legend, warnings and footnote span the full content width used
       by the inventory textarea and results table.
+- [x] The Appraise button label is white against both accent states.
 - [x] `npm run typecheck`, `npm test`, and `npm run build` pass.
