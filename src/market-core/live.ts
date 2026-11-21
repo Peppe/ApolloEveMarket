@@ -1,5 +1,7 @@
 import type { AppraiseDeps } from "./appraise";
 import { createEsiClient } from "./esi-client";
+import { createEsiHistoryClient } from "./history-client";
+import type { EsiMarketHistory } from "./esi-types";
 import {
   createEsiBudget,
   withBudgetGuard,
@@ -31,6 +33,10 @@ export interface LiveMarketStats {
 }
 
 export interface LiveMarket extends AppraiseDeps {
+  getHistory(
+    regionId: number,
+    typeId: number,
+  ): Promise<readonly EsiMarketHistory[]>;
   cacheSize(): number;
   stats(): LiveMarketStats;
 }
@@ -64,6 +70,10 @@ export function createLiveMarket(options: LiveMarketOptions = {}): LiveMarket {
     now: options.now,
     maxCacheEntries: options.maxCacheEntries,
   });
+  const historyClient = createEsiHistoryClient({
+    transport,
+    now: options.now,
+  });
 
   const ids = createCachedIdsFetcher(createIdsFetcher(transport), {
     maxEntries: options.maxCachedNames,
@@ -72,7 +82,11 @@ export function createLiveMarket(options: LiveMarketOptions = {}): LiveMarket {
   return {
     getOrders: (regionId, typeId) => client.getOrders(regionId, typeId),
     resolveNames: (names) => resolveNames(names, ids),
-    cacheSize: () => client.cacheSize(),
-    stats: () => ({ cacheEntries: client.cacheSize(), budget: budget.snapshot() }),
+    getHistory: (regionId, typeId) => historyClient.getHistory(regionId, typeId),
+    cacheSize: () => client.cacheSize() + historyClient.cacheSize(),
+    stats: () => ({
+      cacheEntries: client.cacheSize() + historyClient.cacheSize(),
+      budget: budget.snapshot(),
+    }),
   };
 }

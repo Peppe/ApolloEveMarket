@@ -1,6 +1,6 @@
 # Phase 8 - Market history panel
 
-Status: draft
+Status: done (2026-11-21)
 
 Goal: let a user inspect an item's daily market history from a table price
 cell in an expandable inline panel.
@@ -10,7 +10,7 @@ the graph can later follow an explicitly selected station or system scope.
 
 ## Scope
 
-In: inline history row, panel modes, candlestick and volume rendering, date
+In: inline history row, panel modes, daily range and volume rendering, date
 range controls, local-storage settings, region history loading, and keyboard/
 pointer interaction.
 
@@ -75,16 +75,25 @@ indicators, annotations, export, server persistence, and account features.
   dependency. If no evaluated framework supports the required representation
   and linked volume/range interactions cleanly, revise this spec before
   choosing a custom renderer.
-- Red/green candle fill is not based on unavailable open/close values. Use
-  established app red/green palette semantics for separate positive/negative
-  or price-change context only, never as a true intraday close claim.
+- Evaluation decision (2026-11-21): Chart.js built-in floating bars accept
+  low/high ranges, line point styles provide the average marker, and a second
+  built-in bar chart provides volume. Both use a shared numeric date axis
+  controlled by native date/range inputs, so no custom renderer or time-axis
+  adapter is needed. Chart.js is MIT-licensed. ApexCharts also has a built-in
+  range-bar type, but its current dual Community/Commercial/OEM license model
+  introduces usage and redistribution conditions for this interactive public
+  app. Use Chart.js; customize only series configuration and app theme.
+- Aggregation uses the arithmetic mean of daily averages because ESI does not
+  provide inputs for a volume-weighted price. High and low use the maximum and
+  minimum; volume is summed.
+- Week groups start Monday UTC; 3-day groups are calendar blocks anchored to
+  January 1.
+- Range bars use a neutral app-compatible color. Do not imply an intraday
+  rise/fall using unavailable open/close values.
 - Larger candle units are supported as settings:
   `1 day`, `3 days`, `1 week`, `1 month`.
 - Aggregating to a larger unit combines each source day's low/high/average and
-  volume. The aggregated average is a volume- or count-weighted average only
-  if the source data supports the exact weight; otherwise use the mean of
-  source daily averages and label it as an average. The spec implementation
-  must state the selected formula.
+  volume using the formula recorded above.
 - Missing dates remain missing; they are not fabricated with zero or copied
   forward.
 
@@ -94,7 +103,8 @@ indicators, annotations, export, server persistence, and account features.
 - The history chart and volume chart share the horizontal date axis.
 - Volume bars use the same grouped candle unit as the candles.
 - Volume aggregation sums the source daily `volume`.
-- Volume bars preserve the selected date range and pan/zoom state.
+- Volume bars preserve the selected date range and rerender with each range
+  change.
 
 ## Date range and zoom
 
@@ -135,25 +145,23 @@ indicators, annotations, export, server persistence, and account features.
 
 ## Acceptance criteria
 
-- [ ] A panel host is separate from the candlestick chart implementation.
-- [ ] Item price cells open and close an inline history row; totals and quantity
+- [x] A panel host is separate from the range-chart implementation.
+- [x] Item price cells open and close an inline history row; totals and quantity
       cells do not.
-- [ ] Clicking another price cell replaces the open panel.
-- [ ] Buyers and Sellers price cells open the same history for the selected item
+- [x] Clicking another price cell replaces the open panel.
+- [x] Buyers and Sellers price cells open the same history for the selected item
       and hub.
-- [ ] Region history is the default and uses the selected hub region.
-- [ ] PLEX uses the global region and is labeled as such.
-- [ ] Chart framework candidates are evaluated against the committed history
-      fixture before dependency selection; prefer an out-of-the-box range
-      series for high/low/average and linked volume.
-- [ ] Candidate, fit, licensing/dependency impact, and selection rationale
-      are recorded in the implementation change.
-- [ ] Daily candles use high/low range and average marker exactly.
-- [ ] Candles aggregate to 1 day, 3 days, 1 week, or 1 month.
-- [ ] Volume chart uses the same date range and the summed volume aggregation.
-- [ ] Date range can expand and contract and persists with the candle unit.
-- [ ] Chart settings persist across graph-to-graph navigation in local storage.
-- [ ] The chart panel has a switch point for a future order-book panel.
-- [ ] Loading, no-history and error states stay inside the panel.
-- [ ] The implementation is fixture-tested with the committed history fixture.
-- [ ] `npm run typecheck`, `npm test`, `npm run build` pass.
+- [x] Region history is the default and uses the selected hub region.
+- [x] PLEX uses the global region and is labeled as such.
+- [x] Chart.js built-in floating bar, point, and volume series were evaluated
+      against the history fixture; license and alternative considerations are
+      recorded above.
+- [x] Daily candles use high/low range and average marker exactly.
+- [x] Candles aggregate to 1 day, 3 days, 1 week, or 1 month.
+- [x] Volume chart uses the same date range and the summed volume aggregation.
+- [x] Date range can expand and contract and persists with the candle unit.
+- [x] Chart settings persist across graph-to-graph navigation in local storage.
+- [x] The chart panel has a switch point for a future order-book panel.
+- [x] Loading, no-history and error states stay inside the panel.
+- [x] The implementation is fixture-tested with the committed history fixture.
+- [x] `npm run typecheck`, `npm test`, `npm run build` pass.

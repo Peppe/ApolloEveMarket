@@ -18,6 +18,8 @@ change that implements them.
 - **All five hubs at once**: Jita, Dodixie, Amarr, Hek, Rens. Per item, show
   *both* sides of the book - what you would pay (best sell/ask) and what you
   would receive (best buy/bid) - plus totals for the whole paste.
+- Item price cells open daily regional price history with a high-low range,
+  average marker, and linked volume chart.
 - **Correct before clever.** Prices are derived from live ESI orders, and the
   aggregation rule is explicit and tested (see "Pricing semantics").
 - **All ESI traffic happens server-side.** The browser never calls CCP. This
@@ -35,8 +37,8 @@ change that implements them.
   wallet. Nothing on this site requires an EVE login.
 - Not a full market browser (category trees, order-book depth per station)
   in the MVP. Those are later phases if they earn their keep.
-- Price history is available only through a later phase; it will open from
-  table price cells and will use region data by default.
+- No order-book depth panel, chart indicators, annotations, or chart export.
+  The history panel covers daily ESI market summaries only.
 - Not a reprocessing/refining calculator. Quantities are priced as-is.
 
 ## The product in one screen
@@ -266,10 +268,13 @@ above in the same change.
 | 3 | Cache + budget hardening: LRU-bounded order cache, process-wide concurrency gate, ESI budget headers and `Retry-After`, cached name lookups | `phase-3-cache-hardening.md` | done |
 | 4 | Name search/catalog: resolve arbitrary item names (ESI ids endpoint is exact-match only), paste-format edge cases | - | - |
 | 5 | Deploy + tagged release notes | `phase-5-deploy.md` | done |
+| 6 | Look refresh: Space Mono headings, Roboto Mono values, aligned text blocks | `phase-6-look-refresh.md` | done |
+| 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
+| 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
-only how they are obtained.
+only how they are obtained; phase 8 uses the Phase 7 region default.
 
 ## Open questions
 

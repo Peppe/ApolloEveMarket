@@ -22,6 +22,16 @@ export interface EsiOrder {
   readonly volume_total: number;
 }
 
+/** One daily row from `GET /markets/{region_id}/history/`. */
+export interface EsiMarketHistory {
+  readonly average: number;
+  readonly date: string;
+  readonly highest: number;
+  readonly lowest: number;
+  readonly order_count: number;
+  readonly volume: number;
+}
+
 export interface EsiIdEntry {
   readonly id: number;
   readonly name: string;
