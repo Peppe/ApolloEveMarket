@@ -39,6 +39,9 @@ means no orders on that side in that scope.
 Switching re-prices from the same cached orders. Click any item price cell to
 open regional daily high-low history with an average marker and linked volume.
 Candle size and date range are shared across graphs and saved in this browser.
+After appraising, the URL fragment contains a self-contained compressed copy of
+the inventory and price scope. Share the URL to restore and re-price it with
+current ESI data; the link contains no saved prices and is not private.
 
 ## Deploy
 

@@ -1,6 +1,6 @@
 # Phase 9 - Shareable appraisals
 
-Status: accepted (2026-11-21)
+Status: done (2026-11-21)
 
 Goal: let someone share an appraisal as a URL that restores the inventory and
 re-runs current pricing when opened.
@@ -49,6 +49,11 @@ identifiers, accounts, and sharing chart-panel state.
   be created.
 - The maximum decoded inventory is the existing 20,000-character appraisal
   limit; the existing 100-item limit still applies during appraisal.
+- Implementation decision (2026-11-21): use the browser's standard
+  `CompressionStream`/`DecompressionStream` with the `deflate` format, UTF-8
+  text encoding, and unpadded Base64URL. This adds no runtime dependency or
+  server storage. Decoding streams output and aborts above the UTF-8 safety
+  bound before applying the exact text-length and parsed-item limits.
 
 ## Appraisal and URL behavior
 
@@ -85,23 +90,23 @@ identifiers, accounts, and sharing chart-panel state.
 
 ## Acceptance criteria
 
-- [ ] A share URL uniquely and losslessly represents the exact inventory text
+- [x] A share URL uniquely and losslessly represents the exact inventory text
       and selected price scope in a self-contained fragment, without a
       server-side lookup or saved prices.
-- [ ] The chosen encoding is deterministic, versioned, URL-safe, and tested
+- [x] The chosen encoding is deterministic, versioned, URL-safe, and tested
       for size against representative and maximum-length inputs; Base64URL
       padding is omitted and format version `1` uses the specified scope codes.
-- [ ] Appraising changed text updates the fragment; editing without appraisal
+- [x] Appraising changed text updates the fragment; editing without appraisal
       does not.
-- [ ] Re-appraising unchanged text and scope leaves the URL unchanged.
-- [ ] A scope change followed by its automatic re-appraisal updates the
+- [x] Re-appraising unchanged text and scope leaves the URL unchanged.
+- [x] A scope change followed by its automatic re-appraisal updates the
       fragment to the selected scope.
-- [ ] Opening a valid share link restores the inventory and scope and
+- [x] Opening a valid share link restores the inventory and scope and
       immediately appraises with current market data.
-- [ ] A share link takes precedence over locally saved appraisal text; visits
+- [x] A share link takes precedence over locally saved appraisal text; visits
       without a share link retain local restoration.
-- [ ] Invalid and oversized links show an explicit error, do not submit sample
+- [x] Invalid and oversized links show an explicit error, do not submit sample
       text, and leave the app usable.
-- [ ] No database, Redis provider, runtime-memory lookup, server-side
+- [x] No database, Redis provider, runtime-memory lookup, server-side
       inventory mapping, or price snapshot is stored.
-- [ ] `npm run typecheck`, `npm test`, and `npm run build` pass.
+- [x] `npm run typecheck`, `npm test`, and `npm run build` pass.
