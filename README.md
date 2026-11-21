@@ -1,8 +1,8 @@
 # ApolloEveMarket
 
 Paste an EVE Online inventory (or a list of item names) and see the best buy
-and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
-Hek, Rens.
+and best sell price for Jita, Dodixie, Amarr and Hek, plus a searchable fifth
+column for any EVE market region.
 
 The ESI facts are verified and recorded, the UI-free market core is
 fixture-tested, and the site is live against real ESI: paste box, per-hub
@@ -11,10 +11,11 @@ System and Station price scopes. The source also includes an inline regional
 history chart with linked volume and browser-local chart settings. PLEX uses
 ESI's global market region and is priced the same in every hub. The app has a
 custom plum-and-pink theme and logo, with Space Mono Bold headings, Roboto Mono
-numbers, and Josefin Sans copy. The last appraisal is restored from
-browser-local storage. The live path is bounded too: LRU order cache, one
-process-wide concurrency gate, ESI budget headers honoured, cached name
-lookups.
+numbers, and Josefin Sans copy. The last appraisal and custom region selection
+are restored from browser-local storage; the custom region defaults to
+Heimatar, which contains the Rens trade hub. The live path is bounded too: LRU
+order cache, one process-wide concurrency gate, ESI budget headers honoured,
+cached name lookups.
 
 Live: https://apolloevemarket.vercel.app
 
@@ -29,7 +30,7 @@ Paste an inventory (or type `Tritanium 1000000` style lines) and press
 Appraise, or use Ctrl+Enter / Cmd+Enter. An empty submission tries a sample
 appraisal. The table shows Sellers (best sell order - what you pay) before
 Buyers (best buy order - what you receive), with prices ranked by color across
-the hubs. Each item includes its EVE icon. The latest input is saved in this
+the columns. Each item includes its EVE icon. The latest input is saved in this
 browser and appraised when you return; it is not stored on the server. A dash
 means no orders on that side in that scope.
 
@@ -42,6 +43,9 @@ Candle size and date range are shared across graphs and saved in this browser.
 After appraising, the URL fragment contains a self-contained compressed copy of
 the inventory and price scope. Share the URL to restore and re-price it with
 current ESI data; the link contains no saved prices and is not private.
+The custom region is a browser-local preference and is not part of the link.
+The fifth column always uses whole-region prices, regardless of the fixed hub
+price scope.
 
 ## Deploy
 
@@ -84,8 +88,7 @@ npm run smoke -- --system "Tritanium"                  # live ESI, whole systems
 
 ## Design in one line
 
-All ESI traffic, including history, is server-side and cached (`Expires` +
-`ETag`, LRU-bounded, single-flight). Region scope is the default, while station
-and system scopes narrow the same regional order snapshot. A process-wide gate
-and budget guard cover every upstream call, so visitors cannot spend CCP's
-quota faster than the cache allows.
+All ESI traffic, including history and region metadata, is server-side.
+Market-order and history caches honor `Expires` and `ETag`; region metadata is
+cached per server process. A process-wide gate and budget guard cover every
+upstream call, so visitors cannot spend CCP's quota faster than the cache allows.

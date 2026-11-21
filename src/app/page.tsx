@@ -12,15 +12,15 @@ export default function Home() {
       <h1 className="brand-title">ApolloEveMarket</h1>
       <p className="lede">
         Paste an inventory or type item names. Get buy and sell prices for Jita,
-        Dodixie, Amarr, Hek and Rens at once.
+        Dodixie, Amarr and Hek, with a searchable custom market region.
       </p>
 
       <AppraiseForm />
 
       <p className="footnote">
         Prices come from live EVE ESI market orders, cached exactly as long as
-        CCP says they are current. Your last input is saved only in this
-        browser; nothing is sent to or stored on our servers.
+        CCP says they are current. Your last input and custom region preference
+        are saved only in this browser; appraisals are not stored on the server.
       </p>
     </main>
   );

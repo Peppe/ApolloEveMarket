@@ -188,6 +188,79 @@ button:focus-visible,
   color: var(--muted-subtle);
 }
 
+.region-column-trigger {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.25rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.region-column-trigger:hover {
+  background: var(--surface-hover);
+}
+
+.region-scope-label {
+  color: var(--muted-subtle);
+  font-size: 0.72em;
+  font-weight: 400;
+}
+
+.region-picker {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr);
+  gap: 0.45rem;
+  width: min(100%, 24rem);
+  margin: 0 0 0.75rem auto;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.region-picker label {
+  color: var(--muted-subtle);
+  font-size: 0.78rem;
+}
+
+.region-picker input,
+.region-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.45rem;
+  background: var(--background);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.region-picker select {
+  padding: 0.2rem;
+}
+
+.region-reset {
+  justify-self: start;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.4rem 0.65rem;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  cursor: pointer;
+}
+
+.region-empty {
+  margin: 0;
+  color: var(--muted-subtle);
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);

@@ -1,0 +1,3 @@
+GET https://esi.evetech.net/latest/universe/regions/?datasource=tranquility
+User-Agent: ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)
+X-Compatibility-Date: 2020-01-01

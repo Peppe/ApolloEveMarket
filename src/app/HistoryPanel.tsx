@@ -63,7 +63,8 @@ interface HistoryPanelProps {
   readonly panelId: string;
   readonly typeId: number;
   readonly itemName: string;
-  readonly hubKey: HubKey;
+  readonly hubKey: HubKey | "custom";
+  readonly customRegionId?: number;
 }
 
 const DEFAULT_SETTINGS: ChartSettings = {
@@ -435,6 +436,7 @@ export function HistoryPanel({
   typeId,
   itemName,
   hubKey,
+  customRegionId,
 }: HistoryPanelProps) {
   const [result, setResult] = useState<MarketHistoryResult | null>(null);
   const [settings, setSettings] = useState<ChartSettings>(DEFAULT_SETTINGS);
@@ -456,7 +458,7 @@ export function HistoryPanel({
   useEffect(() => {
     let active = true;
     setResult(null);
-    void marketHistoryAction(typeId, hubKey)
+    void marketHistoryAction(typeId, hubKey, customRegionId)
       .then((response) => {
         if (active) setResult(response);
       })
@@ -473,7 +475,7 @@ export function HistoryPanel({
     return () => {
       active = false;
     };
-  }, [typeId, hubKey]);
+  }, [typeId, hubKey, customRegionId]);
 
   useEffect(() => {
     if (!settingsReady || result?.status !== "ok") return;

@@ -6,9 +6,10 @@
 // in docs/spec/intent.md describing what changed.
 //
 // Usage: node scripts/capture-fixtures.mjs
+// Region catalogue only: node scripts/capture-fixtures.mjs --regions
 // Requires Node 18+ (global fetch). Reads no config; no credentials needed.
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -89,6 +90,30 @@ const nameBody = [
   "Scourge Heavy Missile",
   "Ishtar",
 ];
+
+if (process.argv.includes("--regions")) {
+  const regionsResponse = await capture("universe-regions", {
+    url: `${ESI}/universe/regions/?datasource=tranquility`,
+  });
+  if (!regionsResponse.ok) {
+    throw new Error(`Region list capture failed with ${regionsResponse.status}`);
+  }
+  const regionIds = JSON.parse(
+    await readFile(join(FIXTURE_ROOT, "universe-regions", "response.body.json"), "utf8"),
+  );
+  if (!Array.isArray(regionIds) || !regionIds.every(Number.isSafeInteger)) {
+    throw new Error("ESI region list response did not contain safe integer ids");
+  }
+  const namesResponse = await capture("universe-region-names", {
+    url: `${ESI}/universe/names/?datasource=tranquility`,
+    method: "POST",
+    body: regionIds,
+  });
+  if (!namesResponse.ok) {
+    throw new Error(`Region names capture failed with ${namesResponse.status}`);
+  }
+  process.exit(0);
+}
 
 // 1. Name -> type id resolution (POST body is a BARE ARRAY, not {"names":[]}).
 await capture("universe-ids-names", {

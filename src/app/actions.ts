@@ -4,11 +4,13 @@ import {
   appraise,
   createLiveMarket,
   HUBS,
+  DEFAULT_CUSTOM_REGION,
   MAX_INVENTORY_ITEMS,
   MAX_INVENTORY_LENGTH,
   parseInventory,
   type EsiMarketHistory,
   type HubKey,
+  type MarketRegion,
   type PriceMode,
 } from "@/market-core";
 import { historyScopeFor } from "./history-scope";
@@ -40,14 +42,16 @@ export interface TotalsRow {
 }
 
 export interface HubColumn {
-  readonly key: HubKey;
+  readonly key: HubKey | "custom";
   readonly label: string;
   readonly scope: string;
+  readonly regionId: number;
 }
 
 /** Serializable shape the client renders. The core types never cross over. */
 export interface AppraiseView {
   readonly mode: PriceMode;
+  readonly customRegion: MarketRegion;
   readonly hubs: readonly HubColumn[];
   readonly rows: readonly AppraiseRow[];
   readonly totals: readonly TotalsRow[];
@@ -74,13 +78,51 @@ export type MarketHistoryResult =
       readonly message: string;
     };
 
+export type MarketRegionsResult =
+  | { readonly status: "ok"; readonly regions: readonly MarketRegion[] }
+  | { readonly status: "error"; readonly message: string };
+
+export async function marketRegionsAction(): Promise<MarketRegionsResult> {
+  try {
+    return { status: "ok", regions: await market.getRegions() };
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `Region list failed: ${error.message}`
+          : "Region list failed for an unknown reason.",
+    };
+  }
+}
+
 export async function marketHistoryAction(
   typeId: number,
-  hubKey: HubKey,
+  hubKey: HubKey | "custom",
+  customRegionId?: number,
 ): Promise<MarketHistoryResult> {
-  const scope = historyScopeFor(typeId, hubKey);
+  let customRegion: MarketRegion | undefined;
+  if (hubKey === "custom") {
+    if (!Number.isSafeInteger(customRegionId) || (customRegionId ?? 0) < 1) {
+      return { status: "error", message: "Invalid custom market region." };
+    }
+    try {
+      customRegion = (await market.getRegions()).find(
+        (region) => region.id === customRegionId,
+      );
+    } catch (error) {
+      return {
+        status: "error",
+        message:
+          error instanceof Error
+            ? `Region list failed: ${error.message}`
+            : "Region list failed for an unknown reason.",
+      };
+    }
+  }
+  const scope = historyScopeFor(typeId, hubKey, customRegion);
   if (scope === null) {
-    return { status: "error", message: "Invalid item or trade hub." };
+    return { status: "error", message: "Invalid item or market region." };
   }
 
   try {
@@ -139,41 +181,90 @@ export async function appraiseAction(
   }
 
   try {
-    const result = await appraise(text, market, { priceMode: mode });
+    const rawRegionId = formData.get("customRegionId");
+    const customRegionId =
+      typeof rawRegionId === "string" && rawRegionId !== ""
+        ? Number(rawRegionId)
+        : DEFAULT_CUSTOM_REGION.id;
+    if (!Number.isSafeInteger(customRegionId) || customRegionId < 1) {
+      return {
+        status: "error",
+        mode,
+        message: "Choose a valid custom market region.",
+      };
+    }
+    const customRegion = (await market.getRegions()).find(
+      (region) => region.id === customRegionId,
+    );
+    if (customRegion === undefined) {
+      return {
+        status: "error",
+        mode,
+        message: "Choose a region from the available market regions.",
+      };
+    }
+    const result = await appraise(text, market, {
+      priceMode: mode,
+      customRegion,
+    });
 
     const view: AppraiseView = {
       mode,
-      hubs: HUBS.map((hub) => ({
-        key: hub.key,
-        label: hub.label,
-        scope:
-          mode === "region"
-            ? `${hub.label} region`
-            : mode === "station"
-              ? hub.stationName
-              : `${hub.label} solar system`,
-      })),
+      customRegion,
+      hubs: [
+        ...HUBS.map((hub) => ({
+          key: hub.key,
+          label: hub.label,
+          scope:
+            mode === "region"
+              ? `${hub.label} region`
+              : mode === "station"
+                ? hub.stationName
+                : `${hub.label} solar system`,
+          regionId: hub.regionId,
+        })),
+        {
+          key: "custom",
+          label: customRegion.name,
+          scope: `${customRegion.name} region`,
+          regionId: customRegion.id,
+        },
+      ],
       rows: result.items.map((item) => ({
         typeId: item.typeId,
         name: item.name,
         quantity: item.quantity,
-        cells: HUBS.map((hub) => {
-          const book = item.hubs[hub.key];
+        cells: [
+          ...HUBS.map((hub) => {
+            const book = item.hubs[hub.key];
+            return {
+              buy: book.bestBuy?.price ?? null,
+              sell: book.bestSell?.price ?? null,
+            };
+          }),
+          {
+            buy: item.custom.bestBuy?.price ?? null,
+            sell: item.custom.bestSell?.price ?? null,
+          },
+        ],
+      })),
+      totals: [
+        ...HUBS.map((hub) => {
+          const total = result.totals[hub.key];
           return {
-            buy: book.bestBuy?.price ?? null,
-            sell: book.bestSell?.price ?? null,
+            buy: total.buy,
+            sell: total.sell,
+            missingBuy: total.missingBuy,
+            missingSell: total.missingSell,
           };
         }),
-      })),
-      totals: HUBS.map((hub) => {
-        const total = result.totals[hub.key];
-        return {
-          buy: total.buy,
-          sell: total.sell,
-          missingBuy: total.missingBuy,
-          missingSell: total.missingSell,
-        };
-      }),
+        {
+          buy: result.customTotal.buy,
+          sell: result.customTotal.sell,
+          missingBuy: result.customTotal.missingBuy,
+          missingSell: result.customTotal.missingSell,
+        },
+      ],
       rejected: result.rejected.map((entry) => ({
         line: entry.line,
         raw: entry.raw,

@@ -6,6 +6,10 @@ import { readFixtureBody, readFixtureJson } from "./testing/fixtures";
 import type { HttpResponse, Transport } from "./transport";
 
 const idsFixture = readFixtureJson<EsiIdsResponse>("universe-ids-names");
+const regionIdsFixture = readFixtureJson<number[]>("universe-regions");
+const regionNamesFixture = readFixtureJson<
+  { readonly category: string; readonly id: number; readonly name: string }[]
+>("universe-region-names");
 const historyFixture = readFixtureBody("history-forge-tritanium");
 
 function order(): EsiOrder {
@@ -30,6 +34,31 @@ function order(): EsiOrder {
  * that orders and name resolution really share one gate and one budget.
  */
 describe("createLiveMarket wiring", () => {
+  it("loads the validated region catalogue through the shared transport", async () => {
+    const calls: string[] = [];
+    const transport: Transport = async (url): Promise<HttpResponse> => {
+      calls.push(url);
+      return {
+        status: 200,
+        headers: {},
+        body: JSON.stringify(
+          url.includes("/regions/") ? regionIdsFixture : regionNamesFixture,
+        ),
+      };
+    };
+
+    const market = createLiveMarket({ transport });
+    const regions = await market.getRegions();
+
+    expect(regions.find((region) => region.name === "Syndicate")?.id).toBe(
+      10000041,
+    );
+    expect(calls).toHaveLength(2);
+    expect(calls.every((url) => url.includes("esi.evetech.net/latest"))).toBe(
+      true,
+    );
+  });
+
   it("sends history through the shared budget and concurrency transport", async () => {
     let active = 0;
     let peak = 0;

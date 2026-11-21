@@ -33,7 +33,7 @@ function deps(): AppraiseDeps {
 }
 
 describe("appraise", () => {
-  it("prices each item in all five hubs and totals the paste", async () => {
+  it("prices each item in four fixed hubs plus the custom region", async () => {
     const result = await appraise("Tritanium\t2\nTritanium 3\n", deps(), {
       priceMode: "station",
     });
@@ -52,14 +52,25 @@ describe("appraise", () => {
       "dodixie",
       "amarr",
       "hek",
-      "rens",
     ]);
 
     expect(result.totals.jita.buy).toBeCloseTo(3.94 * 5);
     expect(result.totals.jita.sell).toBeCloseTo(4.15 * 5);
     expect(result.totals.jita.missingBuy).toBe(0);
-    expect(result.totals.rens.missingBuy).toBe(1);
-    expect(result.totals.rens.buy).toBe(0);
+    expect(result.customTotal.missingBuy).toBe(1);
+    expect(result.customTotal.buy).toBe(0);
+  });
+
+  it("keeps the custom column region-wide when fixed hubs use another scope", async () => {
+    const result = await appraise("Tritanium", deps(), {
+      priceMode: "station",
+      customRegion: { id: 10000002, name: "The Forge" },
+    });
+
+    expect(result.items[0]?.hubs.jita.orderCount).toBe(110);
+    expect(result.items[0]?.custom.orderCount).toBe(168);
+    expect(result.customTotal.buy).toBe(3.95);
+    expect(result.customTotal.sell).toBe(3.01);
   });
 
   it("defaults to region scope and supports station and system scopes", async () => {
@@ -91,7 +102,8 @@ describe("appraise", () => {
     expect(item?.hubs.jita.bestBuy?.price).toBe(4_910_000);
     expect(item?.hubs.jita.bestSell?.price).toBe(5_083_000);
     expect(item?.hubs.jita.orderCount).toBe(1043);
-    for (const hub of ["jita", "dodixie", "amarr", "hek", "rens"] as const) {
+    expect(item?.custom).toEqual(item?.hubs.jita);
+    for (const hub of ["jita", "dodixie", "amarr", "hek"] as const) {
       expect(item?.hubs[hub]).toEqual(item?.hubs.jita);
     }
 

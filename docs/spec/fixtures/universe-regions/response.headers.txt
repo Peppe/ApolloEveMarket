@@ -1,0 +1,9 @@
+HTTP 200 OK
+content-type: application/json; charset=UTF-8
+date: Sat, 21 Nov 2026 15:25:50 GMT
+etag: W/"463450cc0e6f24786d416f998bd19419bb7acb98f984c454948872af"
+expires: Sun, 22 Nov 2026 11:05:00 GMT
+last-modified: Sat, 21 Nov 2026 11:03:29 GMT
+x-compatibility-date: 2020-01-01
+x-esi-error-limit-remain: 100
+x-esi-error-limit-reset: 10

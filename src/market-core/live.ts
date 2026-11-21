@@ -9,6 +9,10 @@ import {
   type BudgetSnapshot,
 } from "./http-guards";
 import { createCachedIdsFetcher, createIdsFetcher, resolveNames } from "./resolve";
+import {
+  createRegionCatalogFetcher,
+  type MarketRegion,
+} from "./regions";
 import { createFetchTransport, type Transport } from "./transport";
 
 export interface LiveMarketOptions {
@@ -37,6 +41,7 @@ export interface LiveMarket extends AppraiseDeps {
     regionId: number,
     typeId: number,
   ): Promise<readonly EsiMarketHistory[]>;
+  getRegions(): Promise<readonly MarketRegion[]>;
   cacheSize(): number;
   stats(): LiveMarketStats;
 }
@@ -78,11 +83,13 @@ export function createLiveMarket(options: LiveMarketOptions = {}): LiveMarket {
   const ids = createCachedIdsFetcher(createIdsFetcher(transport), {
     maxEntries: options.maxCachedNames,
   });
+  const getRegions = createRegionCatalogFetcher(transport);
 
   return {
     getOrders: (regionId, typeId) => client.getOrders(regionId, typeId),
     resolveNames: (names) => resolveNames(names, ids),
     getHistory: (regionId, typeId) => historyClient.getHistory(regionId, typeId),
+    getRegions,
     cacheSize: () => client.cacheSize() + historyClient.cacheSize(),
     stats: () => ({
       cacheEntries: client.cacheSize() + historyClient.cacheSize(),

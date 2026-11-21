@@ -20,6 +20,11 @@ export { createEsiHistoryClient } from "./history-client";
 export type { EsiHistoryClient, EsiHistoryClientOptions } from "./history-client";
 export { HUBS, HUB_KEYS } from "./hubs";
 export type { Hub, HubKey } from "./hubs";
+export {
+  createRegionCatalogFetcher,
+  DEFAULT_CUSTOM_REGION,
+} from "./regions";
+export type { MarketRegion } from "./regions";
 export { createLiveMarket } from "./live";
 export type { LiveMarket, LiveMarketOptions, LiveMarketStats } from "./live";
 export {
