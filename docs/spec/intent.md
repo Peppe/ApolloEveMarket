@@ -75,7 +75,8 @@ change that implements them.
   and web app manifest.
 - Headers use Space Mono Bold; app copy uses Josefin Sans. Numeric table values
   use Roboto Mono for readable quantities, prices and totals. The inventory
-  input remains monospaced for readable pasted columns.
+  input remains monospaced for readable pasted columns. The lede, legend,
+  warnings and footnote span the same content width as the input and table.
 
 ## Known environment facts (verified 2026-11-19)
 
