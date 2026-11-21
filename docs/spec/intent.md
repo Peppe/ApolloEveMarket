@@ -42,7 +42,8 @@ change that implements them.
 - No order-book depth panel, chart indicators, annotations, or chart export.
   The history panel covers daily ESI market summaries only.
 - Shared appraisal URLs do not store inventory on the server and do not contain
-  saved prices.
+  saved prices. They carry compressed inventory and scope in a self-contained
+  versioned URL fragment; no database or Redis store is required.
 - Not a reprocessing/refining calculator. Quantities are priced as-is.
 
 ## The product in one screen
@@ -275,7 +276,7 @@ above in the same change.
 | 6 | Look refresh: Space Mono headings, Roboto Mono values, aligned text blocks | `phase-6-look-refresh.md` | done |
 | 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
-| 9 | Share appraisals with compact inventory and scope links | `phase-9-shareable-appraisals.md` | draft |
+| 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | accepted |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
