@@ -6,6 +6,8 @@ import {
   type AppraiseState,
   type AppraiseView,
 } from "./actions";
+import { HistoryPanel } from "./HistoryPanel";
+import type { HubKey } from "@/market-core";
 import { priceRank } from "./price-rank";
 
 const initialState: AppraiseState = { status: "idle", mode: "region" };
@@ -13,6 +15,12 @@ const SAMPLE_TEXT = "Tritanium 1000000\nHobgoblin I 10\nIshtar 1";
 const LAST_APPRAISAL_KEY = "apolloeve-last-appraisal";
 
 type Mode = "region" | "station" | "system";
+
+interface HistorySelection {
+  readonly typeId: number;
+  readonly itemName: string;
+  readonly hubKey: HubKey;
+}
 
 function isk(value: number | null): string {
   if (value === null) return "-";
@@ -39,7 +47,15 @@ function scopeNote(view: AppraiseView): string {
   return "Every order in each hub's solar system, including structures.";
 }
 
-function Results({ view }: { view: AppraiseView }) {
+function Results({
+  view,
+  openHistory,
+  onSelectHistory,
+}: {
+  readonly view: AppraiseView;
+  readonly openHistory: HistorySelection | null;
+  readonly onSelectHistory: (selection: HistorySelection) => void;
+}) {
   if (view.rows.length === 0) {
     return (
       <div className="results">
@@ -102,26 +118,55 @@ function Results({ view }: { view: AppraiseView }) {
                       {row.quantity.toLocaleString("en-US")}
                     </td>
                     <th scope="row" className="side-label">Sellers</th>
-                    {row.cells.map((cell, index) => (
-                      <td
-                        key={view.hubs[index]?.key ?? index}
-                        className={`num hub-start ${priceRankClass(cell.sell, sellerPrices)}`}
-                      >
-                        {isk(cell.sell)}
-                      </td>
-                    ))}
+                    {row.cells.map((cell, index) => {
+                      const hub = view.hubs[index];
+                      return hub === undefined ? null : (
+                        <PriceCell
+                          key={hub.key}
+                          item={row}
+                          hubKey={hub.key}
+                          hubLabel={hub.label}
+                          side="sell"
+                          value={cell.sell}
+                          prices={sellerPrices}
+                          openHistory={openHistory}
+                          onSelectHistory={onSelectHistory}
+                        />
+                      );
+                    })}
                   </tr>
                   <tr className="buyer-row">
                     <th scope="row" className="side-label">Buyers</th>
-                    {row.cells.map((cell, index) => (
-                      <td
-                        key={view.hubs[index]?.key ?? index}
-                        className={`num hub-start ${priceRankClass(cell.buy, buyerPrices)}`}
-                      >
-                        {isk(cell.buy)}
-                      </td>
-                    ))}
+                    {row.cells.map((cell, index) => {
+                      const hub = view.hubs[index];
+                      return hub === undefined ? null : (
+                        <PriceCell
+                          key={hub.key}
+                          item={row}
+                          hubKey={hub.key}
+                          hubLabel={hub.label}
+                          side="buy"
+                          value={cell.buy}
+                          prices={buyerPrices}
+                          openHistory={openHistory}
+                          onSelectHistory={onSelectHistory}
+                        />
+                      );
+                    })}
                   </tr>
+                  {openHistory?.typeId === row.typeId && (
+                    <tr className="history-table-row">
+                      <td colSpan={3 + view.hubs.length}>
+                        <HistoryPanel
+                          key={`${row.typeId}-${openHistory.hubKey}`}
+                          panelId={`history-${row.typeId}-${openHistory.hubKey}`}
+                          typeId={row.typeId}
+                          itemName={row.name}
+                          hubKey={openHistory.hubKey}
+                        />
+                      </td>
+                    </tr>
+                  )}
                 </Fragment>
               );
             })}
@@ -168,6 +213,50 @@ function Results({ view }: { view: AppraiseView }) {
   );
 }
 
+function PriceCell({
+  item,
+  hubKey,
+  hubLabel,
+  side,
+  value,
+  prices,
+  openHistory,
+  onSelectHistory,
+}: {
+  readonly item: AppraiseView["rows"][number];
+  readonly hubKey: HubKey;
+  readonly hubLabel: string;
+  readonly side: "buy" | "sell";
+  readonly value: number | null;
+  readonly prices: readonly (number | null)[];
+  readonly openHistory: HistorySelection | null;
+  readonly onSelectHistory: (selection: HistorySelection) => void;
+}) {
+  const expanded =
+    openHistory?.typeId === item.typeId && openHistory.hubKey === hubKey;
+  const panelId = `history-${item.typeId}-${hubKey}`;
+  const sideName = side === "sell" ? "Sellers" : "Buyers";
+
+  return (
+    <td
+      className={`num hub-start ${priceRankClass(value, prices)}${expanded ? " history-active" : ""}`}
+    >
+      <button
+        type="button"
+        className="price-cell-trigger"
+        aria-label={`${expanded ? "Close" : "Open"} ${item.name} market history for ${hubLabel}, ${sideName}`}
+        aria-expanded={expanded}
+        aria-controls={expanded ? panelId : undefined}
+        onClick={() =>
+          onSelectHistory({ typeId: item.typeId, itemName: item.name, hubKey })
+        }
+      >
+        {isk(value)}
+      </button>
+    </td>
+  );
+}
+
 function Unresolved({ view }: { view: AppraiseView }) {
   return (
     <p className="warning">
@@ -197,6 +286,7 @@ export function AppraiseForm() {
   const [mode, setMode] = useState<Mode>("region");
   const [hydrated, setHydrated] = useState(false);
   const [storageUnavailable, setStorageUnavailable] = useState(false);
+  const [openHistory, setOpenHistory] = useState<HistorySelection | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submitAfterModeChange = useRef(false);
   const submitAfterRestore = useRef(false);
@@ -242,6 +332,10 @@ export function AppraiseForm() {
     },
     initialState,
   );
+
+  useEffect(() => {
+    if (state.view !== undefined) setOpenHistory(null);
+  }, [state.view]);
 
   // Re-price after a scope change, using the action bound to the new mode.
   useEffect(() => {
@@ -319,7 +413,20 @@ export function AppraiseForm() {
       </form>
 
       {state.status === "error" && <p className="error">{state.message}</p>}
-      {state.view !== undefined && <Results view={state.view} />}
+      {state.view !== undefined && (
+        <Results
+          view={state.view}
+          openHistory={openHistory}
+          onSelectHistory={(selection) => {
+            setOpenHistory((current) =>
+              current?.typeId === selection.typeId &&
+              current.hubKey === selection.hubKey
+                ? null
+                : selection,
+            );
+          }}
+        />
+      )}
     </section>
   );
 }

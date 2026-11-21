@@ -4,15 +4,17 @@ Paste an EVE Online inventory (or a list of item names) and see the best buy
 and best sell price for every major trade hub at once - Jita, Dodixie, Amarr,
 Hek, Rens.
 
-Status: phases 0-5 done. The ESI facts are verified and recorded, the UI-free
-market core is fixture-tested, and the site is live against real ESI: paste
-box, per-hub Buyers and Sellers comparison, ranked prices, item icons, totals,
-and a station/system price-scope toggle. PLEX uses ESI's global market region
-and is priced the same in every hub. The app has a custom plum-and-pink theme
-and logo, with Space Mono Bold headings and Josefin Sans copy. The last appraisal
-is restored from browser-local storage. The live
-path is bounded too: LRU order cache, one process-wide concurrency gate, ESI
-budget headers honoured, cached name lookups.
+The ESI facts are verified and recorded, the UI-free market core is
+fixture-tested, and the site is live against real ESI: paste box, per-hub
+Buyers and Sellers comparison, ranked prices, item icons, totals, and Region,
+System and Station price scopes. The source also includes an inline regional
+history chart with linked volume and browser-local chart settings. PLEX uses
+ESI's global market region and is priced the same in every hub. The app has a
+custom plum-and-pink theme and logo, with Space Mono Bold headings, Roboto Mono
+numbers, and Josefin Sans copy. The last appraisal is restored from
+browser-local storage. The live path is bounded too: LRU order cache, one
+process-wide concurrency gate, ESI budget headers honoured, cached name
+lookups.
 
 Live: https://apolloevemarket.vercel.app
 
@@ -32,9 +34,11 @@ browser and appraised when you return; it is not stored on the server. A dash
 means no orders on that side in that scope.
 
 "Region" prices the selected hub's whole EVE region and is the default;
-"Station" prices only the hub's main station (for example Jita IV-4);
-"System" widens to every station and structure in the hub's solar
-system. Switching re-prices from the same cached orders.
+"System" narrows to every station and structure in the hub's solar system;
+"Station" narrows to the hub's main station (for example Jita IV-4).
+Switching re-prices from the same cached orders. Click any item price cell to
+open regional daily high-low history with an average marker and linked volume.
+Candle size and date range are shared across graphs and saved in this browser.
 
 ## Deploy
 
@@ -68,7 +72,7 @@ costs rate budget, never correctness.
 npm run typecheck
 npm test
 npm run build
-npm run smoke -- "Tritanium" "Hobgoblin I"             # live ESI, hub stations
+npm run smoke -- "Tritanium" "Hobgoblin I"             # live ESI, hub regions
 npm run smoke -- --system "Tritanium"                  # live ESI, whole systems
 ```
 
@@ -77,8 +81,8 @@ npm run smoke -- --system "Tritanium"                  # live ESI, whole systems
 
 ## Design in one line
 
-All ESI traffic is server-side and cached (`Expires` + `ETag`, LRU-bounded,
-single-flight); region scope is the default, while station and system scopes
-narrow the same regional snapshot. One process-wide gate and
-one budget guard cover every upstream call, so a burst of visitors cannot
-spend CCP's quota faster than the cache allows.
+All ESI traffic, including history, is server-side and cached (`Expires` +
+`ETag`, LRU-bounded, single-flight). Region scope is the default, while station
+and system scopes narrow the same regional order snapshot. A process-wide gate
+and budget guard cover every upstream call, so visitors cannot spend CCP's
+quota faster than the cache allows.

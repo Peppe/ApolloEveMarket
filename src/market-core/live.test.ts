@@ -2,10 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { EsiIdsResponse, EsiOrder } from "./esi-types";
 import { EsiBudgetError } from "./http-guards";
 import { createLiveMarket } from "./live";
-import { readFixtureJson } from "./testing/fixtures";
+import { readFixtureBody, readFixtureJson } from "./testing/fixtures";
 import type { HttpResponse, Transport } from "./transport";
 
 const idsFixture = readFixtureJson<EsiIdsResponse>("universe-ids-names");
+const historyFixture = readFixtureBody("history-forge-tritanium");
 
 function order(): EsiOrder {
   return {
@@ -29,6 +30,38 @@ function order(): EsiOrder {
  * that orders and name resolution really share one gate and one budget.
  */
 describe("createLiveMarket wiring", () => {
+  it("sends history through the shared budget and concurrency transport", async () => {
+    let active = 0;
+    let peak = 0;
+    const calls: string[] = [];
+
+    const transport: Transport = async (url): Promise<HttpResponse> => {
+      calls.push(url);
+      active += 1;
+      peak = Math.max(peak, active);
+      await new Promise<void>((resolve) => setTimeout(resolve, 2));
+      active -= 1;
+
+      return {
+        status: 200,
+        headers: {},
+        body: url.includes("/history/") ? historyFixture : JSON.stringify([order()]),
+      };
+    };
+    const market = createLiveMarket({ transport, maxConcurrentRequests: 1 });
+
+    const [orders, history] = await Promise.all([
+      market.getOrders(10000002, 34),
+      market.getHistory(10000002, 34),
+    ]);
+
+    expect(orders).toHaveLength(1);
+    expect(history.length).toBeGreaterThan(0);
+    expect(peak).toBe(1);
+    expect(calls.some((url) => url.includes("/history/"))).toBe(true);
+    expect(market.cacheSize()).toBe(2);
+  });
+
   it("sends name resolution and order fetching through the same gate", async () => {
     let active = 0;
     let peak = 0;

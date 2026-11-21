@@ -5,8 +5,11 @@ import {
   createLiveMarket,
   HUBS,
   parseInventory,
+  type EsiMarketHistory,
+  type HubKey,
   type PriceMode,
 } from "@/market-core";
+import { historyScopeFor } from "./history-scope";
 
 /**
  * One market instance per server process: it owns the order cache, so every
@@ -38,7 +41,7 @@ export interface TotalsRow {
 }
 
 export interface HubColumn {
-  readonly key: string;
+  readonly key: HubKey;
   readonly label: string;
   readonly scope: string;
 }
@@ -58,6 +61,46 @@ export interface AppraiseState {
   readonly message?: string;
   readonly view?: AppraiseView;
   readonly mode: PriceMode;
+}
+
+export type MarketHistoryResult =
+  | {
+      readonly status: "ok";
+      readonly history: readonly EsiMarketHistory[];
+      readonly scope: string;
+      readonly regionId: number;
+    }
+  | {
+      readonly status: "error";
+      readonly message: string;
+    };
+
+export async function marketHistoryAction(
+  typeId: number,
+  hubKey: HubKey,
+): Promise<MarketHistoryResult> {
+  const scope = historyScopeFor(typeId, hubKey);
+  if (scope === null) {
+    return { status: "error", message: "Invalid item or trade hub." };
+  }
+
+  try {
+    const history = await market.getHistory(scope.regionId, typeId);
+    return {
+      status: "ok",
+      history,
+      regionId: scope.regionId,
+      scope: scope.label,
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `History failed: ${error.message}`
+          : "History failed for an unknown reason.",
+    };
+  }
 }
 
 export async function appraiseAction(
