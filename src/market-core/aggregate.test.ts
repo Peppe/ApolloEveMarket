@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aggregateBook, emptyBook } from "./aggregate";
+import { aggregateBook, aggregateRegionBook, emptyBook } from "./aggregate";
 import type { EsiOrder } from "./esi-types";
 import { readFixtureJson } from "./testing/fixtures";
 
@@ -31,6 +31,12 @@ describe("aggregateBook", () => {
     // different systems, so "region best" beats itself.
     expect(regionWideSell).toBe(3.01);
     expect(regionWideSell).toBeLessThan(regionWideBuy);
+
+    const region = aggregateRegionBook(orders);
+    expect(region.orderCount).toBe(168);
+    expect(region.bestSell?.price).toBe(3.01);
+    expect(region.bestBuy?.price).toBe(3.95);
+    expect(region).not.toEqual(aggregateBook(orders, JITA_SYSTEM));
   });
 
   it("keeps other systems' books separate", () => {

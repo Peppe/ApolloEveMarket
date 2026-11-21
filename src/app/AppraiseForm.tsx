@@ -8,11 +8,11 @@ import {
 } from "./actions";
 import { priceRank } from "./price-rank";
 
-const initialState: AppraiseState = { status: "idle", mode: "station" };
+const initialState: AppraiseState = { status: "idle", mode: "region" };
 const SAMPLE_TEXT = "Tritanium 1000000\nHobgoblin I 10\nIshtar 1";
 const LAST_APPRAISAL_KEY = "apolloeve-last-appraisal";
 
-type Mode = "station" | "system";
+type Mode = "region" | "station" | "system";
 
 function isk(value: number | null): string {
   if (value === null) return "-";
@@ -29,6 +29,9 @@ function priceRankClass(
 }
 
 function scopeNote(view: AppraiseView): string {
+  if (view.mode === "region") {
+    return "Every order in each hub's region.";
+  }
   if (view.mode === "station") {
     const jita = view.hubs[0]?.scope ?? "";
     return `Per hub station, for example ${jita}.`;
@@ -191,7 +194,7 @@ export function AppraiseForm() {
   // result re-rendered, so "toggle scope" silently submitted an empty box
   // (observed in a real browser on 2026-11-19).
   const [text, setText] = useState("");
-  const [mode, setMode] = useState<Mode>("station");
+  const [mode, setMode] = useState<Mode>("region");
   const [hydrated, setHydrated] = useState(false);
   const [storageUnavailable, setStorageUnavailable] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -283,6 +286,14 @@ export function AppraiseForm() {
         <div className="controls">
           <div className="scope" role="group" aria-label="Price scope">
             <span className="scope-label">Price scope</span>
+            <button
+              type="button"
+              className={mode === "region" ? "seg on" : "seg"}
+              aria-pressed={mode === "region"}
+              onClick={() => chooseMode("region")}
+            >
+              Region
+            </button>
             <button
               type="button"
               className={mode === "station" ? "seg on" : "seg"}

@@ -34,7 +34,9 @@ function deps(): AppraiseDeps {
 
 describe("appraise", () => {
   it("prices each item in all five hubs and totals the paste", async () => {
-    const result = await appraise("Tritanium\t2\nTritanium 3\n", deps());
+    const result = await appraise("Tritanium\t2\nTritanium 3\n", deps(), {
+      priceMode: "station",
+    });
 
     expect(result.items).toHaveLength(1);
     const item = result.items[0];
@@ -60,18 +62,26 @@ describe("appraise", () => {
     expect(result.totals.rens.buy).toBe(0);
   });
 
-  it("prices the hub station by default and the whole system on request", async () => {
-    const station = await appraise("Tritanium", deps());
-    expect(station.priceMode).toBe("station");
-    expect(station.items[0]?.hubs.jita.orderCount).toBe(110);
+  it("defaults to region scope and supports station and system scopes", async () => {
+    const region = await appraise("Tritanium", deps());
+    expect(region.priceMode).toBe("region");
+    expect(region.items[0]?.hubs.jita.orderCount).toBe(168);
+    expect(region.items[0]?.hubs.jita.bestSell?.price).toBe(3.01);
+    expect(region.items[0]?.hubs.jita.bestBuy?.price).toBe(3.95);
+
+    const stationScoped = await appraise("Tritanium", deps(), {
+      priceMode: "station",
+    });
+    expect(stationScoped.priceMode).toBe("station");
+    expect(stationScoped.items[0]?.hubs.jita.orderCount).toBe(110);
 
     const system = await appraise("Tritanium", deps(), { priceMode: "system" });
     expect(system.priceMode).toBe("system");
     expect(system.items[0]?.hubs.jita.orderCount).toBe(113);
 
-    // Both scopes land on the same best prices for this fixture: the extreme
-    // orders happen to sit at Jita 4-4.
-    expect(station.totals.jita.buy).toBeCloseTo(system.totals.jita.buy);
+    expect(region.items[0]?.hubs.jita.orderCount).not.toBe(
+      stationScoped.items[0]?.hubs.jita.orderCount,
+    );
   });
 
   it("uses the global PLEX book for every hub without station or system filtering", async () => {

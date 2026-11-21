@@ -4,25 +4,27 @@
  *
  *   npm run smoke -- "Tritanium" "Hobgoblin I"
  *   npm run smoke -- --system "Tritanium"      (whole system, not just the hub station)
- *   npm run smoke -- --station "Tritanium"     (default)
+ *   npm run smoke -- --station "Tritanium"
+ *   npm run smoke -- --region "Tritanium"      (default)
  */
 
 import { appraise, createLiveMarket, HUBS, type PriceMode } from "../src/market-core/index";
 
 const argv = process.argv.slice(2);
-let priceMode: PriceMode = "station";
+let priceMode: PriceMode = "region";
 const names: string[] = [];
 
 for (const arg of argv) {
-  if (arg === "--station" || arg === "--system") {
-    priceMode = arg === "--system" ? "system" : "station";
+  if (arg === "--station" || arg === "--system" || arg === "--region") {
+    priceMode =
+      arg === "--system" ? "system" : arg === "--station" ? "station" : "region";
   } else {
     names.push(arg);
   }
 }
 
 if (names.length === 0) {
-  console.error('usage: npm run smoke -- [--station|--system] "Tritanium" "Hobgoblin I"');
+  console.error('usage: npm run smoke -- [--region|--station|--system] "Tritanium" "Hobgoblin I"');
   process.exit(1);
 }
 
@@ -47,7 +49,13 @@ const market = createLiveMarket();
 const result = await appraise(names.join("\n"), market, { priceMode });
 const elapsed = Date.now() - started;
 
-console.log(`scope: ${result.priceMode}${priceMode === "station" ? " (hub station)" : " (whole system)"}`);
+const scopeLabel =
+  priceMode === "region"
+    ? " (hub region)"
+    : priceMode === "station"
+      ? " (hub station)"
+      : " (whole system)";
+console.log(`scope: ${result.priceMode}${scopeLabel}`);
 
 const nameWidth = Math.min(
   24,

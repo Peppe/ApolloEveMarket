@@ -203,11 +203,11 @@ and [rate-limit guidance](https://developers.eveonline.com/docs/services/esi/rat
   trade against each other. Verified live on 2026-11-19: Hek Tritanium showed
   best buy 3.04 and best sell 3.01. Do not "fix" this by widening the filter,
   and do not compute a single spread - show both sides as they are.
-- **Station scope is the default, system scope is the toggle.** Phases 1-2:
-  price the hub's primary station (the station ids and their verification are
-  in `phase-2-web-ui.md`) and let the user widen to the whole system. Both
-  scopes are computed from the same region fetch, so switching costs no
-  upstream request.
+- **Region scope is the default; station and system scopes remain available.**
+  Region mode uses the hub region snapshot without a market filter. Station
+  mode narrows to the hub's primary station (ids in `phase-2-web-ui.md`), and
+  system mode narrows to the hub solar system. All three scopes are computed
+  from the same region fetch, so switching costs no upstream request.
 - `min_volume` is 1 on the orders captured so far, but it is a real constraint
   for buy orders in principle. The MVP ignores it and says so.
 
@@ -285,6 +285,6 @@ only how they are obtained.
 - **Buy/sell label wording in the UI.** Resolved in phase 2: rows are labeled
   `Sellers` (best sell order/ask) and `Buyers` (best buy order/bid), with the
   prices and their relationship across hubs explained in the legend.
-- **Station scope.** Resolved in phase 2: the hub's primary station is the
-  default, with a toggle to the whole system. Station ids are verified and
-  listed in `phase-2-web-ui.md`; no id-to-name lookups happen per order.
+- **Market scope.** Resolved in phase 7: region is the default, with station
+  and whole-system alternatives. Station ids are verified and listed in
+  `phase-2-web-ui.md`; no id-to-name lookups happen per order.

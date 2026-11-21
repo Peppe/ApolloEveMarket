@@ -65,7 +65,11 @@ export async function appraiseAction(
   formData: FormData,
 ): Promise<AppraiseState> {
   const text = String(formData.get("text") ?? "");
-  const mode: PriceMode = formData.get("mode") === "system" ? "system" : "station";
+  const rawMode = formData.get("mode");
+  const mode: PriceMode =
+    rawMode === "system" || rawMode === "station" || rawMode === "region"
+      ? rawMode
+      : "region";
 
   if (text.trim() === "") {
     return {
@@ -100,7 +104,12 @@ export async function appraiseAction(
       hubs: HUBS.map((hub) => ({
         key: hub.key,
         label: hub.label,
-        scope: mode === "station" ? hub.stationName : `${hub.label} solar system`,
+        scope:
+          mode === "region"
+            ? `${hub.label} region`
+            : mode === "station"
+              ? hub.stationName
+              : `${hub.label} solar system`,
       })),
       rows: result.items.map((item) => ({
         typeId: item.typeId,

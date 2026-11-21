@@ -20,7 +20,7 @@ saved appraisals, history charts, deployment.
 
 ## Pricing scope (the toggle)
 
-- **station** (default): only orders whose `location_id` is the hub's primary
+- **station**: only orders whose `location_id` is the hub's primary
   station. This is "what the market at Jita 4-4 looks like".
 - **system**: orders in the hub's solar system, as in phase 1. This includes
   structures and other stations (Perimeter's TTT, for example).
@@ -69,7 +69,7 @@ number would be a lie.
 
 - [x] Hub table in `hubs.ts` carries `stationId`; `aggregateBook` accepts an
       optional station id and filters on `location_id` when given.
-- [x] `appraise(text, deps, { priceMode })` supports `"station"` (default) and
+- [x] `appraise(text, deps, { priceMode })` supports `"station"` and
       `"system"`, echoes the mode in its result, and prices the same text
       differently per mode where the data differs.
 - [x] Fixture test: station `60003760` yields best buy 3.94 / best sell 4.15
