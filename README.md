@@ -9,7 +9,7 @@ market core is fixture-tested, and the site is live against real ESI: paste
 box, per-hub Buyers and Sellers comparison, ranked prices, item icons, totals,
 and a station/system price-scope toggle. PLEX uses ESI's global market region
 and is priced the same in every hub. The app has a custom plum-and-pink theme
-and logo, with Syne ExtraBold headings and Josefin Sans copy. The last appraisal
+and logo, with Space Mono Bold headings and Josefin Sans copy. The last appraisal
 is restored from browser-local storage. The live
 path is bounded too: LRU order cache, one process-wide concurrency gate, ESI
 budget headers honoured, cached name lookups.

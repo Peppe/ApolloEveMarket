@@ -7,8 +7,8 @@ read without changing the layout or market behavior.
 
 ## Scope
 
-In: heading typography, numeric typography in the results table, and the
-corresponding visual identity spec.
+In: heading typography, numeric typography in the results table, text block
+width alignment, and the corresponding visual identity spec.
 
 Out: layout changes, new components, color changes, and market data behavior.
 
@@ -18,4 +18,6 @@ Out: layout changes, new components, color changes, and market data behavior.
 - [x] Quantity, price and total values in the results table use Roboto Mono.
 - [x] The inventory textarea remains monospaced for pasted columns.
 - [x] App copy retains Josefin Sans.
+- [x] The lede, legend, warnings and footnote span the full content width used
+      by the inventory textarea and results table.
 - [x] `npm run typecheck`, `npm test`, and `npm run build` pass.

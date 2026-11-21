@@ -10,8 +10,8 @@
   --foreground: #f4edf7;
   --muted: #c2b5cb;
   --muted-subtle: #9b8da5;
-  --accent: #ff6fb5;
-  --accent-hover: #e0408f;
+  --accent: #e0408f;
+  --accent-hover: #ff6fb5;
   --accent-foreground: #0f0b13;
 }
 
@@ -66,7 +66,7 @@ h6 {
   margin: 0 0 1.75rem;
   font-size: 1.05rem;
   color: var(--muted);
-  max-width: 46rem;
+  width: 100%;
 }
 
 .appraise form {
@@ -310,7 +310,7 @@ button:focus-visible,
   margin: 0.6rem 0 0;
   font-size: 0.8rem;
   color: var(--muted-subtle);
-  max-width: 52rem;
+  width: 100%;
 }
 
 .legend strong {
@@ -338,4 +338,5 @@ button:focus-visible,
   border-top: 1px solid var(--border);
   color: var(--muted-subtle);
   font-size: 0.8rem;
+  width: 100%;
 }
