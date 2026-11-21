@@ -61,7 +61,7 @@ indicators, annotations, export, server persistence, and account features.
   `volume`; it does not supply open or close.
 - A unit candle represents a single day by default.
 - The candle draw is a vertical range from `lowest` to `highest`, with a
-  horizontal marker at `average`.
+  filled circle at `average`.
 - Before selecting a charting dependency or building a renderer, evaluate
   existing chart frameworks for an out-of-the-box range/candlestick series
   that maps high, low, and average without inventing open/close values, plus a
@@ -88,8 +88,16 @@ indicators, annotations, export, server persistence, and account features.
   minimum; volume is summed.
 - Week groups start Monday UTC; 3-day groups are calendar blocks anchored to
   January 1.
-- Range bars use a neutral app-compatible color. Do not imply an intraday
-  rise/fall using unavailable open/close values.
+- Range and volume fills use green when the current plotted average is higher
+  than the previous plotted average, red when lower, and a neutral color when
+  equal or when no previous point exists. This compares periods, not
+  unavailable open/close values.
+- Range and volume bars have no visible outline. Average circles use the same
+  directional color as their range fill.
+- When more than 120 periods are plotted, show average circles at regular
+  intervals while retaining all range bars and tooltip data.
+- Price tooltips list high, average, and low on separate lines, formatted as
+  comma-separated ISK values with up to two fractional digits.
 - Larger candle units are supported as settings:
   `1 day`, `3 days`, `1 week`, `1 month`.
 - Aggregating to a larger unit combines each source day's low/high/average and
@@ -105,6 +113,8 @@ indicators, annotations, export, server persistence, and account features.
 - Volume aggregation sums the source daily `volume`.
 - Volume bars preserve the selected date range and rerender with each range
   change.
+- Volume bars use the same directional fill colors as the corresponding price
+  range and have no visible outline.
 
 ## Date range and zoom
 
@@ -157,6 +167,10 @@ indicators, annotations, export, server persistence, and account features.
       against the history fixture; license and alternative considerations are
       recorded above.
 - [x] Daily candles use high/low range and average marker exactly.
+- [x] Filled average circles align with the range bars; bar outlines are
+      omitted and dense charts limit visible circles without dropping data.
+- [x] Range and volume colors indicate change from the previous plotted
+      average; price tooltips list high, average, and low as formatted ISK.
 - [x] Candles aggregate to 1 day, 3 days, 1 week, or 1 month.
 - [x] Volume chart uses the same date range and the summed volume aggregation.
 - [x] Date range can expand and contract and persists with the candle unit.
