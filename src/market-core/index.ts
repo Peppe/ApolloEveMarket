@@ -8,7 +8,7 @@ export type {
   PriceMode,
   UnresolvedItem,
 } from "./appraise";
-export { aggregateBook, emptyBook } from "./aggregate";
+export { aggregateBook, aggregateRegionBook, emptyBook } from "./aggregate";
 export type { BookSide, HubBook } from "./aggregate";
 export { EsiError, createEsiClient } from "./esi-client";
 export type { EsiClient, EsiClientOptions } from "./esi-client";

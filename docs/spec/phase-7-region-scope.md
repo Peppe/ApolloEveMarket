@@ -1,6 +1,6 @@
 # Phase 7 - Region price scope
 
-Status: draft
+Status: done (2026-11-21)
 
 Goal: add EVE's region market scope to the existing price-scope control.
 Region scope is the default and is implemented as a separate phase before
@@ -37,14 +37,14 @@ scope restoration.
 
 ## Acceptance criteria
 
-- [ ] `PriceMode` includes `"region"` in the market core and web action.
-- [ ] Region mode fetches no extra station/system filter; the hub region book
+- [x] `PriceMode` includes `"region"` in the market core and web action.
+- [x] Region mode fetches no extra station/system filter; the hub region book
       is the source.
-- [ ] Region is the default on first visit and initial result rendering.
-- [ ] The station and system modes retain their existing behavior and fixtures.
-- [ ] Switching scope refreshes the existing inventory text and cache-backed
+- [x] Region is the default on first visit and initial result rendering.
+- [x] The station and system modes retain their existing behavior and fixtures.
+- [x] Switching scope refreshes the existing inventory text and cache-backed
       appraisal.
-- [ ] The UI scope note distinguishes region, station and system.
-- [ ] Fixture tests prove at least one item differs from the Jita system and
+- [x] The UI scope note distinguishes region, station and system.
+- [x] Fixture tests prove at least one item differs from the Jita system and
       Jita station books when region aggregation is used.
-- [ ] `npm run typecheck`, `npm test`, and `npm run build` pass.
+- [x] `npm run typecheck`, `npm test`, and `npm run build` pass.

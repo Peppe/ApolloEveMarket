@@ -1,6 +1,7 @@
 import {
   aggregateBook,
   aggregateGlobalBook,
+  aggregateRegionBook,
   emptyBook,
   type HubBook,
 } from "./aggregate";
@@ -45,11 +46,12 @@ export interface HubTotal {
 /**
  * Which orders count as "the hub's price".
  *
- * station - only the hub's primary station (default; what the market at Jita
- *           4-4 looks like).
+ * region  - every order in the hub region (default; the in-game region view).
+ * station - only the hub's primary station (what the market at Jita 4-4 looks
+ *           like).
  * system  - the whole solar system, including structures and other stations.
  */
-export type PriceMode = "station" | "system";
+export type PriceMode = "region" | "station" | "system";
 
 export interface AppraiseOptions {
   readonly priceMode?: PriceMode;
@@ -121,7 +123,7 @@ export async function appraise(
   options: AppraiseOptions = {},
 ): Promise<AppraiseResult> {
   const hubs = deps.hubs ?? HUBS;
-  const priceMode = options.priceMode ?? "station";
+  const priceMode = options.priceMode ?? "region";
   const parsed = parseInventory(text);
 
   const resolved = await deps.resolveNames(parsed.items.map((item) => item.name));
@@ -151,13 +153,18 @@ export async function appraise(
       isGlobalPlex ? GLOBAL_PLEX_REGION_ID : hub.regionId,
       entry.typeId,
     );
-    const book = isGlobalPlex
-      ? aggregateGlobalBook(orders)
-      : aggregateBook(
-          orders,
-          hub.systemId,
-          priceMode === "station" ? hub.stationId : undefined,
-        );
+    let book: HubBook;
+    if (isGlobalPlex) {
+      book = aggregateGlobalBook(orders);
+    } else if (priceMode === "region") {
+      book = aggregateRegionBook(orders);
+    } else {
+      book = aggregateBook(
+        orders,
+        hub.systemId,
+        priceMode === "station" ? hub.stationId : undefined,
+      );
+    }
     const books = results.get(entry.parsedIndex);
     if (books !== undefined) books[hub.key] = book;
   });

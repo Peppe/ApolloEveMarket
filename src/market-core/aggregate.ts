@@ -42,6 +42,17 @@ export function aggregateGlobalBook(orders: readonly EsiOrder[]): HubBook {
   return aggregateMatchingBook(orders, () => true);
 }
 
+/**
+ * Aggregate every order in an upstream region-scoped market snapshot.
+ *
+ * This intentionally has no system or station filter. It is the in-game
+ * regional market view, and is distinct from the aggregate per hub system
+ * used by the station/system modes.
+ */
+export function aggregateRegionBook(orders: readonly EsiOrder[]): HubBook {
+  return aggregateMatchingBook(orders, () => true);
+}
+
 function aggregateMatchingBook(
   orders: readonly EsiOrder[],
   matches: (order: EsiOrder) => boolean,

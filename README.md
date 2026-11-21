@@ -31,6 +31,7 @@ the hubs. Each item includes its EVE icon. The latest input is saved in this
 browser and appraised when you return; it is not stored on the server. A dash
 means no orders on that side in that scope.
 
+"Region" prices the selected hub's whole EVE region and is the default;
 "Hub station" prices only the hub's main station (for example Jita IV-4);
 "Whole system" widens to every station and structure in the hub's solar
 system. Switching re-prices from the same cached orders.
@@ -77,8 +78,7 @@ npm run smoke -- --system "Tritanium"                  # live ESI, whole systems
 ## Design in one line
 
 All ESI traffic is server-side and cached (`Expires` + `ETag`, LRU-bounded,
-single-flight); prices are aggregated per hub **system**, then narrowed to the
-hub **station** by default, because region-wide aggregation mixes distant
-markets and produces negative spreads on real data. One process-wide gate and
+single-flight); region scope is the default, while station and system scopes
+narrow the same regional snapshot. One process-wide gate and
 one budget guard cover every upstream call, so a burst of visitors cannot
 spend CCP's quota faster than the cache allows.
