@@ -198,16 +198,6 @@ function trendFill(points: readonly HistoryRangeBar[], index: number): string {
   return "rgba(194, 181, 203, 0.2)";
 }
 
-function volumeTrendFill(
-  points: readonly HistoryRangeBar[],
-  index: number,
-): string {
-  const trend = historyTrend(points, index);
-  if (trend === "up") return "rgba(62, 224, 143, 0.5)";
-  if (trend === "down") return "rgba(255, 107, 115, 0.5)";
-  return "rgba(194, 181, 203, 0.35)";
-}
-
 function chartOptions(
   startDate: string,
   endDate: string,
@@ -400,9 +390,7 @@ function VolumeChart({
               y: point.volume,
             })),
             barThickness: barThickness(startDate, endDate, unit),
-            backgroundColor: points.map((_, index) =>
-              volumeTrendFill(points, index),
-            ),
+            backgroundColor: "rgba(88, 166, 255, 0.55)",
             borderWidth: 0,
           },
         ],
