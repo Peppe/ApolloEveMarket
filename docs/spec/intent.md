@@ -20,6 +20,8 @@ change that implements them.
   would receive (best buy/bid) - plus totals for the whole paste.
 - Item price cells open daily regional price history with a high-low range,
   average marker, and linked volume chart.
+- Appraisals are shareable with a URL that restores the inventory and selected
+  price scope, then fetches current prices when opened.
 - **Correct before clever.** Prices are derived from live ESI orders, and the
   aggregation rule is explicit and tested (see "Pricing semantics").
 - **All ESI traffic happens server-side.** The browser never calls CCP. This
@@ -39,6 +41,8 @@ change that implements them.
   in the MVP. Those are later phases if they earn their keep.
 - No order-book depth panel, chart indicators, annotations, or chart export.
   The history panel covers daily ESI market summaries only.
+- Shared appraisal URLs do not store inventory on the server and do not contain
+  saved prices.
 - Not a reprocessing/refining calculator. Quantities are priced as-is.
 
 ## The product in one screen
@@ -271,6 +275,7 @@ above in the same change.
 | 6 | Look refresh: Space Mono headings, Roboto Mono values, aligned text blocks | `phase-6-look-refresh.md` | done |
 | 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
+| 9 | Share appraisals with compact inventory and scope links | `phase-9-shareable-appraisals.md` | draft |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
