@@ -1,18 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Josefin_Sans, Syne } from "next/font/google";
+import { Josefin_Sans, Roboto_Mono, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 
-const syne = Syne({
-  weight: "800",
+const spaceMono = Space_Mono({
+  weight: ["400", "700"],
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-space-mono",
 });
 
 const josefinSans = Josefin_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-josefin-sans",
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-roboto-mono",
 });
 
 export const metadata: Metadata = {
@@ -36,7 +42,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${syne.variable} ${josefinSans.variable}`}>
+      <body
+        className={`${spaceMono.variable} ${josefinSans.variable} ${robotoMono.variable}`}
+      >
         {children}
       </body>
     </html>
