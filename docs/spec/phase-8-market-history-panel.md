@@ -113,8 +113,8 @@ indicators, annotations, export, server persistence, and account features.
 - Volume aggregation sums the source daily `volume`.
 - Volume bars preserve the selected date range and rerender with each range
   change.
-- Volume bars use the same directional fill colors as the corresponding price
-  range and have no visible outline.
+- Volume bars use a consistent blue fill, independent of price direction, and
+  have no visible outline.
 
 ## Date range and zoom
 
