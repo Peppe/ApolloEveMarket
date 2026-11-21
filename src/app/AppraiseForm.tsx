@@ -1,6 +1,13 @@
 "use client";
 
-import { Fragment, useActionState, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import {
   appraiseAction,
   marketRegionsAction,
@@ -8,6 +15,7 @@ import {
   type AppraiseView,
 } from "./actions";
 import { HistoryPanel } from "./HistoryPanel";
+import { filterMarketRegions, regionForEnter } from "./region-picker";
 import {
   MAX_INVENTORY_ITEMS,
   DEFAULT_CUSTOM_REGION,
@@ -79,9 +87,76 @@ function Results({
 }) {
   const [regionChooserOpen, setRegionChooserOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState("");
-  const visibleRegions = regions.filter((region) =>
-    region.name.toLowerCase().includes(regionSearch.trim().toLowerCase()),
-  );
+  const [activeRegionIndex, setActiveRegionIndex] = useState(-1);
+  const regionPickerRef = useRef<HTMLDivElement>(null);
+  const regionSearchRef = useRef<HTMLInputElement>(null);
+  const regionTriggerRef = useRef<HTMLButtonElement>(null);
+  const visibleRegions = filterMarketRegions(regions, regionSearch);
+  const activeRegionId = visibleRegions[activeRegionIndex]?.id;
+
+  useEffect(() => {
+    if (!regionChooserOpen) return;
+    regionSearchRef.current?.focus();
+
+    function closeOutside(event: PointerEvent | FocusEvent) {
+      if (
+        event.target instanceof Node &&
+        !regionPickerRef.current?.contains(event.target) &&
+        !regionTriggerRef.current?.contains(event.target)
+      ) {
+        setRegionChooserOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("focusin", closeOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("focusin", closeOutside);
+    };
+  }, [regionChooserOpen]);
+
+  useEffect(() => {
+    if (!regionChooserOpen || activeRegionId === undefined) return;
+    document
+      .getElementById(`custom-region-option-${activeRegionId}`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [activeRegionId, regionChooserOpen]);
+
+  function chooseRegion(region: MarketRegion) {
+    onSelectRegion(region);
+    setRegionSearch("");
+    setRegionChooserOpen(false);
+  }
+
+  function handleRegionSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setRegionChooserOpen(false);
+      regionTriggerRef.current?.focus();
+      return;
+    }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (visibleRegions.length === 0) return;
+      setActiveRegionIndex((index) => {
+        if (index < 0) {
+          return event.key === "ArrowDown" ? 0 : visibleRegions.length - 1;
+        }
+        return event.key === "ArrowDown"
+          ? (index + 1) % visibleRegions.length
+          : (index - 1 + visibleRegions.length) % visibleRegions.length;
+      });
+      return;
+    }
+    if (event.key === "Enter") {
+      const region = regionForEnter(visibleRegions, activeRegionIndex);
+      if (region !== undefined) {
+        event.preventDefault();
+        chooseRegion(region);
+      }
+    }
+  }
   if (view.rows.length === 0) {
     return (
       <div className="results">
@@ -100,47 +175,90 @@ function Results({
       <p className="scope-note">{scopeNote(view)}</p>
 
       {regionChooserOpen && (
-        <div id="custom-region-picker" className="region-picker">
-          <label htmlFor="region-search">Search market regions</label>
-          <input
-            id="region-search"
-            type="search"
-            value={regionSearch}
-            onChange={(event) => setRegionSearch(event.target.value)}
-            placeholder="Search by region name"
-          />
-          <label htmlFor="region-select">Custom column region</label>
-          <select
-            id="region-select"
-            aria-label={`Custom column region, currently ${view.customRegion.name}`}
-            size={Math.min(8, Math.max(2, visibleRegions.length))}
-            disabled={visibleRegions.length === 0}
-            value={
-              visibleRegions.some((region) => region.id === view.customRegion.id)
-                ? String(view.customRegion.id)
-                : ""
-            }
-            onChange={(event) => {
-              const region = regions.find(
-                (entry) => entry.id === Number(event.target.value),
-              );
-              if (region !== undefined) {
-                onSelectRegion(region);
-                setRegionChooserOpen(false);
+        <div
+          id="custom-region-picker"
+          className="region-picker"
+          ref={regionPickerRef}
+        >
+          <label className="region-picker-label" htmlFor="region-search">
+            Search regions
+          </label>
+          <div className="region-search-row">
+            <input
+              id="region-search"
+              ref={regionSearchRef}
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="true"
+              aria-controls="custom-region-options"
+              aria-activedescendant={
+                activeRegionIndex < 0 ||
+                visibleRegions[activeRegionIndex] === undefined
+                  ? undefined
+                  : `custom-region-option-${visibleRegions[activeRegionIndex].id}`
               }
+              type="text"
+              value={regionSearch}
+              onChange={(event) => {
+                setRegionSearch(event.target.value);
+                setActiveRegionIndex(-1);
+              }}
+              onKeyDown={handleRegionSearchKeyDown}
+              placeholder="Type a region name"
+            />
+            <button
+              type="button"
+              className="region-clear-search"
+              aria-label="Clear region search"
+              disabled={regionSearch === ""}
+              onClick={() => {
+                setRegionSearch("");
+                setActiveRegionIndex(-1);
+                regionSearchRef.current?.focus();
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          <div
+            id="custom-region-options"
+            className="region-options"
+            role="listbox"
+            aria-label="Market regions"
+          >
+            {visibleRegions.map((region, index) => (
+              <div
+                id={`custom-region-option-${region.id}`}
+                key={region.id}
+                className={`region-option${index === activeRegionIndex ? " active" : ""}`}
+                role="option"
+                aria-selected={region.id === view.customRegion.id}
+                onMouseEnter={() => setActiveRegionIndex(index)}
+                onClick={() => chooseRegion(region)}
+              >
+                {region.name}
+                {region.id === view.customRegion.id && (
+                  <span className="region-current">Current</span>
+                )}
+              </div>
+            ))}
+            {visibleRegions.length === 0 && (
+              <p className="region-empty" role="status">
+                No regions match that search.
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            className="region-reset"
+            aria-label="Reset custom market region to Heimatar (Rens)"
+            onClick={() => {
+              onResetRegion();
+              setRegionSearch("");
+              setRegionChooserOpen(false);
             }}
           >
-            {visibleRegions.map((region) => (
-              <option key={region.id} value={region.id}>
-                {region.name}
-              </option>
-            ))}
-          </select>
-          {visibleRegions.length === 0 && (
-            <p className="region-empty">No regions match that search.</p>
-          )}
-          <button type="button" className="region-reset" onClick={onResetRegion}>
-            Reset to Rens (Heimatar)
+            Reset to Heimatar (Rens)
           </button>
         </div>
       )}
@@ -162,13 +280,20 @@ function Results({
                 <th key={hub.key} scope="col" title={hub.scope}>
                   {hub.key === "custom" ? (
                     <button
+                      ref={regionTriggerRef}
                       type="button"
                       className="region-column-trigger"
                       aria-expanded={regionChooserOpen}
+                      aria-haspopup="listbox"
+                      aria-label={`Choose custom market region, currently ${hub.label}`}
                       aria-controls={
-                        regionChooserOpen ? "custom-region-picker" : undefined
+                        regionChooserOpen ? "custom-region-options" : undefined
                       }
-                      onClick={() => setRegionChooserOpen((open) => !open)}
+                      onClick={() => {
+                        setRegionSearch("");
+                        setActiveRegionIndex(-1);
+                        setRegionChooserOpen((open) => !open);
+                      }}
                     >
                       {hub.label}{" "}
                       <span className="region-scope-label">region</span>

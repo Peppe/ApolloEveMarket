@@ -179,6 +179,7 @@ button:focus-visible,
 }
 
 .results {
+  position: relative;
   margin-top: 2rem;
 }
 
@@ -213,24 +214,31 @@ button:focus-visible,
 }
 
 .region-picker {
+  position: absolute;
+  z-index: 20;
+  top: 3rem;
+  right: 0.5rem;
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr);
-  gap: 0.45rem;
-  width: min(100%, 24rem);
-  margin: 0 0 0.75rem auto;
+  gap: 0.5rem;
+  width: min(20rem, calc(100vw - 2rem));
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 45%);
 }
 
-.region-picker label {
+.region-picker-label {
   color: var(--muted-subtle);
   font-size: 0.78rem;
 }
 
-.region-picker input,
-.region-picker select {
+.region-search-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.region-search-row input {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border);
@@ -241,12 +249,8 @@ button:focus-visible,
   font: inherit;
 }
 
-.region-picker select {
-  padding: 0.2rem;
-}
-
+.region-clear-search,
 .region-reset {
-  justify-self: start;
   border: 1px solid var(--border);
   border-radius: 5px;
   padding: 0.4rem 0.65rem;
@@ -256,9 +260,51 @@ button:focus-visible,
   cursor: pointer;
 }
 
+.region-clear-search:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.region-options {
+  max-height: min(16rem, 40vh);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--background);
+}
+
+.region-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.region-option:hover,
+.region-option.active {
+  background: var(--surface-hover);
+}
+
+.region-option[aria-selected="true"] {
+  color: #ffd0e7;
+}
+
+.region-reset {
+  justify-self: start;
+}
+
 .region-empty {
   margin: 0;
+  padding: 0.55rem 0.6rem;
   color: var(--muted-subtle);
+}
+
+.region-current {
+  color: var(--muted-subtle);
+  font-size: 0.75rem;
 }
 
 .table-wrap {
