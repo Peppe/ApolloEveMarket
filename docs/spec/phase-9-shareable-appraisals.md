@@ -1,15 +1,15 @@
 # Phase 9 - Shareable appraisals
 
-Status: draft
+Status: accepted (2026-11-21)
 
 Goal: let someone share an appraisal as a URL that restores the inventory and
 re-runs current pricing when opened.
 
 ## Scope
 
-In: compact share URL encoding, restoring shared inventory and price scope,
-automatic appraisal on link open, URL updates on appraisal, and malformed-link
-handling.
+In: compact self-contained share URL encoding, restoring shared inventory and
+price scope, automatic appraisal on link open, URL updates on appraisal, and
+malformed-link handling.
 
 Out: saved prices, server-side inventory storage, permanent appraisal
 identifiers, accounts, and sharing chart-panel state.
@@ -19,12 +19,21 @@ identifiers, accounts, and sharing chart-panel state.
 - The URL contains enough information to reproduce the submitted inventory
   and selected price scope, and no market prices or appraisal results.
 - Use a deterministic, versioned, lossless, URL-safe encoding in the URL
-  fragment. Prefer compressing the UTF-8 inventory before encoding it, and
-  encode the scope compactly.
+  fragment. Compress the UTF-8 inventory before Base64URL encoding it, omit
+  Base64 padding, and encode the scope compactly. The exact compression
+  implementation must be selected during implementation based on browser
+  support, size, and testability.
 - A lossless encoding is required: a short hash is not unique by itself, and
-  resolving hashes would need a server-side lookup store that this app does
-  not have. Do not add a persistence service or retain submitted inventories
-  on the server.
+  resolving hashes would need a shared server-side lookup store. Do not use
+  short codes, runtime memory, or add a persistence service. Do not retain
+  submitted inventories on the server.
+- Use one version character and one scope character after the fragment
+  marker. Version `1` identifies the initial format; scope codes are `r`
+  (Region), `s` (System), and `t` (Station). Thus the shape is
+  `#1r<compressed-payload>`, `#1s<compressed-payload>`, or
+  `#1t<compressed-payload>`.
+- Self-contained links do not expire. They remain readable as long as a
+  deployed app supports their format version.
 - The same exact inventory text and scope produce the same fragment. Do not
   normalize whitespace or otherwise alter the restored input.
 - The fragment is not sent in HTTP requests. It is still visible to anyone
@@ -35,8 +44,8 @@ identifiers, accounts, and sharing chart-panel state.
   input. Never silently truncate inventory. If a valid input cannot be shared,
   preserve normal appraisal behavior and explain that a share link could not
   be created.
-- Include a format version so later releases can distinguish and validate
-  encodings.
+- The maximum decoded inventory is the existing 20,000-character appraisal
+  limit; the existing 100-item limit still applies during appraisal.
 
 ## Appraisal and URL behavior
 
@@ -57,6 +66,8 @@ identifiers, accounts, and sharing chart-panel state.
   behavior.
 - No price, order, or history data is embedded in the URL or treated as
   authoritative when a shared link is opened.
+- Do not add a database, Redis provider, other external storage, or Vercel
+  runtime-memory lookup for share links.
 
 ## Invalid links and limits
 
@@ -72,9 +83,11 @@ identifiers, accounts, and sharing chart-panel state.
 ## Acceptance criteria
 
 - [ ] A share URL uniquely and losslessly represents the exact inventory text
-      and selected price scope, without a server-side lookup or saved prices.
+      and selected price scope in a self-contained fragment, without a
+      server-side lookup or saved prices.
 - [ ] The chosen encoding is deterministic, versioned, URL-safe, and tested
-      for size against representative and maximum-length inputs.
+      for size against representative and maximum-length inputs; Base64URL
+      padding is omitted and format version `1` uses the specified scope codes.
 - [ ] Appraising changed text updates the fragment; editing without appraisal
       does not.
 - [ ] Re-appraising unchanged text and scope leaves the URL unchanged.
@@ -86,5 +99,6 @@ identifiers, accounts, and sharing chart-panel state.
       without a share link retain local restoration.
 - [ ] Invalid and oversized links show an explicit error, do not submit sample
       text, and leave the app usable.
-- [ ] No server-side inventory mapping or price snapshot is stored.
+- [ ] No database, Redis provider, runtime-memory lookup, server-side
+      inventory mapping, or price snapshot is stored.
 - [ ] `npm run typecheck`, `npm test`, and `npm run build` pass.
