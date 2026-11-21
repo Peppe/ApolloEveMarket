@@ -1,6 +1,6 @@
 # Phase 10 - Custom region comparison column
 
-Status: accepted (2026-11-21)
+Status: done (2026-11-21)
 
 Goal: let the user choose a region for the fifth comparison column, in addition
 to the four fixed trade hubs.
@@ -18,7 +18,9 @@ custom columns, and server-side preference storage.
 ## Comparison columns
 
 - The first four columns remain Jita, Dodixie, Amarr, and Hek in that order.
-- The fifth column is the custom region column. Its default region is Rens.
+- The fifth column is the custom region column. Its default is Heimatar
+  (region 10000030), which contains the Rens trade hub. The catalogue and
+  column use the region's actual name, Heimatar.
 - The fifth column heading presents a region chooser that can be opened to
   search and select a region.
 - The search matches region names without requiring exact case.
@@ -58,10 +60,11 @@ custom columns, and server-side preference storage.
 
 - Persist the custom region selection in browser local storage and restore it
   on later visits before appraising restored inventory.
-- If local storage is unavailable or contains an invalid region, use Rens and
-  keep the rest of the app usable.
+- If local storage is unavailable or contains an invalid region, use Heimatar
+  (the Rens trade hub region) and keep the rest of the app usable.
 - Provide a clearly labeled, keyboard-operable reset control that returns only
-  the custom region column to Rens. Resetting re-runs an existing appraisal.
+  the custom region column to Heimatar (Rens). Resetting re-runs an existing
+  appraisal.
 - Do not persist the selection on the server.
 
 ## Share links
@@ -69,7 +72,7 @@ custom columns, and server-side preference storage.
 - Shareable appraisal URLs continue to encode inventory and selected global
   price scope, not the custom region selection.
 - Opening a share link uses the recipient's locally saved custom region, or
-  Rens if none is saved. The shared link must not overwrite that local
+  Heimatar (Rens) if none is saved. The shared link must not overwrite that local
   preference.
 - No price snapshots or region preferences are embedded in server storage.
 
@@ -84,23 +87,23 @@ custom columns, and server-side preference storage.
 
 ## Acceptance criteria
 
-- [ ] Jita, Dodixie, Amarr, and Hek remain the first four columns; the
-      searchable fifth column defaults to Rens.
-- [ ] The user can search for and select a validated market region, including
+- [x] Jita, Dodixie, Amarr, and Hek remain the first four columns; the
+      searchable fifth column defaults to Heimatar (the Rens trade hub region).
+- [x] The user can search for and select a validated market region, including
       Syndicate.
-- [ ] Selecting a region reprices the current inventory in the fifth column
+- [x] Selecting a region reprices the current inventory in the fifth column
       using region-wide orders.
-- [ ] The custom column uses region scope even while the fixed columns use
+- [x] The custom column uses region scope even while the fixed columns use
       System or Station, and this difference is clear in the column label and
       scope note.
-- [ ] PLEX remains global-market data in every column.
-- [ ] Price cells in the custom column open history for the selected region;
+- [x] PLEX remains global-market data in every column.
+- [x] Price cells in the custom column open history for the selected region;
       changing regions cannot leave stale history visible.
-- [ ] The custom selection persists locally, with Rens as fallback for missing,
-      invalid, or unavailable storage.
-- [ ] A reset control restores the custom column to Rens and reprices an
+- [x] The custom selection persists locally, with Heimatar (Rens) as fallback
+      for missing, invalid, or unavailable storage.
+- [x] A reset control restores the custom column to Heimatar (Rens) and reprices an
       existing appraisal.
-- [ ] Share links do not encode or overwrite the custom region preference.
-- [ ] All region metadata and market requests stay server-side; region
+- [x] Share links do not encode or overwrite the custom region preference.
+- [x] All region metadata and market requests stay server-side; region
       selection and search work without direct browser ESI calls.
-- [ ] `npm run typecheck`, `npm test`, and `npm run build` pass.
+- [x] `npm run typecheck`, `npm test`, and `npm run build` pass.

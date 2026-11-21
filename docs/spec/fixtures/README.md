@@ -33,12 +33,13 @@ When reality changes:
 filtered subset (`content-type`, `date`, `etag`, `expires`, `last-modified`,
 `x-pages`, `x-compatibility-date`, rate-limit and error-limit headers).
 
-## Captures (2026-11-19)
+## Captures (2026-11-19 and 2026-11-21)
 
 | fixture | what it proves |
 |---|---|
 | `universe-ids-names` | POST body is a bare array; "Tritanium" matches a character *and* type 34 |
 | `universe-names-hub-systems` | hub system ids and Jita 4-4 station id resolve to the names we use |
+| `universe-regions` and `universe-region-names` | region ids resolve to ESI names categorized as regions; includes Heimatar and Syndicate |
 | `orders-forge-tritanium` | order shape; both book sides; 170 orders (117 in Jita system) |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0-byte body |
 | `orders-forge-tritanium-page2` | page past `X-Pages` -> `404`, not `[]` |

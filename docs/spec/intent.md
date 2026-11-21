@@ -113,10 +113,10 @@ script and re-date it.
   Drive paging off `X-Pages`; do not probe until failure.
 - **Unknown type ids return `200 []`**, not 404 (`type_id=0` verified).
   "No orders" is a normal, valid answer and must render as such.
-- PLEX (type 44992) uses the global market region `19000001`, not the five
+- PLEX (type 44992) uses the global market region `19000001`, not the fixed
   hub regions. The live response has two pages; the current captured global
   book contains 1,043 orders, with best buy 4,910,000 ISK and best sell
-  5,083,000 ISK. The global book is shown identically in all five hub columns;
+  5,083,000 ISK. The global book is shown identically in all five columns;
   do not apply hub system or station filtering to it.
 - `POST /universe/ids/` takes a **bare JSON array of names** - `["Tritanium"]`
   - *not* `{"names": [...]}`. Max size not yet verified.
@@ -128,6 +128,11 @@ script and re-date it.
     Heavy Missile 209, Ishtar 12005.
 - `POST /universe/names/` maps ids back to names (systems, stations, types);
   used to label hubs and, later, order locations.
+- `GET /universe/regions/` returns region ids; `POST /universe/names/` accepts
+  those ids and returns entries marked `category: "region"`. Verified on
+  2026-11-21 with `universe-regions` and `universe-region-names` fixtures.
+  Heimatar is region 10000030 (the region containing Rens); Syndicate is
+  region 10000041.
 - `GET /markets/{region_id}/history/?type_id={id}` returns daily rows
   `{average, date, highest, lowest, order_count, volume}` (414 rows for
   Tritanium/The Forge, latest 2026-11-18). Not needed by the MVP.
@@ -246,8 +251,9 @@ and [rate-limit guidance](https://developers.eveonline.com/docs/services/esi/rat
 
 ## Fixtures inventory
 
-Captured 2026-11-19 with `node scripts/capture-fixtures.mjs`. Each directory
-holds `request.txt`, `response.headers.txt` and (except for HEAD/304)
+Captured 2026-11-19 with `node scripts/capture-fixtures.mjs`, plus the region
+catalogue on 2026-11-21 with `node scripts/capture-fixtures.mjs --regions`.
+Each directory holds `request.txt`, `response.headers.txt` and (except for HEAD/304)
 `response.body.json`. **Fixtures are recorded reality: never edit them to
 make a test pass.** Re-capture instead, and update this table plus the facts
 above in the same change.
@@ -256,6 +262,7 @@ above in the same change.
 |---|---|
 | `universe-ids-names` | bare-array body; one name matches a character *and* a type |
 | `universe-names-hub-systems` | hub system ids and Jita 4-4 station id resolve to the names we claim |
+| `universe-regions`, `universe-region-names` | region ids resolve to names with category `region`; includes Heimatar and Syndicate |
 | `orders-forge-tritanium` | real order shape, 1000/page contract, both sides in one response |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0 bytes |
 | `orders-forge-tritanium-page2` | page past `X-Pages` -> `404` |
@@ -279,7 +286,7 @@ above in the same change.
 | 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
 | 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | done |
-| 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | accepted |
+| 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | done |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,

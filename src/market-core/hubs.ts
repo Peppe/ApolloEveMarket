@@ -1,5 +1,5 @@
 /**
- * The five hubs we price against.
+ * The four fixed trade hubs.
  *
  * Three ids matter: orders are fetched per REGION (that is how the ESI
  * endpoint is scoped), filtered per SYSTEM, and optionally narrowed to the
@@ -11,7 +11,7 @@
  * trade hub is the Moon 4 one (60003760), not Moon 5 (60003757).
  */
 
-export type HubKey = "jita" | "dodixie" | "amarr" | "hek" | "rens";
+export type HubKey = "jita" | "dodixie" | "amarr" | "hek";
 
 export interface Hub {
   readonly key: HubKey;
@@ -54,14 +54,6 @@ export const HUBS: readonly Hub[] = [
     systemId: 30002053,
     stationId: 60005686,
     stationName: "Hek VIII - Moon 12 - Boundless Creation Factory",
-  },
-  {
-    key: "rens",
-    label: "Rens",
-    regionId: 10000030,
-    systemId: 30002510,
-    stationId: 60004588,
-    stationName: "Rens VI - Moon 8 - Brutor Tribe Treasury",
   },
 ] as const;
 

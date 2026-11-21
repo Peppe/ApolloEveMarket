@@ -7,6 +7,10 @@ import {
 } from "./aggregate";
 import type { EsiOrder } from "./esi-types";
 import { HUBS, type Hub, type HubKey } from "./hubs";
+import {
+  DEFAULT_CUSTOM_REGION,
+  type MarketRegion,
+} from "./regions";
 import { normalizeName, type ResolveResult } from "./resolve";
 import { parseInventory, type RejectedLine } from "./parse";
 
@@ -25,7 +29,10 @@ export interface ItemPrice {
   readonly typeId: number;
   readonly name: string;
   readonly quantity: number;
+  /** Books for the four fixed trade hubs. */
   readonly hubs: Readonly<Record<HubKey, HubBook>>;
+  /** Whole-region book for the user-selected comparison column. */
+  readonly custom: HubBook;
 }
 
 export interface UnresolvedItem {
@@ -55,6 +62,7 @@ export type PriceMode = "region" | "station" | "system";
 
 export interface AppraiseOptions {
   readonly priceMode?: PriceMode;
+  readonly customRegion?: MarketRegion;
 }
 
 export interface AppraiseResult {
@@ -62,6 +70,8 @@ export interface AppraiseResult {
   readonly rejected: readonly RejectedLine[];
   readonly unresolved: readonly UnresolvedItem[];
   readonly totals: Readonly<Record<HubKey, HubTotal>>;
+  readonly customTotal: HubTotal;
+  readonly customRegion: MarketRegion;
   readonly priceMode: PriceMode;
 }
 
@@ -110,8 +120,8 @@ function emptyTotals(hubs: readonly Hub[]): Record<HubKey, MutableTotal> {
 }
 
 /**
- * Parse pasted text, resolve it, price every item in every hub, and total the
- * paste per hub.
+ * Parse pasted text, resolve it, price every item in each fixed hub and the
+ * custom region, then total each comparison column.
  *
  * Items keep their input order; rejected lines and unresolved names are
  * returned alongside the prices so the caller can show them instead of
@@ -124,6 +134,7 @@ export async function appraise(
 ): Promise<AppraiseResult> {
   const hubs = deps.hubs ?? HUBS;
   const priceMode = options.priceMode ?? "region";
+  const customRegion = options.customRegion ?? DEFAULT_CUSTOM_REGION;
   const parsed = parseInventory(text);
 
   const resolved = await deps.resolveNames(parsed.items.map((item) => item.name));
@@ -140,43 +151,67 @@ export async function appraise(
     priced.push({ parsedIndex, typeId: hit.typeId, typeName: hit.name });
   });
 
-  const results = new Map<number, Record<HubKey, HubBook>>();
-  for (const entry of priced) results.set(entry.parsedIndex, emptyBooks(hubs));
+  const results = new Map<
+    number,
+    { hubs: Record<HubKey, HubBook>; custom: HubBook }
+  >();
+  for (const entry of priced) {
+    results.set(entry.parsedIndex, {
+      hubs: emptyBooks(hubs),
+      custom: emptyBook(),
+    });
+  }
 
-  const tasks = priced.flatMap((entry) =>
-    hubs.map((hub) => ({ entry, hub })),
-  );
+  const tasks = priced.flatMap((entry) => [
+    ...hubs.map((hub) => ({ entry, hub, custom: false as const })),
+    { entry, custom: true as const },
+  ]);
 
-  await mapLimit(tasks, deps.concurrency ?? DEFAULT_CONCURRENCY, async ({ entry, hub }) => {
+  await mapLimit(tasks, deps.concurrency ?? DEFAULT_CONCURRENCY, async (task) => {
+    const { entry } = task;
     const isGlobalPlex = entry.typeId === PLEX_TYPE_ID;
     const orders = await deps.getOrders(
-      isGlobalPlex ? GLOBAL_PLEX_REGION_ID : hub.regionId,
+      isGlobalPlex
+        ? GLOBAL_PLEX_REGION_ID
+        : task.custom
+          ? customRegion.id
+          : task.hub.regionId,
       entry.typeId,
     );
     let book: HubBook;
     if (isGlobalPlex) {
       book = aggregateGlobalBook(orders);
-    } else if (priceMode === "region") {
+    } else if (task.custom || priceMode === "region") {
       book = aggregateRegionBook(orders);
     } else {
       book = aggregateBook(
         orders,
-        hub.systemId,
-        priceMode === "station" ? hub.stationId : undefined,
+        task.hub.systemId,
+        priceMode === "station" ? task.hub.stationId : undefined,
       );
     }
-    const books = results.get(entry.parsedIndex);
-    if (books !== undefined) books[hub.key] = book;
+    const result = results.get(entry.parsedIndex);
+    if (result !== undefined) {
+      if (task.custom) result.custom = book;
+      else result.hubs[task.hub.key] = book;
+    }
   });
 
   const items: ItemPrice[] = priced.map((entry) => ({
     typeId: entry.typeId,
     name: entry.typeName,
     quantity: parsed.items[entry.parsedIndex]?.quantity ?? 1,
-    hubs: results.get(entry.parsedIndex) ?? emptyBooks(hubs),
+    hubs: results.get(entry.parsedIndex)?.hubs ?? emptyBooks(hubs),
+    custom: results.get(entry.parsedIndex)?.custom ?? emptyBook(),
   }));
 
   const totals: Record<HubKey, MutableTotal> = emptyTotals(hubs);
+  const customTotal: MutableTotal = {
+    buy: 0,
+    sell: 0,
+    missingBuy: 0,
+    missingSell: 0,
+  };
   for (const item of items) {
     for (const hub of hubs) {
       const book = item.hubs[hub.key];
@@ -187,7 +222,19 @@ export async function appraise(
       if (book.bestSell === null) total.missingSell += 1;
       else total.sell += book.bestSell.price * item.quantity;
     }
+    if (item.custom.bestBuy === null) customTotal.missingBuy += 1;
+    else customTotal.buy += item.custom.bestBuy.price * item.quantity;
+    if (item.custom.bestSell === null) customTotal.missingSell += 1;
+    else customTotal.sell += item.custom.bestSell.price * item.quantity;
   }
 
-  return { items, rejected: parsed.rejected, unresolved, totals, priceMode };
+  return {
+    items,
+    rejected: parsed.rejected,
+    unresolved,
+    totals,
+    customTotal,
+    customRegion,
+    priceMode,
+  };
 }

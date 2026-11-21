@@ -17,10 +17,17 @@ describe("history scope", () => {
       regionId: 19000001,
       label: "Global market (PLEX)",
     });
-    expect(historyScopeFor(44992, "rens")).toEqual({
+    expect(historyScopeFor(44992, "custom", { id: 10000041, name: "Syndicate" })).toEqual({
       regionId: 19000001,
       label: "Global market (PLEX)",
     });
+  });
+
+  it("uses the chosen custom region for regular-item history", () => {
+    expect(
+      historyScopeFor(34, "custom", { id: 10000041, name: "Syndicate" }),
+    ).toEqual({ regionId: 10000041, label: "Syndicate region" });
+    expect(historyScopeFor(34, "custom")).toBeNull();
   });
 
   it("rejects invalid item and hub input", () => {

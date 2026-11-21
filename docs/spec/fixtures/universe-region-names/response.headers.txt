@@ -1,0 +1,6 @@
+HTTP 200 OK
+content-type: application/json; charset=UTF-8
+date: Sat, 21 Nov 2026 15:25:50 GMT
+x-compatibility-date: 2020-01-01
+x-esi-error-limit-remain: 100
+x-esi-error-limit-reset: 10
