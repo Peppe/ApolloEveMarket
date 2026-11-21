@@ -32,8 +32,8 @@ browser and appraised when you return; it is not stored on the server. A dash
 means no orders on that side in that scope.
 
 "Region" prices the selected hub's whole EVE region and is the default;
-"Hub station" prices only the hub's main station (for example Jita IV-4);
-"Whole system" widens to every station and structure in the hub's solar
+"Station" prices only the hub's main station (for example Jita IV-4);
+"System" widens to every station and structure in the hub's solar
 system. Switching re-prices from the same cached orders.
 
 ## Deploy
