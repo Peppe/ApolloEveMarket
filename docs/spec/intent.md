@@ -22,6 +22,8 @@ change that implements them.
   average marker, and linked volume chart.
 - Appraisals are shareable with a URL that restores the inventory and selected
   price scope, then fetches current prices when opened.
+- The comparison keeps Jita, Dodixie, Amarr, and Hek fixed, with a fifth,
+  searchable region column that defaults to Rens.
 - **Correct before clever.** Prices are derived from live ESI orders, and the
   aggregation rule is explicit and tested (see "Pricing semantics").
 - **All ESI traffic happens server-side.** The browser never calls CCP. This
@@ -277,6 +279,7 @@ above in the same change.
 | 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
 | 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | accepted |
+| 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | accepted |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
