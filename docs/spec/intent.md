@@ -278,7 +278,7 @@ above in the same change.
 | 6 | Look refresh: Space Mono headings, Roboto Mono values, aligned text blocks | `phase-6-look-refresh.md` | done |
 | 7 | Region price scope, with system and station filters | `phase-7-region-scope.md` | done |
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
-| 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | accepted |
+| 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | done |
 | 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | accepted |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);

@@ -7,8 +7,17 @@ import {
   type AppraiseView,
 } from "./actions";
 import { HistoryPanel } from "./HistoryPanel";
-import type { HubKey } from "@/market-core";
+import {
+  MAX_INVENTORY_ITEMS,
+  parseInventory,
+  type HubKey,
+} from "@/market-core";
 import { priceRank } from "./price-rank";
+import {
+  decodeSharedAppraisal,
+  encodeSharedAppraisal,
+  MAX_SHARED_TEXT_LENGTH,
+} from "./share-link";
 
 const initialState: AppraiseState = { status: "idle", mode: "region" };
 const SAMPLE_TEXT = "Tritanium 1000000\nHobgoblin I 10\nIshtar 1";
@@ -286,12 +295,42 @@ export function AppraiseForm() {
   const [mode, setMode] = useState<Mode>("region");
   const [hydrated, setHydrated] = useState(false);
   const [storageUnavailable, setStorageUnavailable] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
   const [openHistory, setOpenHistory] = useState<HistorySelection | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const submitAfterModeChange = useRef(false);
   const submitAfterRestore = useRef(false);
+  const invalidShareLink = useRef(false);
 
   useEffect(() => {
+    let active = true;
+    const fragment = window.location.hash;
+    if (fragment !== "") {
+      void decodeSharedAppraisal(fragment)
+        .then((shared) => {
+          if (!active) return;
+          invalidShareLink.current = false;
+          setText(shared.text);
+          setMode(shared.mode);
+          submitAfterRestore.current = true;
+        })
+        .catch((error: unknown) => {
+          if (!active) return;
+          invalidShareLink.current = true;
+          setShareError(
+            error instanceof Error
+              ? `Invalid share link: ${error.message}`
+              : "Invalid share link. Check the URL and try again.",
+          );
+        })
+        .finally(() => {
+          if (active) setHydrated(true);
+        });
+      return () => {
+        active = false;
+      };
+    }
+
     try {
       const savedText = window.localStorage.getItem(LAST_APPRAISAL_KEY);
       if (savedText?.trim()) {
@@ -303,13 +342,17 @@ export function AppraiseForm() {
     } finally {
       setHydrated(true);
     }
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated || !submitAfterRestore.current) return;
     submitAfterRestore.current = false;
     formRef.current?.requestSubmit();
-  }, [hydrated, text]);
+  }, [hydrated, text, mode]);
 
   // The mode is injected into FormData from React state instead of living in a
   // form field: React resets form fields when a server action completes, and a
@@ -317,6 +360,16 @@ export function AppraiseForm() {
   const [state, formAction, pending] = useActionState(
     async (previous: AppraiseState, formData: FormData) => {
       const submittedText = String(formData.get("text") ?? "");
+      if (
+        invalidShareLink.current &&
+        submittedText.trim() === ""
+      ) {
+        return {
+          ...previous,
+          status: "error" as const,
+          message: "Enter an inventory before appraising this invalid link.",
+        };
+      }
       const appraisalText =
         submittedText.trim() === "" ? SAMPLE_TEXT : submittedText;
       formData.set("text", appraisalText);
@@ -328,7 +381,33 @@ export function AppraiseForm() {
       } catch {
         setStorageUnavailable(true);
       }
-      return appraiseAction(previous, formData);
+      const result = await appraiseAction(previous, formData);
+      const parsedItemCount = parseInventory(appraisalText).items.length;
+      if (
+        appraisalText.length > MAX_SHARED_TEXT_LENGTH ||
+        parsedItemCount > MAX_INVENTORY_ITEMS
+      ) {
+        updateShareFragment("");
+        setShareError(
+          "Appraisal ran, but this inventory exceeds the share-link limits.",
+        );
+        return result;
+      }
+
+      try {
+        const fragment = await encodeSharedAppraisal(appraisalText, mode);
+        updateShareFragment(fragment);
+        invalidShareLink.current = false;
+        setShareError(null);
+      } catch (error) {
+        updateShareFragment("");
+        setShareError(
+          error instanceof Error
+            ? `Appraisal ran, but a share link could not be created: ${error.message}`
+            : "Appraisal ran, but a share link could not be created.",
+        );
+      }
+      return result;
     },
     initialState,
   );
@@ -349,6 +428,12 @@ export function AppraiseForm() {
     setMode(next);
     // Flipping scope on an empty form should not trigger an error.
     if (text.trim() !== "") submitAfterModeChange.current = true;
+  }
+
+  function updateShareFragment(fragment: string) {
+    if (window.location.hash === fragment) return;
+    const nextUrl = `${window.location.pathname}${window.location.search}${fragment}`;
+    window.history.replaceState(window.history.state, "", nextUrl);
   }
 
   return (
@@ -413,6 +498,9 @@ export function AppraiseForm() {
       </form>
 
       {state.status === "error" && <p className="error">{state.message}</p>}
+      {shareError !== null && (
+        <p className="error" role="alert">{shareError}</p>
+      )}
       {state.view !== undefined && (
         <Results
           view={state.view}

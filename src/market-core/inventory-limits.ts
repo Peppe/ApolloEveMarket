@@ -1,0 +1,2 @@
+export const MAX_INVENTORY_LENGTH = 20_000;
+export const MAX_INVENTORY_ITEMS = 100;

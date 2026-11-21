@@ -4,6 +4,8 @@ import {
   appraise,
   createLiveMarket,
   HUBS,
+  MAX_INVENTORY_ITEMS,
+  MAX_INVENTORY_LENGTH,
   parseInventory,
   type EsiMarketHistory,
   type HubKey,
@@ -17,9 +19,6 @@ import { historyScopeFor } from "./history-scope";
  * expiry window. Creating it per request would burn the rate budget.
  */
 const market = createLiveMarket();
-
-const MAX_TEXT_LENGTH = 20_000;
-const MAX_ITEMS = 100;
 
 export interface PriceCell {
   readonly buy: number | null;
@@ -122,20 +121,20 @@ export async function appraiseAction(
     };
   }
 
-  if (text.length > MAX_TEXT_LENGTH) {
+  if (text.length > MAX_INVENTORY_LENGTH) {
     return {
       status: "error",
       mode,
-      message: `Input is limited to ${MAX_TEXT_LENGTH} characters.`,
+      message: `Input is limited to ${MAX_INVENTORY_LENGTH} characters.`,
     };
   }
 
   const parsed = parseInventory(text);
-  if (parsed.items.length > MAX_ITEMS) {
+  if (parsed.items.length > MAX_INVENTORY_ITEMS) {
     return {
       status: "error",
       mode,
-      message: `Input is limited to ${MAX_ITEMS} distinct items.`,
+      message: `Input is limited to ${MAX_INVENTORY_ITEMS} distinct items.`,
     };
   }
 

@@ -44,6 +44,10 @@ export type {
 export { parseInventory } from "./parse";
 export type { ParseResult, ParsedItem, RejectedLine } from "./parse";
 export {
+  MAX_INVENTORY_ITEMS,
+  MAX_INVENTORY_LENGTH,
+} from "./inventory-limits";
+export {
   ESI_BASE_URL,
   ESI_COMPATIBILITY_DATE,
   ESI_USER_AGENT,
