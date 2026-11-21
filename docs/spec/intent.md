@@ -35,8 +35,8 @@ change that implements them.
   wallet. Nothing on this site requires an EVE login.
 - Not a full market browser (category trees, order-book depth per station)
   in the MVP. Those are later phases if they earn their keep.
-- Not a price-history/charting product in the MVP. History is captured and
-  verified but shown only if a later phase asks for it.
+- Price history is available only through a later phase; it will open from
+  table price cells and will use region data by default.
 - Not a reprocessing/refining calculator. Quantities are priced as-is.
 
 ## The product in one screen
