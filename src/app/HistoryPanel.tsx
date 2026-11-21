@@ -31,6 +31,11 @@ import {
   marketHistoryAction,
   type MarketHistoryResult,
 } from "./actions";
+import {
+  formatHistoryTooltipPrice,
+  historyTrend,
+  showAverageMarker,
+} from "./history-chart";
 import { MarketPanelHost } from "./MarketPanelHost";
 
 ChartJS.register(
@@ -176,7 +181,31 @@ function barThickness(startDate: string, endDate: string, unit: HistoryUnit): nu
   const visibleDays =
     (dateTimestamp(endDate) - dateTimestamp(startDate)) / DAY_MS + 1;
   const expectedBars = Math.max(1, visibleDays / unitDays[unit]);
-  return Math.max(2, Math.min(8, (700 / expectedBars) * 0.7));
+  return Math.max(1, Math.min(7, (700 / expectedBars) * 0.55));
+}
+
+function trendColor(points: readonly HistoryRangeBar[], index: number): string {
+  const trend = historyTrend(points, index);
+  if (trend === "up") return "#3ee08f";
+  if (trend === "down") return "#ff6b73";
+  return "#c2b5cb";
+}
+
+function trendFill(points: readonly HistoryRangeBar[], index: number): string {
+  const trend = historyTrend(points, index);
+  if (trend === "up") return "rgba(62, 224, 143, 0.28)";
+  if (trend === "down") return "rgba(255, 107, 115, 0.28)";
+  return "rgba(194, 181, 203, 0.2)";
+}
+
+function volumeTrendFill(
+  points: readonly HistoryRangeBar[],
+  index: number,
+): string {
+  const trend = historyTrend(points, index);
+  if (trend === "up") return "rgba(62, 224, 143, 0.5)";
+  if (trend === "down") return "rgba(255, 107, 115, 0.5)";
+  return "rgba(194, 181, 203, 0.35)";
 }
 
 function chartOptions(
@@ -250,6 +279,7 @@ function PriceRangeChart({
     if (canvas === null) return;
 
     type MixedChartPoint = { x: number; y: number | [number, number] };
+    const baseOptions = chartOptions(startDate, endDate, false);
     const config: ChartConfigurationCustomTypesPerDataset<
       "bar" | "line",
       MixedChartPoint[],
@@ -265,9 +295,8 @@ function PriceRangeChart({
               y: [point.lowest, point.highest],
             })),
             barThickness: barThickness(startDate, endDate, unit),
-            backgroundColor: "rgba(255, 111, 181, 0.35)",
-            borderColor: "#ff6fb5",
-            borderWidth: 1,
+            backgroundColor: points.map((_, index) => trendFill(points, index)),
+            borderWidth: 0,
           },
           {
             type: "line",
@@ -277,20 +306,41 @@ function PriceRangeChart({
               y: point.average,
             })),
             showLine: false,
-            pointStyle: "dash",
-            pointRotation: 0,
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            pointBorderWidth: 2,
-            pointBackgroundColor: "#f4edf7",
-            pointBorderColor: "#f4edf7",
+            pointStyle: "circle",
+            pointRadius: (context) =>
+              showAverageMarker(points.length, context.dataIndex) ? 3.5 : 0,
+            pointHoverRadius: 5,
+            pointHitRadius: 4,
+            pointBorderWidth: 0,
+            pointBackgroundColor: points.map((_, index) =>
+              trendColor(points, index),
+            ),
           },
         ],
       },
       options: {
-        ...chartOptions(startDate, endDate, false),
+        ...baseOptions,
+        plugins: {
+          ...baseOptions.plugins,
+          tooltip: {
+            ...baseOptions.plugins.tooltip,
+            filter: (context) => context.datasetIndex === 0,
+            callbacks: {
+              ...baseOptions.plugins.tooltip.callbacks,
+              label: (context) => {
+                const point = points[context.dataIndex];
+                if (point === undefined) return [];
+                return [
+                  `High: ${formatHistoryTooltipPrice(point.highest)}`,
+                  `Average: ${formatHistoryTooltipPrice(point.average)}`,
+                  `Low: ${formatHistoryTooltipPrice(point.lowest)}`,
+                ];
+              },
+            },
+          },
+        },
         scales: {
-          ...chartOptions(startDate, endDate, false).scales,
+          ...baseOptions.scales,
           y: {
             afterFit: (scale) => {
               scale.width = 64;
@@ -316,7 +366,7 @@ function PriceRangeChart({
       <canvas
         ref={canvasRef}
         role="img"
-        aria-label="Market price ranges from low to high, with a horizontal marker for each average."
+        aria-label="Market price ranges from low to high, with a filled circle at each average. Green means the average rose from the previous period; red means it fell."
       />
     </div>
   );
@@ -350,9 +400,10 @@ function VolumeChart({
               y: point.volume,
             })),
             barThickness: barThickness(startDate, endDate, unit),
-            backgroundColor: "rgba(62, 224, 143, 0.55)",
-            borderColor: "#3ee08f",
-            borderWidth: 1,
+            backgroundColor: points.map((_, index) =>
+              volumeTrendFill(points, index),
+            ),
+            borderWidth: 0,
           },
         ],
       },
@@ -604,7 +655,12 @@ export function HistoryPanel({
             <>
               <div className="history-chart-label">
                 <strong>Price range</strong>
-                <span>High - low range; horizontal marker = average price</span>
+                <span className="history-chart-legend">
+                  <span><i className="trend-swatch trend-up" />Price up</span>
+                  <span><i className="trend-swatch trend-down" />Price down</span>
+                  <span><i className="trend-swatch trend-average" />Average</span>
+                  <span>Compared with the previous period</span>
+                </span>
               </div>
               <PriceRangeChart
                 canvasRef={priceCanvasRef}

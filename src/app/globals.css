@@ -430,6 +430,42 @@ button:focus-visible,
   color: var(--muted);
 }
 
+.history-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem 0.8rem;
+}
+
+.history-chart-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.trend-swatch {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 2px;
+}
+
+.trend-up {
+  background: #3ee08f;
+}
+
+.trend-down {
+  background: #ff6b73;
+}
+
+.trend-average {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #c2b5cb;
+}
+
 .history-price-chart {
   height: 15rem;
   margin: 0.2rem 0 0.7rem;
@@ -445,6 +481,21 @@ button:focus-visible,
   display: block;
   width: 100%;
   height: 100%;
+}
+
+@media (max-width: 700px) {
+  .history-panel {
+    padding: 0.75rem;
+  }
+
+  .history-chart-label {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-chart-legend {
+    justify-content: flex-start;
+  }
 }
 
 .history-data {
