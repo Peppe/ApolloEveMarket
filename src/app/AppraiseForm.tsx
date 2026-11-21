@@ -296,19 +296,19 @@ export function AppraiseForm() {
             </button>
             <button
               type="button"
-              className={mode === "station" ? "seg on" : "seg"}
-              aria-pressed={mode === "station"}
-              onClick={() => chooseMode("station")}
-            >
-              Hub station
-            </button>
-            <button
-              type="button"
               className={mode === "system" ? "seg on" : "seg"}
               aria-pressed={mode === "system"}
               onClick={() => chooseMode("system")}
             >
-              Whole system
+              System
+            </button>
+            <button
+              type="button"
+              className={mode === "station" ? "seg on" : "seg"}
+              aria-pressed={mode === "station"}
+              onClick={() => chooseMode("station")}
+            >
+              Station
             </button>
           </div>
 

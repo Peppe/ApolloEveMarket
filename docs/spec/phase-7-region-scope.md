@@ -27,8 +27,8 @@ scope restoration.
 
 ## UI
 
-- The existing two-option scope control becomes three options:
-  `Region`, `Hub station`, `Whole system`.
+- The existing two-option scope control becomes three options, in this order:
+  `Region`, `System`, `Station`.
 - A scope change re-prices the existing text without requiring another text
   edit.
 - The table scope note identifies the selected scope.
