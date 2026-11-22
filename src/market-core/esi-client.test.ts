@@ -77,7 +77,7 @@ describe("createEsiClient paging", () => {
     }
   });
 
-  it("keeps collected pages when a later page answers 404", async () => {
+  it("rejects an incomplete order book when a requested page answers 404", async () => {
     const { transport, calls } = fakeTransport((url): HttpResponse => {
       const page = new URL(url).searchParams.get("page");
       if (page === null) {
@@ -91,9 +91,7 @@ describe("createEsiClient paging", () => {
     });
 
     const client = createEsiClient({ transport, ...clockAt(0) });
-    const orders = await client.getOrders(10000002, 34);
-
-    expect(orders).toHaveLength(1);
+    await expect(client.getOrders(10000002, 34)).rejects.toBeInstanceOf(EsiError);
     expect(calls).toHaveLength(2);
   });
 

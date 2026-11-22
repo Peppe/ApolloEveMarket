@@ -502,9 +502,80 @@ button:focus-visible,
   color: var(--foreground);
 }
 
-.history-panel-modes button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+.order-book-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.order-book-side {
+  min-width: 0;
+}
+
+.order-book-side-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--muted-subtle);
+  font-size: 0.75rem;
+}
+
+.order-book-side-header h4 {
+  margin: 0;
+  color: var(--foreground);
+  font: 700 0.9rem var(--font-space-mono), ui-monospace, monospace;
+}
+
+.order-book-table-wrap {
+  max-height: 34rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+}
+
+.order-book-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 0.68rem var(--font-roboto-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-book-table-wrap th,
+.order-book-table-wrap td {
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.order-book-table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-raised);
+  color: var(--muted-subtle);
+  font-weight: 400;
+}
+
+.order-book-row td {
+  background-repeat: no-repeat;
+}
+
+.order-book-buy .order-book-row td {
+  background-image: linear-gradient(
+    to left,
+    rgba(62, 224, 143, 0.17) var(--depth),
+    transparent var(--depth)
+  );
+}
+
+.order-book-sell .order-book-row td {
+  background-image: linear-gradient(
+    to right,
+    rgba(255, 107, 115, 0.17) var(--depth),
+    transparent var(--depth)
+  );
 }
 
 .history-controls {
@@ -605,6 +676,10 @@ button:focus-visible,
 @media (max-width: 700px) {
   .history-panel {
     padding: 0.75rem;
+  }
+
+  .order-book-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .history-chart-label {

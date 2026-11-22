@@ -8,12 +8,15 @@ import {
   MAX_INVENTORY_ITEMS,
   MAX_INVENTORY_LENGTH,
   parseInventory,
+  prepareOrderBook,
   type EsiMarketHistory,
   type HubKey,
   type MarketRegion,
+  type OrderBook,
   type PriceMode,
 } from "@/market-core";
 import { historyScopeFor } from "./history-scope";
+import { orderBookScopeFor } from "./order-book-scope";
 
 /**
  * One market instance per server process: it owns the order cache, so every
@@ -72,6 +75,17 @@ export type MarketHistoryResult =
       readonly history: readonly EsiMarketHistory[];
       readonly scope: string;
       readonly regionId: number;
+    }
+  | {
+      readonly status: "error";
+      readonly message: string;
+    };
+
+export type MarketOrderBookResult =
+  | {
+      readonly status: "ok";
+      readonly book: OrderBook;
+      readonly scope: string;
     }
   | {
       readonly status: "error";
@@ -140,6 +154,63 @@ export async function marketHistoryAction(
         error instanceof Error
           ? `History failed: ${error.message}`
           : "History failed for an unknown reason.",
+    };
+  }
+}
+
+export async function marketOrderBookAction(
+  typeId: number,
+  hubKey: HubKey | "custom",
+  mode: PriceMode,
+  customRegionId?: number,
+): Promise<MarketOrderBookResult> {
+  if (mode !== "region" && mode !== "system" && mode !== "station") {
+    return { status: "error", message: "Invalid market price scope." };
+  }
+
+  let customRegion: MarketRegion | undefined;
+  if (hubKey === "custom" && typeId !== 44992) {
+    if (!Number.isSafeInteger(customRegionId) || (customRegionId ?? 0) < 1) {
+      return { status: "error", message: "Invalid custom market region." };
+    }
+    try {
+      customRegion = (await market.getRegions()).find(
+        (region) => region.id === customRegionId,
+      );
+    } catch (error) {
+      return {
+        status: "error",
+        message:
+          error instanceof Error
+            ? `Region list failed: ${error.message}`
+            : "Region list failed for an unknown reason.",
+      };
+    }
+  }
+
+  const scope = orderBookScopeFor(typeId, hubKey, mode, customRegion);
+  if (scope === null) {
+    return { status: "error", message: "Invalid item or market scope." };
+  }
+
+  try {
+    const orders = await market.getOrders(scope.regionId, typeId);
+    return {
+      status: "ok",
+      book: prepareOrderBook(
+        orders,
+        { systemId: scope.systemId, stationId: scope.stationId },
+        Date.now(),
+      ),
+      scope: scope.label,
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `Order book failed: ${error.message}`
+          : "Order book failed for an unknown reason.",
     };
   }
 }

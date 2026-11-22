@@ -15,6 +15,8 @@ import {
   type AppraiseView,
 } from "./actions";
 import { HistoryPanel } from "./HistoryPanel";
+import { OrderBookPanel } from "./OrderBookPanel";
+import type { MarketPanelMode } from "./MarketPanelHost";
 import { filterMarketRegions, regionForEnter } from "./region-picker";
 import {
   MAX_INVENTORY_ITEMS,
@@ -76,6 +78,8 @@ function Results({
   onSelectRegion,
   onResetRegion,
   openHistory,
+  panelMode,
+  onPanelModeChange,
   onSelectHistory,
 }: {
   readonly view: AppraiseView;
@@ -83,6 +87,8 @@ function Results({
   readonly onSelectRegion: (region: MarketRegion) => void;
   readonly onResetRegion: () => void;
   readonly openHistory: HistorySelection | null;
+  readonly panelMode: MarketPanelMode;
+  readonly onPanelModeChange: (mode: MarketPanelMode) => void;
   readonly onSelectHistory: (selection: HistorySelection) => void;
 }) {
   const [regionChooserOpen, setRegionChooserOpen] = useState(false);
@@ -376,14 +382,30 @@ function Results({
                   {openHistory?.typeId === row.typeId && (
                     <tr className="history-table-row">
                       <td colSpan={3 + view.hubs.length}>
-                        <HistoryPanel
-                          key={`${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
-                          panelId={`history-${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
-                          typeId={row.typeId}
-                          itemName={row.name}
-                          hubKey={openHistory.hubKey}
-                          customRegionId={openHistory.customRegionId}
-                        />
+                        {panelMode === "history" ? (
+                          <HistoryPanel
+                            key={`${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
+                            panelId={`market-panel-${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
+                            typeId={row.typeId}
+                            itemName={row.name}
+                            hubKey={openHistory.hubKey}
+                            customRegionId={openHistory.customRegionId}
+                            panelMode={panelMode}
+                            onPanelModeChange={onPanelModeChange}
+                          />
+                        ) : (
+                          <OrderBookPanel
+                            key={`${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
+                            panelId={`market-panel-${row.typeId}-${openHistory.hubKey}-${openHistory.customRegionId ?? ""}`}
+                            typeId={row.typeId}
+                            itemName={row.name}
+                            hubKey={openHistory.hubKey}
+                            mode={view.mode}
+                            customRegionId={openHistory.customRegionId}
+                            panelMode={panelMode}
+                            onPanelModeChange={onPanelModeChange}
+                          />
+                        )}
                       </td>
                     </tr>
                   )}
@@ -459,7 +481,7 @@ function PriceCell({
     openHistory.hubKey === hubKey &&
     (hubKey !== "custom" ||
       openHistory.customRegionId === customRegionId);
-  const panelId = `history-${item.typeId}-${hubKey}-${customRegionId ?? ""}`;
+  const panelId = `market-panel-${item.typeId}-${hubKey}-${customRegionId ?? ""}`;
   const sideName = side === "sell" ? "Sellers" : "Buyers";
 
   return (
@@ -469,7 +491,7 @@ function PriceCell({
       <button
         type="button"
         className="price-cell-trigger"
-        aria-label={`${expanded ? "Close" : "Open"} ${item.name} market history for ${hubLabel}, ${sideName}`}
+        aria-label={`${expanded ? "Close" : "Open"} ${item.name} market panel for ${hubLabel}, ${sideName}`}
         aria-expanded={expanded}
         aria-controls={expanded ? panelId : undefined}
         onClick={() =>
@@ -523,6 +545,7 @@ export function AppraiseForm() {
   const [storageUnavailable, setStorageUnavailable] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [openHistory, setOpenHistory] = useState<HistorySelection | null>(null);
+  const [panelMode, setPanelMode] = useState<MarketPanelMode>("history");
   const formRef = useRef<HTMLFormElement>(null);
   const submitAfterModeChange = useRef(false);
   const submitAfterRegionChange = useRef(false);
@@ -811,13 +834,19 @@ export function AppraiseForm() {
           onSelectRegion={chooseRegion}
           onResetRegion={resetRegion}
           openHistory={openHistory}
+          panelMode={panelMode}
+          onPanelModeChange={setPanelMode}
           onSelectHistory={(selection) => {
-            setOpenHistory((current) =>
-              current?.typeId === selection.typeId &&
-              current.hubKey === selection.hubKey
-                ? null
-                : selection,
-            );
+            const isSame =
+              openHistory?.typeId === selection.typeId &&
+              openHistory.hubKey === selection.hubKey &&
+              openHistory.customRegionId === selection.customRegionId;
+            if (isSame) {
+              setOpenHistory(null);
+              return;
+            }
+            setOpenHistory(selection);
+            setPanelMode("history");
           }}
         />
       )}

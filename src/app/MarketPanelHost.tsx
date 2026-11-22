@@ -1,9 +1,13 @@
 import type { ReactNode } from "react";
 
+export type MarketPanelMode = "history" | "order-book";
+
 interface MarketPanelHostProps {
   readonly panelId: string;
   readonly title: string;
   readonly scope?: string;
+  readonly mode: MarketPanelMode;
+  readonly onModeChange: (mode: MarketPanelMode) => void;
   readonly children: ReactNode;
 }
 
@@ -11,6 +15,8 @@ export function MarketPanelHost({
   panelId,
   title,
   scope,
+  mode,
+  onModeChange,
   children,
 }: MarketPanelHostProps) {
   return (
@@ -30,14 +36,17 @@ export function MarketPanelHost({
           role="group"
           aria-label="Market panel"
         >
-          <button type="button" aria-pressed="true">
+          <button
+            type="button"
+            aria-pressed={mode === "history"}
+            onClick={() => onModeChange("history")}
+          >
             History
           </button>
           <button
             type="button"
-            aria-pressed="false"
-            disabled
-            title="Order book panel is not implemented yet"
+            aria-pressed={mode === "order-book"}
+            onClick={() => onModeChange("order-book")}
           >
             Order book
           </button>

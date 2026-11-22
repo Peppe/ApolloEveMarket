@@ -1,6 +1,6 @@
 # Phase 11: Order book
 
-Status: draft
+Status: done (2026-11-22)
 
 ## Goal
 
@@ -51,22 +51,23 @@ making cumulative market depth easy to scan.
 
 ## Acceptance criteria
 
-- The existing Order book mode is enabled and displays the selected item's
+- [x] The existing Order book mode is enabled and displays the selected item's
   scoped orders without changing History behavior.
-- Buy and sell orders are independently sorted in best-price-first order, with
+- [x] Buy and sell orders are independently sorted in best-price-first order, with
   individual orders retained and no price-level aggregation.
-- Remaining quantity, per-unit price, issue age, and time remaining are shown
+- [x] Remaining quantity, per-unit price, issue age, and time remaining are shown
   for each order.
-- Cumulative quantity and the depth bar include every order at the current
+- [x] Cumulative quantity and the depth bar include every order at the current
   price level and all better price levels; same-price order rows agree.
-- The tables use the correct region, system, or station scope, including the
+- [x] The tables use the correct region, system, or station scope, including the
   custom region and global PLEX cases.
-- ESI traffic remains server-side and existing pagination, cache, and failure
-  behavior are preserved.
-- Tests cover ordering, scope filtering, time derivation, cumulative totals
+- [x] ESI traffic remains server-side; cache and page-limit behavior are
+  preserved, and incomplete pagination is reported as an error.
+- [x] Tests cover ordering, scope filtering, time derivation, cumulative totals
   across price levels, and same-price orders using committed ESI fixtures.
-- `npm run typecheck`, `npm test`, and `npm run build` pass before the spec is
-  marked done.
+- [x] If an ESI page advertised by `X-Pages` disappears during pagination, return a
+  visible error instead of treating the collected pages as a complete book.
+- [x] `npm run typecheck`, `npm test`, and `npm run build` pass.
 
 ## Out of scope
 
