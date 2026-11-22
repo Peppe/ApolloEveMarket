@@ -494,6 +494,7 @@ button:focus-visible,
   padding: 0.4rem 0.65rem;
   background: var(--surface-raised);
   color: var(--muted);
+  cursor: pointer;
   font: inherit;
 }
 
@@ -558,11 +559,11 @@ button:focus-visible,
   font-weight: 400;
 }
 
-.order-book-row td {
+.order-book-row {
   background-repeat: no-repeat;
 }
 
-.order-book-buy .order-book-row td {
+.order-book-buy .order-book-row {
   background-image: linear-gradient(
     to left,
     rgba(62, 224, 143, 0.17) var(--depth),
@@ -570,7 +571,7 @@ button:focus-visible,
   );
 }
 
-.order-book-sell .order-book-row td {
+.order-book-sell .order-book-row {
   background-image: linear-gradient(
     to right,
     rgba(255, 107, 115, 0.17) var(--depth),
