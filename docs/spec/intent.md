@@ -287,6 +287,7 @@ above in the same change.
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
 | 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | done |
 | 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | done |
+| 11 | Live, per-order buy/sell books with cumulative market depth | `phase-11-order-book.md` | draft |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
