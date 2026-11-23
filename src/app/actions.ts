@@ -85,6 +85,7 @@ export type MarketOrderBookResult =
   | {
       readonly status: "ok";
       readonly book: OrderBook;
+      readonly locations: Readonly<Record<number, string>>;
       readonly scope: string;
     }
   | {
@@ -195,12 +196,22 @@ export async function marketOrderBookAction(
 
   try {
     const orders = await market.getOrders(scope.regionId, typeId);
+    const book = prepareOrderBook(
+      orders,
+      { systemId: scope.systemId, stationId: scope.stationId },
+      Date.now(),
+    );
+    const locationIds = [
+      ...new Set(
+        [...book.buy, ...book.sell].map((order) => order.locationId),
+      ),
+    ];
+    const names = await market.getNames(locationIds);
     return {
       status: "ok",
-      book: prepareOrderBook(
-        orders,
-        { systemId: scope.systemId, stationId: scope.stationId },
-        Date.now(),
+      book,
+      locations: Object.fromEntries(
+        names.map((entry) => [entry.id, entry.name]),
       ),
       scope: scope.label,
     };

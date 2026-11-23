@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { EsiIdsResponse } from "./esi-types";
-import { createCachedIdsFetcher, createIdsFetcher, resolveNames } from "./resolve";
+import type { EsiIdEntry, EsiIdsResponse, EsiOrder } from "./esi-types";
+import {
+  createCachedIdsFetcher,
+  createCachedNamesFetcher,
+  createIdsFetcher,
+  createNamesFetcher,
+  resolveNames,
+  type NamesFetcher,
+} from "./resolve";
 import {
   ESI_COMPATIBILITY_DATE,
   ESI_USER_AGENT,
@@ -10,6 +17,10 @@ import {
 import { readFixtureJson } from "./testing/fixtures";
 
 const idsFixture = readFixtureJson<EsiIdsResponse>("universe-ids-names");
+const orderLocationsFixture = readFixtureJson<EsiIdEntry[]>(
+  "universe-order-locations",
+);
+const orderFixture = readFixtureJson<EsiOrder[]>("orders-forge-tritanium");
 
 describe("resolveNames", () => {
   it("resolves inventory types and ignores the character bucket", async () => {
@@ -151,5 +162,79 @@ describe("createCachedIdsFetcher", () => {
     await resolveNames(["First"], fetcher);
 
     expect(calls).toBe(3);
+  });
+});
+
+describe("createNamesFetcher", () => {
+  it("resolves station ids from recorded ESI names and skips structure ids", async () => {
+    const requests: TransportRequest[] = [];
+    const transport = async (
+      url: string,
+      request: TransportRequest,
+    ): Promise<HttpResponse> => {
+      requests.push(request);
+      expect(url).toContain("/universe/names/");
+      return {
+        status: 200,
+        headers: {},
+        body: JSON.stringify(orderLocationsFixture),
+      };
+    };
+    const locationIds = [...new Set(orderFixture.map((order) => order.location_id))];
+    const structureIds = locationIds.filter((id) => id > 2_147_483_647);
+    const names = await createNamesFetcher(transport, "https://example.test")(
+      locationIds,
+    );
+
+    expect(names).toContainEqual(expect.objectContaining({
+      id: 60003760,
+      name: "Jita IV - Moon 4 - Caldari Navy Assembly Plant",
+    }));
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0]?.body ?? "[]")).not.toEqual(
+      expect.arrayContaining(structureIds),
+    );
+    expect(requests[0]?.method).toBe("POST");
+    expect(requests[0]?.headers["X-Compatibility-Date"]).toBe(
+      ESI_COMPATIBILITY_DATE,
+    );
+  });
+
+  it("batches large location lists within the ESI request limit", async () => {
+    const requests: TransportRequest[] = [];
+    const transport = async (
+      _url: string,
+      request: TransportRequest,
+    ): Promise<HttpResponse> => {
+      requests.push(request);
+      return { status: 200, headers: {}, body: "[]" };
+    };
+    const ids = Array.from({ length: 101 }, (_, index) => 60000000 + index);
+
+    await createNamesFetcher(transport, "https://example.test")(ids);
+
+    expect(requests.map((request) => JSON.parse(request.body ?? "[]"))).toEqual([
+      ids.slice(0, 100),
+      ids.slice(100),
+    ]);
+  });
+
+  it("caches resolved and unresolved location ids", async () => {
+    let calls = 0;
+    const inner: NamesFetcher = async (ids) => {
+      calls += 1;
+      return orderLocationsFixture.filter((entry) => ids.includes(entry.id));
+    };
+    const fetchNames = createCachedNamesFetcher(inner);
+    const ids = [60003760, 60000001];
+
+    const first = await fetchNames(ids);
+    const second = await fetchNames(ids);
+
+    expect(first).toEqual(second);
+    expect(first).toContainEqual(
+      orderLocationsFixture.find((entry) => entry.id === 60003760),
+    );
+    expect(calls).toBe(1);
   });
 });

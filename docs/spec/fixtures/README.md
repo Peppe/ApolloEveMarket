@@ -14,7 +14,10 @@ of what it recorded; editing it destroys the only evidence we have.
 
 When reality changes:
 
-1. Re-run `node scripts/capture-fixtures.mjs` (overwrites the captures).
+1. Re-run the relevant capture command (overwrites the captures):
+   `node scripts/capture-fixtures.mjs`,
+   `node scripts/capture-fixtures.mjs --regions`, or
+   `node scripts/capture-fixtures.mjs --order-locations`.
 2. Read the diff. If a *shape* changed (field renamed, status changed), that is
    a real break to handle in code and in `docs/spec/intent.md`.
 3. Update the affected test expectations and the "Known environment facts"
@@ -33,12 +36,13 @@ When reality changes:
 filtered subset (`content-type`, `date`, `etag`, `expires`, `last-modified`,
 `x-pages`, `x-compatibility-date`, rate-limit and error-limit headers).
 
-## Captures (2026-11-19 and 2026-11-21)
+## Captures (2026-11-19 through 2026-11-23)
 
 | fixture | what it proves |
 |---|---|
 | `universe-ids-names` | POST body is a bare array; "Tritanium" matches a character *and* type 34 |
 | `universe-names-hub-systems` | hub system ids and Jita 4-4 station id resolve to the names we use |
+| `universe-order-locations` | order station IDs resolve to names; large structure IDs are excluded |
 | `universe-regions` and `universe-region-names` | region ids resolve to ESI names categorized as regions; includes Heimatar and Syndicate |
 | `orders-forge-tritanium` | order shape; both book sides; 170 orders (117 in Jita system) |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0-byte body |

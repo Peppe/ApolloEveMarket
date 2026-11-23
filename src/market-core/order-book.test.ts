@@ -7,7 +7,7 @@ const orders = readFixtureJson<EsiOrder[]>("orders-forge-tritanium");
 const now = Date.parse("2026-11-22T00:00:00Z");
 
 describe("prepareOrderBook", () => {
-  it("keeps individual orders and sorts both sides best-price-first", () => {
+  it("keeps individual orders and sorts bids high-first and asks low-first", () => {
     const book = prepareOrderBook(orders, {}, now);
     expect(book.buy).toHaveLength(orders.filter((order) => order.is_buy_order).length);
     expect(book.sell).toHaveLength(orders.filter((order) => !order.is_buy_order).length);
@@ -27,12 +27,12 @@ describe("prepareOrderBook", () => {
         if (previous === undefined || current === undefined) {
           throw new Error("Expected an order row at this index.");
         }
-        if (previous?.price === current?.price) {
+        if (previous.price === current.price) {
           expect(previous.issuedAt).toBeLessThanOrEqual(current.issuedAt);
         } else if (isBuy) {
-          expect(previous?.price).toBeGreaterThan(current?.price ?? 0);
+          expect(previous.price).toBeGreaterThan(current.price);
         } else {
-          expect(previous?.price).toBeLessThan(current?.price ?? Infinity);
+          expect(previous.price).toBeLessThan(current.price);
         }
       }
     }
@@ -67,33 +67,51 @@ describe("prepareOrderBook", () => {
     expect(row?.remainingMs).toBe((row?.expiresAt ?? now) - now);
   });
 
-  it("shares cumulative totals and depth across same-price orders", () => {
+  it("increments cumulative totals and depth for each same-price buy order", () => {
     const book = prepareOrderBook(orders, {}, now);
     const price = 3.7;
     const levelOrders = orders.filter(
       (order) => order.is_buy_order && order.price === price,
     );
     const rows = book.buy.filter((order) => order.price === price);
-    const expectedCumulative = orders
-      .filter((order) => order.is_buy_order && order.price >= price)
-      .reduce((sum, order) => sum + order.volume_remain, 0);
-
     expect(rows).toHaveLength(levelOrders.length);
-    expect(rows.map((row) => row.cumulativeQuantity)).toEqual(
-      Array(levelOrders.length).fill(expectedCumulative),
-    );
-    expect(rows.every((row) => row.depthFraction === expectedCumulative / book.buyTotal)).toBe(true);
+    for (let index = 0; index < rows.length; index += 1) {
+      const previous = rows[index - 1];
+      const row = rows[index];
+      if (row === undefined) throw new Error("Expected an order row.");
+      const position = book.buy.indexOf(row);
+      const expectedCumulative = book.buy
+        .slice(0, position + 1)
+        .reduce((sum, order) => sum + order.volumeRemain, 0);
+      expect(row.cumulativeQuantity).toBe(expectedCumulative);
+      expect(row.depthFraction).toBe(expectedCumulative / book.buyTotal);
+      if (previous !== undefined) {
+        expect(row.cumulativeQuantity).toBe(
+          previous.cumulativeQuantity + row.volumeRemain,
+        );
+      }
+    }
   });
 
-  it("counts sell depth from the lowest price outward", () => {
+  it("increments cumulative totals for each same-price sell order", () => {
     const book = prepareOrderBook(orders, {}, now);
     const price = 4.3;
     const rows = book.sell.filter((order) => order.price === price);
-    const expectedCumulative = orders
-      .filter((order) => !order.is_buy_order && order.price <= price)
-      .reduce((sum, order) => sum + order.volume_remain, 0);
-
     expect(rows.length).toBeGreaterThan(1);
-    expect(rows.every((row) => row.cumulativeQuantity === expectedCumulative)).toBe(true);
+    for (let index = 0; index < rows.length; index += 1) {
+      const previous = rows[index - 1];
+      const row = rows[index];
+      if (row === undefined) throw new Error("Expected an order row.");
+      const position = book.sell.indexOf(row);
+      const expectedCumulative = book.sell
+        .slice(0, position + 1)
+        .reduce((sum, order) => sum + order.volumeRemain, 0);
+      expect(row.cumulativeQuantity).toBe(expectedCumulative);
+      if (previous !== undefined) {
+        expect(row.cumulativeQuantity).toBe(
+          previous.cumulativeQuantity + row.volumeRemain,
+        );
+      }
+    }
   });
 });

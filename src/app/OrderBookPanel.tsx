@@ -50,10 +50,12 @@ function BookSide({
   side,
   rows,
   total,
+  locations,
 }: {
   readonly side: "buy" | "sell";
   readonly rows: readonly OrderBookRow[];
   readonly total: number;
+  readonly locations: Readonly<Record<number, string>>;
 }) {
   const title = side === "buy" ? "Buy orders" : "Sell orders";
   return (
@@ -77,12 +79,18 @@ function BookSide({
                 <th scope="col">Cumulative</th>
                 <th scope="col">Age</th>
                 <th scope="col">Time left</th>
+                <th scope="col">Location</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => {
                 const depth = Math.max(0, Math.min(1, row.depthFraction));
                 const style: DepthStyle = { "--depth": `${depth * 100}%` };
+                const locationName =
+                  locations[row.locationId] ??
+                  (row.locationId > 2_147_483_647
+                    ? `Structure ${row.locationId}`
+                    : `Location ${row.locationId}`);
                 return (
                   <tr
                     className="order-book-row"
@@ -107,6 +115,12 @@ function BookSide({
                       >
                         {formatDuration(row.remainingMs)}
                       </time>
+                    </td>
+                    <td
+                      className="order-book-location"
+                      title={locationName}
+                    >
+                      {locationName}
                     </td>
                   </tr>
                 );
@@ -183,11 +197,13 @@ export function OrderBookPanel({
               side="buy"
               rows={result.book.buy}
               total={result.book.buyTotal}
+              locations={result.locations}
             />
             <BookSide
               side="sell"
               rows={result.book.sell}
               total={result.book.sellTotal}
+              locations={result.locations}
             />
           </div>
         )}

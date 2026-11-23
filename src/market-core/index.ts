@@ -41,10 +41,18 @@ export type {
   EsiBudget,
   EsiBudgetOptions,
 } from "./http-guards";
-export { createCachedIdsFetcher, normalizeName, resolveNames } from "./resolve";
+export {
+  createCachedIdsFetcher,
+  createCachedNamesFetcher,
+  createIdsFetcher,
+  createNamesFetcher,
+  normalizeName,
+  resolveNames,
+} from "./resolve";
 export type {
   CachedIdsFetcherOptions,
   IdsFetcher,
+  NamesFetcher,
   ResolvedType,
   ResolveResult,
 } from "./resolve";
