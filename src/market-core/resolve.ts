@@ -20,6 +20,27 @@ export interface ResolveResult {
 }
 
 export type IdsFetcher = (names: readonly string[]) => Promise<EsiIdsResponse>;
+export type NamesFetcher = (
+  ids: readonly number[],
+) => Promise<readonly EsiIdEntry[]>;
+
+const NAME_LOOKUP_BATCH_SIZE = 100;
+const MAX_NAME_LOOKUP_ID = 2_147_483_647;
+
+function isNameLookupId(id: number): boolean {
+  return Number.isSafeInteger(id) && id > 0 && id <= MAX_NAME_LOOKUP_ID;
+}
+
+function isEsiIdEntry(entry: unknown): entry is EsiIdEntry {
+  return (
+    typeof entry === "object" &&
+    entry !== null &&
+    "id" in entry &&
+    Number.isSafeInteger(entry.id) &&
+    "name" in entry &&
+    typeof entry.name === "string"
+  );
+}
 
 export function normalizeName(name: string): string {
   return name.trim().toLowerCase();
@@ -54,6 +75,96 @@ export function createIdsFetcher(
     }
 
     return JSON.parse(response.body) as EsiIdsResponse;
+  };
+}
+
+export function createNamesFetcher(
+  transport: Transport,
+  baseUrl: string = ESI_BASE_URL,
+): NamesFetcher {
+  return async (ids) => {
+    const uniqueIds = [...new Set(ids)].filter(isNameLookupId);
+    const entries: EsiIdEntry[] = [];
+    for (
+      let start = 0;
+      start < uniqueIds.length;
+      start += NAME_LOOKUP_BATCH_SIZE
+    ) {
+      const batch = uniqueIds.slice(start, start + NAME_LOOKUP_BATCH_SIZE);
+      const url = `${baseUrl}/universe/names/?datasource=tranquility`;
+      const response = await transport(url, {
+        method: "POST",
+        headers: {
+          "User-Agent": ESI_USER_AGENT,
+          "X-Compatibility-Date": ESI_COMPATIBILITY_DATE,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(batch),
+      });
+
+      if (response.status !== 200) {
+        throw new EsiError(
+          `location name lookup failed: ESI responded ${response.status}`,
+          response.status,
+          url,
+        );
+      }
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(response.body);
+      } catch {
+        throw new EsiError("location names response was not JSON", 0, url);
+      }
+      if (
+        !Array.isArray(parsed) ||
+        !parsed.every(isEsiIdEntry)
+      ) {
+        throw new EsiError("location names response had an invalid shape", 0, url);
+      }
+      entries.push(...parsed);
+    }
+    return entries;
+  };
+}
+
+export function createCachedNamesFetcher(
+  inner: NamesFetcher,
+  maxEntries = DEFAULT_MAX_CACHED_NAMES,
+): NamesFetcher {
+  const cache = new Map<number, EsiIdEntry | null>();
+  const limit = Math.max(1, maxEntries);
+
+  return async (ids) => {
+    const uniqueIds = [...new Set(ids)].filter(isNameLookupId);
+    const hits: EsiIdEntry[] = [];
+    const missing: number[] = [];
+
+    for (const id of uniqueIds) {
+      const cached = cache.get(id);
+      if (cached === undefined) {
+        missing.push(id);
+        continue;
+      }
+      cache.delete(id);
+      cache.set(id, cached);
+      if (cached !== null) hits.push(cached);
+    }
+
+    if (missing.length === 0) return hits;
+    const fresh = await inner(missing);
+    const freshById = new Map(fresh.map((entry) => [entry.id, entry]));
+    const missingIds = new Set(missing);
+    for (const id of missing) {
+      cache.delete(id);
+      cache.set(id, freshById.get(id) ?? null);
+      while (cache.size > limit) {
+        const oldest = cache.keys().next().value;
+        if (oldest === undefined) break;
+        cache.delete(oldest);
+      }
+    }
+    return [...hits, ...fresh.filter((entry) => missingIds.has(entry.id))];
   };
 }
 

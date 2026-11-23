@@ -8,7 +8,15 @@ import {
   withConcurrencyLimit,
   type BudgetSnapshot,
 } from "./http-guards";
-import { createCachedIdsFetcher, createIdsFetcher, resolveNames } from "./resolve";
+import {
+  createCachedIdsFetcher,
+  createCachedNamesFetcher,
+  createIdsFetcher,
+  createNamesFetcher,
+  resolveNames,
+  type NamesFetcher,
+} from "./resolve";
+import type { EsiIdEntry } from "./esi-types";
 import {
   createRegionCatalogFetcher,
   type MarketRegion,
@@ -37,6 +45,7 @@ export interface LiveMarketStats {
 }
 
 export interface LiveMarket extends AppraiseDeps {
+  getNames(ids: readonly number[]): Promise<readonly EsiIdEntry[]>;
   getHistory(
     regionId: number,
     typeId: number,
@@ -83,10 +92,15 @@ export function createLiveMarket(options: LiveMarketOptions = {}): LiveMarket {
   const ids = createCachedIdsFetcher(createIdsFetcher(transport), {
     maxEntries: options.maxCachedNames,
   });
+  const names: NamesFetcher = createCachedNamesFetcher(
+    createNamesFetcher(transport),
+    options.maxCachedNames,
+  );
   const getRegions = createRegionCatalogFetcher(transport);
 
   return {
     getOrders: (regionId, typeId) => client.getOrders(regionId, typeId),
+    getNames: (ids) => names(ids),
     resolveNames: (names) => resolveNames(names, ids),
     getHistory: (regionId, typeId) => historyClient.getHistory(regionId, typeId),
     getRegions,

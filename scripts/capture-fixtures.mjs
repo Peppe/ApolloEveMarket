@@ -7,6 +7,7 @@
 //
 // Usage: node scripts/capture-fixtures.mjs
 // Region catalogue only: node scripts/capture-fixtures.mjs --regions
+// Order locations only: node scripts/capture-fixtures.mjs --order-locations
 // Requires Node 18+ (global fetch). Reads no config; no credentials needed.
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -111,6 +112,39 @@ if (process.argv.includes("--regions")) {
   });
   if (!namesResponse.ok) {
     throw new Error(`Region names capture failed with ${namesResponse.status}`);
+  }
+  process.exit(0);
+}
+
+if (process.argv.includes("--order-locations")) {
+  const orders = JSON.parse(
+    await readFile(
+      join(FIXTURE_ROOT, "orders-forge-tritanium", "response.body.json"),
+      "utf8",
+    ),
+  );
+  if (!Array.isArray(orders)) {
+    throw new Error("Recorded order fixture did not contain an array");
+  }
+  const locationIds = [
+    ...new Set(
+      orders
+        .map((order) => order.location_id)
+        .filter(
+          (id) =>
+            Number.isSafeInteger(id) &&
+            id > 0 &&
+            id <= 2_147_483_647,
+        ),
+    ),
+  ];
+  const namesResponse = await capture("universe-order-locations", {
+    url: `${ESI}/universe/names/?datasource=tranquility`,
+    method: "POST",
+    body: locationIds,
+  });
+  if (!namesResponse.ok) {
+    throw new Error(`Order location names capture failed with ${namesResponse.status}`);
   }
   process.exit(0);
 }

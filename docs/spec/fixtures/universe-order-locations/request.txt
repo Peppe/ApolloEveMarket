@@ -1,0 +1,5 @@
+POST https://esi.evetech.net/latest/universe/names/?datasource=tranquility
+User-Agent: ApolloEveMarket-fixture-capture/0.2.0 (+https://github.com/Peppe/ApolloEveMarket)
+X-Compatibility-Date: 2020-01-01
+
+[60005593,60003760,60015260,60003469,60000358,60003754,60002749,60001801,60004081,60003073,60002359,60012667,60002353,60000967,60015027,60003769,60002956,60003457,60006880,60004222,60002290]

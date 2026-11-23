@@ -537,6 +537,8 @@ button:focus-visible,
 
 .order-book-table-wrap table {
   width: 100%;
+  min-width: 34rem;
+  table-layout: fixed;
   border-collapse: collapse;
   font: 0.68rem var(--font-roboto-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
@@ -557,6 +559,17 @@ button:focus-visible,
   background: var(--surface-raised);
   color: var(--muted-subtle);
   font-weight: 400;
+}
+
+.order-book-table-wrap th:last-child,
+.order-book-table-wrap td:last-child {
+  width: 8.5rem;
+}
+
+.order-book-table-wrap td.order-book-location {
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
 }
 
 .order-book-row {

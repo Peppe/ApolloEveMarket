@@ -30,16 +30,17 @@ making cumulative market depth easy to scan.
   truncate the book to a top-N set of orders. Respect the existing pagination
   safety limit and surface fetch failures rather than showing a partial book as
   complete.
-- Show buy orders on the left, sorted by descending price (best bid first), and
-  sell orders on the right, sorted by ascending price (best ask first). Within
-  a price level, sort by issue time, oldest first.
+- Show buy orders on the left and sell orders on the right. Sort both sides by
+  ascending price, then by issue time oldest first.
 - Each row represents one order. Show remaining quantity (`volume_remain`),
   per-unit price in ISK, age since issue time, and time until expiry derived
   from issue time plus order duration.
-- Cumulative total is quantity, not ISK. For a buy order, it includes all buy
-  quantities at that price or better; for a sell order, it includes all sell
-  quantities at that price or better. Orders at the same price level share the
-  same cumulative total and depth bar.
+- Cumulative total is quantity, not ISK. Accumulate each order in its displayed
+  order, including each individual order at the same price level.
+- Show the order's station/location name, truncated when it does not fit, with
+  the full name available in a tooltip. Use an explicit location ID label when
+  ESI does not return a name. Structure IDs that exceed the public names
+  endpoint's supported range cannot be resolved and are labeled as structures.
 - Draw cumulative-depth bars behind the rows, scaled independently for each
   side to that side's total available quantity. Use green for buys and red for
   sells. Make the buy bar grow inward from the center edge of the left table and
@@ -53,18 +54,21 @@ making cumulative market depth easy to scan.
 
 - [x] The existing Order book mode is enabled and displays the selected item's
   scoped orders without changing History behavior.
-- [x] Buy and sell orders are independently sorted in best-price-first order, with
+- [x] Buy and sell orders are independently sorted by ascending price, with
   individual orders retained and no price-level aggregation.
 - [x] Remaining quantity, per-unit price, issue age, and time remaining are shown
   for each order.
-- [x] Cumulative quantity and the depth bar include every order at the current
-  price level and all better price levels; same-price order rows agree.
+- [x] Cumulative quantity and the depth bar increment for every individual
+  order in displayed order, including orders at the same price.
+- [x] Station/location names are shown where resolvable, with truncated labels,
+  full-name tooltips, and explicit IDs for unresolved structure locations.
 - [x] The tables use the correct region, system, or station scope, including the
   custom region and global PLEX cases.
 - [x] ESI traffic remains server-side; cache and page-limit behavior are
   preserved, and incomplete pagination is reported as an error.
 - [x] Tests cover ordering, scope filtering, time derivation, cumulative totals
-  across price levels, and same-price orders using committed ESI fixtures.
+  across rows and same-price orders, and station-name resolution using
+  committed ESI fixtures.
 - [x] If an ESI page advertised by `X-Pages` disappears during pagination, return a
   visible error instead of treating the collected pages as a complete book.
 - [x] `npm run typecheck`, `npm test`, and `npm run build` pass.

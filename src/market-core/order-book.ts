@@ -9,6 +9,7 @@ export interface OrderBookFilter {
 
 export interface OrderBookRow {
   readonly orderId: number;
+  readonly locationId: number;
   readonly price: number;
   readonly volumeRemain: number;
   readonly issuedAt: number;
@@ -50,8 +51,8 @@ export function prepareOrderBook(
     (order.is_buy_order ? buyOrders : sellOrders).push(order);
   }
 
-  const buy = prepareSide(buyOrders, true, now);
-  const sell = prepareSide(sellOrders, false, now);
+  const buy = prepareSide(buyOrders, now);
+  const sell = prepareSide(sellOrders, now);
   return {
     buy: buy.rows,
     sell: sell.rows,
@@ -62,11 +63,10 @@ export function prepareOrderBook(
 
 function prepareSide(
   orders: readonly EsiOrder[],
-  isBuy: boolean,
   now: number,
 ): { readonly rows: readonly OrderBookRow[]; readonly total: number } {
   const sorted = [...orders].sort((a, b) => {
-    const priceOrder = isBuy ? b.price - a.price : a.price - b.price;
+    const priceOrder = a.price - b.price;
     if (priceOrder !== 0) return priceOrder;
     const issuedOrder = Date.parse(a.issued) - Date.parse(b.issued);
     return issuedOrder !== 0 ? issuedOrder : a.order_id - b.order_id;
@@ -75,40 +75,26 @@ function prepareSide(
   const rows: OrderBookRow[] = [];
   let cumulativeQuantity = 0;
 
-  for (let start = 0; start < sorted.length; ) {
-    const price = sorted[start]?.price;
-    if (price === undefined) break;
-
-    let end = start + 1;
-    let levelQuantity = sorted[start]?.volume_remain ?? 0;
-    while (end < sorted.length && sorted[end]?.price === price) {
-      levelQuantity += sorted[end]?.volume_remain ?? 0;
-      end += 1;
-    }
-    cumulativeQuantity += levelQuantity;
+  for (const order of sorted) {
+    cumulativeQuantity += order.volume_remain;
     const depthFraction = total === 0 ? 0 : cumulativeQuantity / total;
-
-    for (let index = start; index < end; index += 1) {
-      const order = sorted[index];
-      if (order === undefined) continue;
-      const issuedAt = Date.parse(order.issued);
-      if (!Number.isFinite(issuedAt) || !Number.isSafeInteger(order.duration)) {
-        throw new Error(`Order ${order.order_id} has invalid time data.`);
-      }
-      const expiresAt = issuedAt + order.duration * DAY_MS;
-      rows.push({
-        orderId: order.order_id,
-        price: order.price,
-        volumeRemain: order.volume_remain,
-        issuedAt,
-        expiresAt,
-        ageMs: Math.max(0, now - issuedAt),
-        remainingMs: expiresAt - now,
-        cumulativeQuantity,
-        depthFraction,
-      });
+    const issuedAt = Date.parse(order.issued);
+    if (!Number.isFinite(issuedAt) || !Number.isSafeInteger(order.duration)) {
+      throw new Error(`Order ${order.order_id} has invalid time data.`);
     }
-    start = end;
+    const expiresAt = issuedAt + order.duration * DAY_MS;
+    rows.push({
+      orderId: order.order_id,
+      locationId: order.location_id,
+      price: order.price,
+      volumeRemain: order.volume_remain,
+      issuedAt,
+      expiresAt,
+      ageMs: Math.max(0, now - issuedAt),
+      remainingMs: expiresAt - now,
+      cumulativeQuantity,
+      depthFraction,
+    });
   }
 
   return { rows, total };

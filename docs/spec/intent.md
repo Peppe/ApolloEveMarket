@@ -130,6 +130,10 @@ script and re-date it.
     Heavy Missile 209, Ishtar 12005.
 - `POST /universe/names/` maps ids back to names (systems, stations, types);
   used to label hubs and, later, order locations.
+- Verified 2026-11-23 with `universe-order-locations`: this endpoint resolves
+  station IDs from market orders. EVE structure location IDs can exceed the
+  endpoint's 32-bit integer range and cause a `400`; exclude those IDs from
+  name lookups and label them as structures in the order book.
 - `GET /universe/regions/` returns region ids; `POST /universe/names/` accepts
   those ids and returns entries marked `category: "region"`. Verified on
   2026-11-21 with `universe-regions` and `universe-region-names` fixtures.
@@ -253,8 +257,8 @@ and [rate-limit guidance](https://developers.eveonline.com/docs/services/esi/rat
 
 ## Fixtures inventory
 
-Captured 2026-11-19 with `node scripts/capture-fixtures.mjs`, plus the region
-catalogue on 2026-11-21 with `node scripts/capture-fixtures.mjs --regions`.
+Captured 2026-11-19 with `node scripts/capture-fixtures.mjs`, the region
+catalogue on 2026-11-21, and order location names on 2026-11-23.
 Each directory holds `request.txt`, `response.headers.txt` and (except for HEAD/304)
 `response.body.json`. **Fixtures are recorded reality: never edit them to
 make a test pass.** Re-capture instead, and update this table plus the facts
@@ -266,6 +270,7 @@ above in the same change.
 | `universe-names-hub-systems` | hub system ids and Jita 4-4 station id resolve to the names we claim |
 | `universe-regions`, `universe-region-names` | region ids resolve to names with category `region`; includes Heimatar and Syndicate |
 | `orders-forge-tritanium` | real order shape, 1000/page contract, both sides in one response |
+| `universe-order-locations` | public station location IDs from the order fixture resolve to names |
 | `orders-forge-tritanium-revalidate` | `If-None-Match` -> `304`, 0 bytes |
 | `orders-forge-tritanium-page2` | page past `X-Pages` -> `404` |
 | `orders-forge-plex-empty` | PLEX has no orders in The Forge regional market -> `200 []` |

@@ -10,6 +10,9 @@ const regionIdsFixture = readFixtureJson<number[]>("universe-regions");
 const regionNamesFixture = readFixtureJson<
   { readonly category: string; readonly id: number; readonly name: string }[]
 >("universe-region-names");
+const orderLocationsFixture = readFixtureJson<
+  { readonly id: number; readonly name: string }[]
+>("universe-order-locations");
 const historyFixture = readFixtureBody("history-forge-tritanium");
 
 function order(): EsiOrder {
@@ -152,5 +155,30 @@ describe("createLiveMarket wiring", () => {
     await market.resolveNames(["Tritanium", "Ishtar"]);
 
     expect(idsCalls).toBe(1);
+  });
+
+  it("resolves repeated order locations through a cached server-side request", async () => {
+    let namesCalls = 0;
+    const transport: Transport = async (url): Promise<HttpResponse> => {
+      if (url.includes("/universe/names/")) {
+        namesCalls += 1;
+        return {
+          status: 200,
+          headers: {},
+          body: JSON.stringify(orderLocationsFixture),
+        };
+      }
+      return { status: 200, headers: {}, body: "[]" };
+    };
+
+    const market = createLiveMarket({ transport });
+    const first = await market.getNames([60003760]);
+    const second = await market.getNames([60003760]);
+
+    expect(first).toContainEqual(
+      orderLocationsFixture.find((entry) => entry.id === 60003760),
+    );
+    expect(second).toEqual(first);
+    expect(namesCalls).toBe(1);
   });
 });
