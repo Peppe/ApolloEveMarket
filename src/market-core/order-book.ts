@@ -51,8 +51,8 @@ export function prepareOrderBook(
     (order.is_buy_order ? buyOrders : sellOrders).push(order);
   }
 
-  const buy = prepareSide(buyOrders, now);
-  const sell = prepareSide(sellOrders, now);
+  const buy = prepareSide(buyOrders, true, now);
+  const sell = prepareSide(sellOrders, false, now);
   return {
     buy: buy.rows,
     sell: sell.rows,
@@ -63,10 +63,11 @@ export function prepareOrderBook(
 
 function prepareSide(
   orders: readonly EsiOrder[],
+  isBuy: boolean,
   now: number,
 ): { readonly rows: readonly OrderBookRow[]; readonly total: number } {
   const sorted = [...orders].sort((a, b) => {
-    const priceOrder = a.price - b.price;
+    const priceOrder = isBuy ? b.price - a.price : a.price - b.price;
     if (priceOrder !== 0) return priceOrder;
     const issuedOrder = Date.parse(a.issued) - Date.parse(b.issued);
     return issuedOrder !== 0 ? issuedOrder : a.order_id - b.order_id;

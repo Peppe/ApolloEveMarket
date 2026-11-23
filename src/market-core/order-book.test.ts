@@ -7,11 +7,11 @@ const orders = readFixtureJson<EsiOrder[]>("orders-forge-tritanium");
 const now = Date.parse("2026-11-22T00:00:00Z");
 
 describe("prepareOrderBook", () => {
-  it("keeps individual orders and sorts both sides by ascending price", () => {
+  it("keeps individual orders and sorts bids high-first and asks low-first", () => {
     const book = prepareOrderBook(orders, {}, now);
     expect(book.buy).toHaveLength(orders.filter((order) => order.is_buy_order).length);
     expect(book.sell).toHaveLength(orders.filter((order) => !order.is_buy_order).length);
-    expect(book.buy[0]?.price).toBe(Math.min(...book.buy.map((order) => order.price)));
+    expect(book.buy[0]?.price).toBe(Math.max(...book.buy.map((order) => order.price)));
     expect(book.sell[0]?.price).toBe(Math.min(...book.sell.map((order) => order.price)));
     expect(book.buy.map((order) => order.orderId).sort((a, b) => a - b)).toEqual(
       orders
@@ -20,7 +20,7 @@ describe("prepareOrderBook", () => {
         .sort((a, b) => a - b),
     );
     expect(new Set(book.sell.map((order) => order.orderId)).size).toBe(book.sell.length);
-    for (const rows of [book.buy, book.sell]) {
+    for (const [rows, isBuy] of [[book.buy, true], [book.sell, false]] as const) {
       for (let index = 1; index < rows.length; index += 1) {
         const previous = rows[index - 1];
         const current = rows[index];
@@ -29,6 +29,8 @@ describe("prepareOrderBook", () => {
         }
         if (previous.price === current.price) {
           expect(previous.issuedAt).toBeLessThanOrEqual(current.issuedAt);
+        } else if (isBuy) {
+          expect(previous.price).toBeGreaterThan(current.price);
         } else {
           expect(previous.price).toBeLessThan(current.price);
         }

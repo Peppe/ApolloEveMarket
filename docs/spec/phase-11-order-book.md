@@ -30,8 +30,10 @@ making cumulative market depth easy to scan.
   truncate the book to a top-N set of orders. Respect the existing pagination
   safety limit and surface fetch failures rather than showing a partial book as
   complete.
-- Show buy orders on the left and sell orders on the right. Sort both sides by
-  ascending price, then by issue time oldest first.
+- Show buy orders on the left sorted by descending price (highest bid first)
+  and sell orders on the right sorted by ascending price (lowest ask first).
+  Within each price, sort by issue time oldest first so the first row on each
+  side is the closest executable price.
 - Each row represents one order. Show remaining quantity (`volume_remain`),
   per-unit price in ISK, age since issue time, and time until expiry derived
   from issue time plus order duration.
@@ -54,8 +56,8 @@ making cumulative market depth easy to scan.
 
 - [x] The existing Order book mode is enabled and displays the selected item's
   scoped orders without changing History behavior.
-- [x] Buy and sell orders are independently sorted by ascending price, with
-  individual orders retained and no price-level aggregation.
+- [x] Buy orders are sorted by descending price and sell orders by ascending
+  price, with individual orders retained and no price-level aggregation.
 - [x] Remaining quantity, per-unit price, issue age, and time remaining are shown
   for each order.
 - [x] Cumulative quantity and the depth bar increment for every individual
