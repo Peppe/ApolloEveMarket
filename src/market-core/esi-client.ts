@@ -175,9 +175,13 @@ export function createEsiClient(options: EsiClientOptions): EsiClient {
     for (let page = 2; page <= pages; page += 1) {
       const url = ordersUrl(regionId, typeId, page);
       const response = await transport(url, { headers: baseHeaders });
-      // A page past the end answers 404. Keep what we collected rather than
-      // failing the whole item; the next refresh will re-read X-Pages.
-      if (response.status === 404) break;
+      if (response.status === 404) {
+        throw new EsiError(
+          "market orders page disappeared during pagination",
+          response.status,
+          url,
+        );
+      }
       if (response.status !== 200) {
         throw new EsiError(describe(response), response.status, url);
       }

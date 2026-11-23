@@ -16,6 +16,8 @@ export type { EsiIdEntry, EsiIdsResponse, EsiOrder, EsiTypeInfo } from "./esi-ty
 export type { EsiMarketHistory } from "./esi-types";
 export { aggregateHistory, defaultHistoryRange } from "./history";
 export type { HistoryRangeBar, HistoryUnit } from "./history";
+export { prepareOrderBook } from "./order-book";
+export type { OrderBook, OrderBookFilter, OrderBookRow } from "./order-book";
 export { createEsiHistoryClient } from "./history-client";
 export type { EsiHistoryClient, EsiHistoryClientOptions } from "./history-client";
 export { HUBS, HUB_KEYS } from "./hubs";

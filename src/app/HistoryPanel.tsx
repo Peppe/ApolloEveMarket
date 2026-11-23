@@ -36,7 +36,10 @@ import {
   historyTrend,
   showAverageMarker,
 } from "./history-chart";
-import { MarketPanelHost } from "./MarketPanelHost";
+import {
+  MarketPanelHost,
+  type MarketPanelMode,
+} from "./MarketPanelHost";
 
 ChartJS.register(
   BarController,
@@ -65,6 +68,8 @@ interface HistoryPanelProps {
   readonly itemName: string;
   readonly hubKey: HubKey | "custom";
   readonly customRegionId?: number;
+  readonly panelMode: MarketPanelMode;
+  readonly onPanelModeChange: (mode: MarketPanelMode) => void;
 }
 
 const DEFAULT_SETTINGS: ChartSettings = {
@@ -437,6 +442,8 @@ export function HistoryPanel({
   itemName,
   hubKey,
   customRegionId,
+  panelMode,
+  onPanelModeChange,
 }: HistoryPanelProps) {
   const [result, setResult] = useState<MarketHistoryResult | null>(null);
   const [settings, setSettings] = useState<ChartSettings>(DEFAULT_SETTINGS);
@@ -562,6 +569,8 @@ export function HistoryPanel({
       panelId={panelId}
       title={`${itemName} market history`}
       scope={result?.status === "ok" ? result.scope : undefined}
+      mode={panelMode}
+      onModeChange={onPanelModeChange}
     >
       {result === null && (
         <p className="history-message" role="status" aria-live="polite">

@@ -20,6 +20,8 @@ change that implements them.
   would receive (best buy/bid) - plus totals for the whole paste.
 - Item price cells open daily regional price history with a high-low range,
   average marker, and linked volume chart.
+- Item price cells can also show the live, scoped buy and sell order books with
+  per-order details and cumulative depth.
 - Appraisals are shareable with a URL that restores the inventory and selected
   price scope, then fetches current prices when opened.
 - The comparison keeps Jita, Dodixie, Amarr, and Hek fixed, with a fifth,
@@ -39,10 +41,10 @@ change that implements them.
 - Not a trading bot, order placer, or contract tool. Read-only market data.
 - Not an authenticated app: no SSO, no character scopes, no assets, no
   wallet. Nothing on this site requires an EVE login.
-- Not a full market browser (category trees, order-book depth per station)
-  in the MVP. Those are later phases if they earn their keep.
-- No order-book depth panel, chart indicators, annotations, or chart export.
-  The history panel covers daily ESI market summaries only.
+- Not a full market browser (category trees or arbitrary station browsing) in
+  the MVP. Those are later phases if they earn their keep.
+- No chart indicators, annotations, or chart export. The history panel covers
+  daily ESI market summaries only.
 - Shared appraisal URLs do not store inventory on the server and do not contain
   saved prices. They carry compressed inventory and scope in a self-contained
   versioned URL fragment; no database or Redis store is required.
@@ -287,6 +289,7 @@ above in the same change.
 | 8 | Inline market history, range and average chart, linked volume, saved range settings | `phase-8-market-history-panel.md` | done |
 | 9 | Self-contained share links with compressed inventory and scope | `phase-9-shareable-appraisals.md` | done |
 | 10 | Searchable custom region in the fifth comparison column | `phase-10-custom-region-column.md` | done |
+| 11 | Live, per-order buy/sell books with cumulative market depth | `phase-11-order-book.md` | done |
 
 Ordering constraints: phase 1 must be testable with no network (fixtures);
 phase 2 must not add ESI calls of its own; phase 3 must not change prices,
