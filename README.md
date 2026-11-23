@@ -40,6 +40,8 @@ means no orders on that side in that scope.
 Switching re-prices from the same cached orders. Click any item price cell to
 open regional daily high-low history with an average marker and linked volume.
 Candle size and date range are shared across graphs and saved in this browser.
+Switch to Order book in the same panel to compare scoped buy and sell orders,
+with per-order quantity, price, age, time remaining, and cumulative depth.
 After appraising, the URL fragment contains a self-contained compressed copy of
 the inventory and price scope. Share the URL to restore and re-price it with
 current ESI data; the link contains no saved prices and is not private.
@@ -55,7 +57,7 @@ public endpoints need none.
 
 ```sh
 npx vercel login      # once, interactive
-npx vercel --prod --yes
+npx vercel --prod --yes --name apolloevemarket
 ```
 
 `maxDuration = 60` on the page gives a cold appraisal enough time to walk the
