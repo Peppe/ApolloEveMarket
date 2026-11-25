@@ -313,11 +313,22 @@ function Results({
             </tr>
           </thead>
           <tbody>
-            {view.rows.map((row) => {
+            {view.entries.map((entry, entryIndex) => {
+              if (entry.type === "header") {
+                return (
+                  <tr className="category-heading" key={`header-${entryIndex}`}>
+                    <th colSpan={3 + view.hubs.length} scope="row">
+                      {entry.title}
+                    </th>
+                  </tr>
+                );
+              }
+              const row = view.rows[entry.rowIndex];
+              if (row === undefined) return null;
               const sellerPrices = row.cells.map((cell) => cell.sell);
               const buyerPrices = row.cells.map((cell) => cell.buy);
               return (
-                <Fragment key={row.name}>
+                <Fragment key={`item-${entry.rowIndex}`}>
                   <tr className="seller-row">
                     <th rowSpan={2} scope="row">
                       <span className="item-identity">

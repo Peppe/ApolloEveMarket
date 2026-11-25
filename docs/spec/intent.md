@@ -24,6 +24,8 @@ change that implements them.
   per-order details and cumulative depth.
 - Appraisals are shareable with a URL that restores the inventory and selected
   price scope, then fetches current prices when opened.
+- Inventory lines beginning with `# ` can label visual categories in the
+  results table.
 - The comparison keeps Jita, Dodixie, Amarr, and Hek fixed, with a fifth,
   searchable region column that defaults to Rens.
 - **Correct before clever.** Prices are derived from live ESI orders, and the
@@ -66,6 +68,9 @@ change that implements them.
 |                   | Buyers  | 4.06 | ...     | ...   |        |
 | Hobgoblin I     10| Sellers | ...  | ...     | ...   |        |
 |                   | Buyers  | ...  | ...     | ...   |        |
+| Gallente                                                     |
+| Federation Navy Comet  1 | Sellers | ...  | ...   | ...       |
+|                          | Buyers  | ...  | ...   | ...       |
 +--------------------------------------------------------------+
 | total             | Sellers | ... | ...     | ...   |        |
 |                   | Buyers  | ... | ...     | ...   |        |

@@ -123,6 +123,42 @@ describe("appraise", () => {
     expect(result.rejected[0]?.reason).toContain("ambiguous decimal");
   });
 
+  it("preserves category order and omits headings with no priced items", async () => {
+    const result = await appraise(
+      [
+        "Tritanium",
+        "# Empty category",
+        "Not An Item",
+        "# Caldari",
+        "Hobgoblin I",
+        "# Gallente",
+        "Tritanium 2",
+      ].join("\n"),
+      {
+        ...deps(),
+        resolveNames: async (names): Promise<ResolveResult> => {
+          const types = new Map<string, { typeId: number; name: string }>();
+          for (const name of names) {
+            if (name.toLowerCase() === "tritanium") {
+              types.set("tritanium", { typeId: 34, name: "Tritanium" });
+            }
+            if (name.toLowerCase() === "hobgoblin i") {
+              types.set("hobgoblin i", { typeId: 2454, name: "Hobgoblin I" });
+            }
+          }
+          return { types, unresolved: ["not an item"] };
+        },
+      },
+    );
+
+    expect(result.entries).toEqual([
+      { type: "item", itemIndex: 0 },
+      { type: "header", title: "Caldari" },
+      { type: "item", itemIndex: 1 },
+    ]);
+    expect(result.items.map((item) => item.quantity)).toEqual([3, 1]);
+  });
+
   it("keeps input order and prices nothing when the paste resolves to nothing", async () => {
     const result = await appraise("Not An Item 1", deps());
     expect(result.items).toEqual([]);

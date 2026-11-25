@@ -12,7 +12,10 @@ import {
   type MarketRegion,
 } from "./regions";
 import { normalizeName, type ResolveResult } from "./resolve";
-import { parseInventory, type RejectedLine } from "./parse";
+import {
+  parseInventory,
+  type RejectedLine,
+} from "./parse";
 
 export interface AppraiseDeps {
   readonly getOrders: (
@@ -67,6 +70,7 @@ export interface AppraiseOptions {
 
 export interface AppraiseResult {
   readonly items: readonly ItemPrice[];
+  readonly entries: readonly AppraiseResultEntry[];
   readonly rejected: readonly RejectedLine[];
   readonly unresolved: readonly UnresolvedItem[];
   readonly totals: Readonly<Record<HubKey, HubTotal>>;
@@ -74,6 +78,10 @@ export interface AppraiseResult {
   readonly customRegion: MarketRegion;
   readonly priceMode: PriceMode;
 }
+
+export type AppraiseResultEntry =
+  | { readonly type: "header"; readonly title: string }
+  | { readonly type: "item"; readonly itemIndex: number };
 
 const DEFAULT_CONCURRENCY = 6;
 const PLEX_TYPE_ID = 44992;
@@ -204,6 +212,24 @@ export async function appraise(
     hubs: results.get(entry.parsedIndex)?.hubs ?? emptyBooks(hubs),
     custom: results.get(entry.parsedIndex)?.custom ?? emptyBook(),
   }));
+  const pricedItemIndexes = new Map(
+    priced.map((entry, itemIndex) => [entry.parsedIndex, itemIndex]),
+  );
+  const resultEntries: AppraiseResultEntry[] = [];
+  let pendingHeader: string | null = null;
+  for (const entry of parsed.entries) {
+    if (entry.type === "header") {
+      pendingHeader = entry.title;
+      continue;
+    }
+    const itemIndex = pricedItemIndexes.get(entry.itemIndex);
+    if (itemIndex === undefined) continue;
+    if (pendingHeader !== null) {
+      resultEntries.push({ type: "header", title: pendingHeader });
+      pendingHeader = null;
+    }
+    resultEntries.push({ type: "item", itemIndex });
+  }
 
   const totals: Record<HubKey, MutableTotal> = emptyTotals(hubs);
   const customTotal: MutableTotal = {
@@ -230,6 +256,7 @@ export async function appraise(
 
   return {
     items,
+    entries: resultEntries,
     rejected: parsed.rejected,
     unresolved,
     totals,

@@ -3,6 +3,7 @@ export type {
   AppraiseDeps,
   AppraiseOptions,
   AppraiseResult,
+  AppraiseResultEntry,
   HubTotal,
   ItemPrice,
   PriceMode,
@@ -57,7 +58,12 @@ export type {
   ResolveResult,
 } from "./resolve";
 export { parseInventory } from "./parse";
-export type { ParseResult, ParsedItem, RejectedLine } from "./parse";
+export type {
+  ParseResult,
+  ParsedInventoryEntry,
+  ParsedItem,
+  RejectedLine,
+} from "./parse";
 export {
   MAX_INVENTORY_ITEMS,
   MAX_INVENTORY_LENGTH,

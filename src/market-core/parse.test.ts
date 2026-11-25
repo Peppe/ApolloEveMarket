@@ -17,6 +17,56 @@ describe("parseInventory", () => {
     expect(result.items).toEqual([{ name: "Tritanium", quantity: 5 }]);
   });
 
+  it("parses category headings in order without treating them as items", () => {
+    const result = parseInventory(
+      "Tritanium 2\n# Gallente\nFederation Navy Comet 1\n",
+    );
+
+    expect(result.items).toEqual([
+      { name: "Tritanium", quantity: 2 },
+      { name: "Federation Navy Comet", quantity: 1 },
+    ]);
+    expect(result.entries).toEqual([
+      { type: "item", itemIndex: 0 },
+      { type: "header", title: "Gallente" },
+      { type: "item", itemIndex: 1 },
+    ]);
+    expect(result.rejected).toEqual([]);
+  });
+
+  it("trims heading text and rejects headings without a title", () => {
+    const result = parseInventory("  #   Gallente Ships   \n#   \nTritanium");
+
+    expect(result.entries).toEqual([
+      { type: "header", title: "Gallente Ships" },
+      { type: "item", itemIndex: 0 },
+    ]);
+    expect(result.rejected).toEqual([
+      {
+        line: 2,
+        raw: "#   ",
+        reason: "section heading must include a title",
+      },
+    ]);
+  });
+
+  it("keeps duplicate items merged at their first input position and category", () => {
+    const result = parseInventory(
+      "# Gallente\nTritanium 2\n# Caldari\ntritanium 3\nHobgoblin I",
+    );
+
+    expect(result.items).toEqual([
+      { name: "Tritanium", quantity: 5 },
+      { name: "Hobgoblin I", quantity: 1 },
+    ]);
+    expect(result.entries).toEqual([
+      { type: "header", title: "Gallente" },
+      { type: "item", itemIndex: 0 },
+      { type: "header", title: "Caldari" },
+      { type: "item", itemIndex: 1 },
+    ]);
+  });
+
   it("accepts thousands separators", () => {
     const result = parseInventory("Tritanium\t1,000,000");
     expect(result.items).toEqual([{ name: "Tritanium", quantity: 1_000_000 }]);

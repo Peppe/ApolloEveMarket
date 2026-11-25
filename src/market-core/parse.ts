@@ -17,8 +17,13 @@ export interface RejectedLine {
   readonly reason: string;
 }
 
+export type ParsedInventoryEntry =
+  | { readonly type: "header"; readonly title: string }
+  | { readonly type: "item"; readonly itemIndex: number };
+
 export interface ParseResult {
   readonly items: readonly ParsedItem[];
+  readonly entries: readonly ParsedInventoryEntry[];
   readonly rejected: readonly RejectedLine[];
 }
 
@@ -49,6 +54,7 @@ function parseQuantity(token: string): { ok: true; value: number } | { ok: false
 
 export function parseInventory(text: string): ParseResult {
   const items = new Map<string, ParsedItem>();
+  const entries: ParsedInventoryEntry[] = [];
   const rejected: RejectedLine[] = [];
 
   const lines = text.split(/\r?\n/);
@@ -56,6 +62,21 @@ export function parseInventory(text: string): ParseResult {
   lines.forEach((raw, index) => {
     const line = raw.trim();
     if (line === "") return;
+
+    const unindented = raw.trimStart();
+    if (unindented.startsWith("# ")) {
+      const title = unindented.slice(2).trim();
+      if (title === "") {
+        rejected.push({
+          line: index + 1,
+          raw,
+          reason: "section heading must include a title",
+        });
+        return;
+      }
+      entries.push({ type: "header", title });
+      return;
+    }
 
     let name: string;
     let quantityToken: string | null = null;
@@ -100,8 +121,9 @@ export function parseInventory(text: string): ParseResult {
       items.set(key, { name: existing.name, quantity: existing.quantity + quantity });
     } else {
       items.set(key, { name, quantity });
+      entries.push({ type: "item", itemIndex: items.size - 1 });
     }
   });
 
-  return { items: [...items.values()], rejected };
+  return { items: [...items.values()], entries, rejected };
 }

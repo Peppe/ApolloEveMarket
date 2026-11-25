@@ -37,6 +37,10 @@ export interface AppraiseRow {
   readonly cells: readonly PriceCell[];
 }
 
+export type AppraiseTableEntry =
+  | { readonly type: "header"; readonly title: string }
+  | { readonly type: "item"; readonly rowIndex: number };
+
 export interface TotalsRow {
   readonly buy: number;
   readonly sell: number;
@@ -57,6 +61,7 @@ export interface AppraiseView {
   readonly customRegion: MarketRegion;
   readonly hubs: readonly HubColumn[];
   readonly rows: readonly AppraiseRow[];
+  readonly entries: readonly AppraiseTableEntry[];
   readonly totals: readonly TotalsRow[];
   readonly rejected: readonly { line: number; raw: string; reason: string }[];
   readonly unresolved: readonly { name: string; quantity: number }[];
@@ -330,6 +335,11 @@ export async function appraiseAction(
           },
         ],
       })),
+      entries: result.entries.map((entry) =>
+        entry.type === "header"
+          ? { type: "header", title: entry.title }
+          : { type: "item", rowIndex: entry.itemIndex },
+      ),
       totals: [
         ...HUBS.map((hub) => {
           const total = result.totals[hub.key];
